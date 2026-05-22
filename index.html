@@ -1,0 +1,857 @@
+<!DOCTYPE html>
+<html lang="de-CH">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Versicherungskompass — Vorsorge-Analyse</title>
+  <link rel="stylesheet" href="css/styles.css">
+  <style>
+    /* ── BERATER MODAL ── */
+    .modal-overlay {
+      display: none;
+      position: fixed; inset: 0;
+      background: rgba(30,43,33,0.55);
+      backdrop-filter: blur(3px);
+      z-index: 500;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+    .modal-overlay.open { display: flex; }
+    .modal-box {
+      background: var(--white-pure);
+      border-radius: var(--radius-xl);
+      box-shadow: var(--shadow-lg);
+      width: 100%;
+      max-width: 680px;
+      max-height: 85vh;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+    .modal-header {
+      padding: var(--space-lg);
+      border-bottom: 1px solid var(--gray-light);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: var(--primary);
+      color: var(--white-pure);
+    }
+    .modal-header h2 {
+      font-family: var(--font-display);
+      font-size: 18px;
+      font-weight: 500;
+      color: var(--white-pure);
+    }
+    .modal-body { padding: var(--space-lg); overflow-y: auto; flex: 1; }
+    .modal-footer {
+      padding: var(--space-md) var(--space-lg);
+      border-top: 1px solid var(--gray-light);
+      display: flex;
+      justify-content: flex-end;
+      gap: var(--space-sm);
+      background: var(--white-warm);
+    }
+    .berater-modal-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: var(--space-md);
+      padding: var(--space-md);
+      border: 1px solid var(--gray-light);
+      border-radius: var(--radius-md);
+      margin-bottom: var(--space-sm);
+      background: var(--white-warm);
+      transition: border-color var(--transition);
+    }
+    .berater-modal-item:hover { border-color: var(--primary); }
+    .berater-modal-info {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+      flex: 1;
+      min-width: 0;
+    }
+    .berater-modal-info strong { font-size: 14px; color: var(--black); }
+    .berater-modal-info span { font-size: 11px; color: var(--gray-mid); }
+    .berater-modal-actions { display: flex; gap: var(--space-xs); flex-shrink: 0; }
+    .berater-anzeige-bar {
+      display: flex;
+      align-items: center;
+      gap: var(--space-sm);
+      padding: var(--space-sm) var(--space-md);
+      background: var(--primary-light);
+      border-radius: var(--radius-md);
+      margin-bottom: var(--space-md);
+    }
+    .berater-anzeige-name {
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--primary);
+      flex: 1;
+    }
+
+    /* ── LFZ INFO MODAL ── */
+    .lfz-table { width: 100%; border-collapse: collapse; font-size: 12px; }
+    .lfz-table th {
+      background: var(--primary); color: white;
+      padding: 6px 10px; text-align: left; font-weight: 500;
+    }
+    .lfz-table td { padding: 5px 10px; border-bottom: 1px solid var(--gray-light); }
+    .lfz-table tr:last-child td { border-bottom: none; }
+    .lfz-table tr:nth-child(even) td { background: var(--white-warm); }
+    .lfz-tabs { display: flex; gap: var(--space-sm); margin-bottom: var(--space-md); }
+    .lfz-tab {
+      padding: 6px 16px; border: 1px solid var(--gray-light);
+      border-radius: var(--radius-md); cursor: pointer;
+      font-size: 12px; font-weight: 500; background: var(--white-pure);
+      color: var(--gray-mid); transition: all var(--transition);
+    }
+    .lfz-tab.active { background: var(--primary); color: white; border-color: var(--primary); }
+  </style>
+</head>
+<body>
+<div class="app-wrapper">
+
+  <!-- HEADER -->
+  <header class="app-header">
+    <div class="app-header-inner">
+      <div class="app-logo">Versicherungs<span>kompass</span></div>
+      <div class="header-actions">
+        <button class="btn btn-ghost btn-sm" id="btn-load">📂 Laden</button>
+        <button class="btn btn-ghost btn-sm" id="btn-save">💾 Speichern</button>
+        <button class="btn btn-accent btn-sm" id="btn-export">📄 Export</button>
+      </div>
+    </div>
+  </header>
+
+  <!-- STEPPER -->
+  <nav class="stepper">
+    <div class="stepper-inner" id="stepper"></div>
+  </nav>
+
+  <!-- MAIN -->
+  <main class="main-content">
+
+    <!-- ══ SCHRITT 1: GRUNDLAGEN ══ -->
+    <div class="section-panel" id="panel-grundlagen">
+      <div class="page-title">
+        <div class="page-overline">Schritt 1</div>
+        <h1 class="page-heading">Grundlagen <em>&amp; Personalien</em></h1>
+        <p class="page-description">Berater, Personendaten, Einkommen und Kinder erfassen</p>
+      </div>
+
+      <!-- BERATER -->
+      <div class="card" style="margin-bottom:var(--space-lg)">
+        <div class="card-header">
+          <div class="card-title">
+            <span class="card-title-icon">👔</span>
+            Berater / Beraterin
+          </div>
+          <div style="display:flex;align-items:center;gap:var(--space-sm)">
+            <span style="font-size:11px;color:var(--gray-mid)">Erstellt am</span>
+            <input type="text" id="erstellt-am" class="form-input date-ch"
+                   style="width:120px;font-size:12px;padding:6px 10px">
+          </div>
+        </div>
+        <div class="card-body">
+
+          <!-- Berater Auswahl-Bar -->
+          <div class="berater-anzeige-bar">
+            <span style="font-size:11px;color:var(--gray-mid);white-space:nowrap">Aktiver Berater:</span>
+            <span class="berater-anzeige-name" id="berater-anzeige">— noch nicht gewählt —</span>
+            <button class="btn btn-primary btn-sm" id="btn-berater-verwalten">
+              👥 Beraterliste verwalten
+            </button>
+          </div>
+
+          <!-- Berater Felder -->
+          <div class="grid-3" style="gap:var(--space-md)">
+            <div class="form-group">
+              <label class="form-label">Vorname</label>
+              <input type="text" id="berater-vorname" class="form-input" placeholder="Roberto">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Name</label>
+              <input type="text" id="berater-name" class="form-input" placeholder="Valentini">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Titel (optional)</label>
+              <input type="text" id="berater-titel" class="form-input" placeholder="z.B. eidg. dipl.">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Firma</label>
+              <input type="text" id="berater-firma" class="form-input" placeholder="Versicherungskompass">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Telefon</label>
+              <input type="tel" id="berater-telefon" class="form-input" placeholder="+41 41 000 00 00">
+            </div>
+            <div class="form-group">
+              <label class="form-label">E-Mail</label>
+              <input type="email" id="berater-email" class="form-input" placeholder="roberto@versicherungskompass.ch">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Strasse / Nr.</label>
+              <input type="text" id="berater-strasse" class="form-input" placeholder="Musterstrasse 1">
+            </div>
+            <div class="form-group">
+              <label class="form-label">PLZ</label>
+              <input type="text" id="berater-plz" class="form-input" placeholder="6000">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Ort</label>
+              <input type="text" id="berater-ort" class="form-input" placeholder="Luzern">
+            </div>
+          </div>
+
+          <div style="margin-top:var(--space-md);display:flex;gap:var(--space-sm)">
+            <button class="btn btn-outline btn-sm" id="btn-berater-speichern">
+              💾 In Beraterliste speichern
+            </button>
+            <span style="font-size:11px;color:var(--gray-mid);align-self:center">
+              Gespeicherte Berater können beim nächsten Mal direkt gewählt werden
+            </span>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- PERSONEN -->
+      <div class="card" style="margin-bottom:var(--space-lg)">
+        <div class="card-header">
+          <div class="card-title">
+            <span class="card-title-icon">👥</span>
+            Kunden
+          </div>
+        </div>
+        <div class="card-body">
+
+          <div class="buyer-grid">
+            <!-- Header -->
+            <div></div>
+            <div style="padding-bottom:var(--space-sm);border-bottom:2px solid var(--primary-light)">
+              <span class="person-badge person-1">Person 1</span>
+              <span style="font-size:10px;color:var(--gray-mid);margin-left:6px">Hauptperson</span>
+            </div>
+            <div style="padding-bottom:var(--space-sm);border-bottom:2px solid var(--accent-light)">
+              <span class="person-badge person-2">Person 2</span>
+              <span style="font-size:10px;color:var(--gray-mid);margin-left:6px">Partner/in</span>
+            </div>
+
+            <!-- PERSONALIEN -->
+            <div class="buyer-separator" style="grid-column:1/-1">
+              <span class="buyer-separator-label">Personalien</span>
+            </div>
+
+            <div class="buyer-row-label">Vorname</div>
+            <div><input type="text" id="p1-vorname" class="form-input" placeholder="Roberto"></div>
+            <div><input type="text" id="p2-vorname" class="form-input" placeholder="Iuliia"></div>
+
+            <div class="buyer-row-label">Name</div>
+            <div><input type="text" id="p1-nachname" class="form-input" placeholder="Valentini"></div>
+            <div><input type="text" id="p2-nachname" class="form-input" placeholder="Valentini"></div>
+
+            <div class="buyer-row-label">Geburtsdatum</div>
+            <div><input type="text" id="p1-geburt" class="form-input date-ch"
+                        oninput="updatePersonInfo('p1')"></div>
+            <div><input type="text" id="p2-geburt" class="form-input date-ch"
+                        oninput="updatePersonInfo('p2')"></div>
+
+            <div class="buyer-row-label">Alter</div>
+            <div><div class="info-badge" id="p1-alter-display">— Jahre</div></div>
+            <div><div class="info-badge" id="p2-alter-display">— Jahre</div></div>
+
+            <div class="buyer-row-label">Geschlecht</div>
+            <div>
+              <select id="p1-geschlecht" class="form-input">
+                <option value="">— Wählen —</option>
+                <option value="maennlich">Männlich</option>
+                <option value="weiblich">Weiblich</option>
+              </select>
+            </div>
+            <div>
+              <select id="p2-geschlecht" class="form-input">
+                <option value="">— Wählen —</option>
+                <option value="maennlich">Männlich</option>
+                <option value="weiblich">Weiblich</option>
+              </select>
+            </div>
+
+            <div class="buyer-row-label">Zivilstand</div>
+            <div>
+              <select id="p1-zivilstand" class="form-input" onchange="updateZivilstand()">
+                <option value="">— Wählen —</option>
+                <option value="ledig">Ledig</option>
+                <option value="verheiratet">Verheiratet</option>
+                <option value="eingetragene_partnerschaft">Eingetragene Partnerschaft</option>
+                <option value="konkubinat">Konkubinat</option>
+                <option value="geschieden">Geschieden</option>
+                <option value="verwitwet">Verwitwet</option>
+              </select>
+            </div>
+            <div>
+              <select id="p2-zivilstand" class="form-input">
+                <option value="">— Wählen —</option>
+                <option value="ledig">Ledig</option>
+                <option value="verheiratet">Verheiratet</option>
+                <option value="eingetragene_partnerschaft">Eingetragene Partnerschaft</option>
+                <option value="konkubinat">Konkubinat</option>
+                <option value="geschieden">Geschieden</option>
+                <option value="verwitwet">Verwitwet</option>
+              </select>
+            </div>
+
+            <div class="buyer-row-label" id="label-partnerschaft">Verheiratet seit</div>
+            <div><input type="text" id="p1-partnerschaft-datum" class="form-input date-ch"></div>
+            <div></div>
+
+            <div class="buyer-row-label">Ausbildung</div>
+            <div>
+              <select id="p1-ausbildung" class="form-input">
+                <option value="">— Wählen —</option>
+                <option value="obligatorisch">Obligatorische Schule</option>
+                <option value="anlehre">Anlehre / EBA</option>
+                <option value="efz">Berufslehre EFZ</option>
+                <option value="bms">Berufsmaturität</option>
+                <option value="gymnasium">Gymnasium / Matura</option>
+                <option value="hf">Höhere Fachschule HF</option>
+                <option value="fh">Fachhochschule FH</option>
+                <option value="uni">Universität / ETH</option>
+                <option value="doktorat">Doktorat / PhD</option>
+              </select>
+            </div>
+            <div>
+              <select id="p2-ausbildung" class="form-input">
+                <option value="">— Wählen —</option>
+                <option value="obligatorisch">Obligatorische Schule</option>
+                <option value="anlehre">Anlehre / EBA</option>
+                <option value="efz">Berufslehre EFZ</option>
+                <option value="bms">Berufsmaturität</option>
+                <option value="gymnasium">Gymnasium / Matura</option>
+                <option value="hf">Höhere Fachschule HF</option>
+                <option value="fh">Fachhochschule FH</option>
+                <option value="uni">Universität / ETH</option>
+                <option value="doktorat">Doktorat / PhD</option>
+              </select>
+            </div>
+
+            <!-- ARBEIT & EINKOMMEN -->
+            <div class="buyer-separator" style="grid-column:1/-1">
+              <span class="buyer-separator-label">Arbeit &amp; Einkommen</span>
+            </div>
+
+            <div class="buyer-row-label">Erwerbsstatus</div>
+            <div>
+              <select id="p1-erwerbsstatus" class="form-input">
+                <option value="">— Wählen —</option>
+                <option value="angestellt">Angestellt</option>
+                <option value="selbstaendig">Selbständig</option>
+                <option value="teilzeit">Teilzeit angestellt</option>
+                <option value="student">Student/in</option>
+                <option value="rentner">Rentner/in</option>
+                <option value="nichterwerbstaetig">Nicht erwerbstätig</option>
+              </select>
+            </div>
+            <div>
+              <select id="p2-erwerbsstatus" class="form-input">
+                <option value="">— Wählen —</option>
+                <option value="angestellt">Angestellt</option>
+                <option value="selbstaendig">Selbständig</option>
+                <option value="teilzeit">Teilzeit angestellt</option>
+                <option value="student">Student/in</option>
+                <option value="rentner">Rentner/in</option>
+                <option value="nichterwerbstaetig">Nicht erwerbstätig</option>
+              </select>
+            </div>
+
+            <div class="buyer-row-label">Beruf / Funktion</div>
+            <div><input type="text" id="p1-beruf" class="form-input" placeholder="z.B. Projektleiter IT"></div>
+            <div><input type="text" id="p2-beruf" class="form-input" placeholder="z.B. Geschäftsführerin"></div>
+
+            <div class="buyer-row-label">Arbeitgeber</div>
+            <div><input type="text" id="p1-arbeitgeber" class="form-input" placeholder="Firma AG"></div>
+            <div><input type="text" id="p2-arbeitgeber" class="form-input" placeholder="Bonamente GmbH"></div>
+
+            <div class="buyer-row-label">Kanton (Arbeit)</div>
+            <div>
+              <select id="p1-kanton" class="form-input" onchange="updateLohnfortzahlung('p1')">
+                <option value="">— Wählen —</option>
+                <option value="AG">AG – Aargau</option><option value="AI">AI – Appenzell Innerrhoden</option>
+                <option value="AR">AR – Appenzell Ausserrhoden</option><option value="BE">BE – Bern</option>
+                <option value="BL">BL – Basel-Landschaft</option><option value="BS">BS – Basel-Stadt</option>
+                <option value="FR">FR – Freiburg</option><option value="GE">GE – Genf</option>
+                <option value="GL">GL – Glarus</option><option value="GR">GR – Graubünden</option>
+                <option value="JU">JU – Jura</option><option value="LU">LU – Luzern</option>
+                <option value="NE">NE – Neuenburg</option><option value="NW">NW – Nidwalden</option>
+                <option value="OW">OW – Obwalden</option><option value="SG">SG – St. Gallen</option>
+                <option value="SH">SH – Schaffhausen</option><option value="SO">SO – Solothurn</option>
+                <option value="SZ">SZ – Schwyz</option><option value="TG">TG – Thurgau</option>
+                <option value="TI">TI – Tessin</option><option value="UR">UR – Uri</option>
+                <option value="VD">VD – Waadt</option><option value="VS">VS – Wallis</option>
+                <option value="ZG">ZG – Zug</option><option value="ZH">ZH – Zürich</option>
+              </select>
+            </div>
+            <div>
+              <select id="p2-kanton" class="form-input" onchange="updateLohnfortzahlung('p2')">
+                <option value="">— Wählen —</option>
+                <option value="AG">AG – Aargau</option><option value="AI">AI – Appenzell Innerrhoden</option>
+                <option value="AR">AR – Appenzell Ausserrhoden</option><option value="BE">BE – Bern</option>
+                <option value="BL">BL – Basel-Landschaft</option><option value="BS">BS – Basel-Stadt</option>
+                <option value="FR">FR – Freiburg</option><option value="GE">GE – Genf</option>
+                <option value="GL">GL – Glarus</option><option value="GR">GR – Graubünden</option>
+                <option value="JU">JU – Jura</option><option value="LU">LU – Luzern</option>
+                <option value="NE">NE – Neuenburg</option><option value="NW">NW – Nidwalden</option>
+                <option value="OW">OW – Obwalden</option><option value="SG">SG – St. Gallen</option>
+                <option value="SH">SH – Schaffhausen</option><option value="SO">SO – Solothurn</option>
+                <option value="SZ">SZ – Schwyz</option><option value="TG">TG – Thurgau</option>
+                <option value="TI">TI – Tessin</option><option value="UR">UR – Uri</option>
+                <option value="VD">VD – Waadt</option><option value="VS">VS – Wallis</option>
+                <option value="ZG">ZG – Zug</option><option value="ZH">ZH – Zürich</option>
+              </select>
+            </div>
+
+            <div class="buyer-row-label">Angestellt seit</div>
+            <div><input type="text" id="p1-angestellt-seit" class="form-input date-ch"
+                        oninput="updateLohnfortzahlung('p1')"></div>
+            <div><input type="text" id="p2-angestellt-seit" class="form-input date-ch"
+                        oninput="updateLohnfortzahlung('p2')"></div>
+
+            <div class="buyer-row-label">Dienstjahre</div>
+            <div><div class="info-badge" id="p1-dienstjahre-display">— Jahre</div></div>
+            <div><div class="info-badge" id="p2-dienstjahre-display">— Jahre</div></div>
+
+            <div class="buyer-row-label">Arbeitspensum</div>
+            <div>
+              <div class="form-input-suffix">
+                <input type="number" id="p1-pensum" class="form-input" value="100" min="10" max="100" step="10">
+                <span class="suffix">%</span>
+              </div>
+            </div>
+            <div>
+              <div class="form-input-suffix">
+                <input type="number" id="p2-pensum" class="form-input" value="100" min="10" max="100" step="10">
+                <span class="suffix">%</span>
+              </div>
+            </div>
+
+            <div class="buyer-row-label">
+              AHV-Jahreslohn
+              <span style="font-size:10px;color:var(--gray-mid);display:block">brutto</span>
+            </div>
+            <div>
+              <div class="form-input-prefix">
+                <span class="prefix">CHF</span>
+                <input type="text" id="p1-ahv-lohn" class="form-input money-input"
+                       placeholder="157'000" oninput="updateEinkommen('p1')">
+              </div>
+            </div>
+            <div>
+              <div class="form-input-prefix">
+                <span class="prefix">CHF</span>
+                <input type="text" id="p2-ahv-lohn" class="form-input money-input"
+                       placeholder="0" oninput="updateEinkommen('p2')">
+              </div>
+            </div>
+
+            <div class="buyer-row-label">Anzahl Monatslöhne</div>
+            <div>
+              <select id="p1-monatsloehne" class="form-input" onchange="updateEinkommen('p1')">
+                <option value="12">12 Monatslöhne</option>
+                <option value="13" selected>13 Monatslöhne</option>
+                <option value="14">14 Monatslöhne</option>
+              </select>
+            </div>
+            <div>
+              <select id="p2-monatsloehne" class="form-input" onchange="updateEinkommen('p2')">
+                <option value="12">12 Monatslöhne</option>
+                <option value="13" selected>13 Monatslöhne</option>
+                <option value="14">14 Monatslöhne</option>
+              </select>
+            </div>
+
+            <div class="buyer-row-label">Netto / Monat</div>
+            <div><div class="info-badge" id="p1-netto-display">— CHF</div></div>
+            <div><div class="info-badge" id="p2-netto-display">— CHF</div></div>
+
+            <div class="buyer-row-label">
+              Lohnfortzahlung
+              <button onclick="showLFZInfo()" style="background:none;border:none;cursor:pointer;color:var(--accent);font-size:13px;padding:0;margin-left:4px" title="Skalen anzeigen">ℹ️</button>
+            </div>
+            <div><div class="info-badge" id="p1-lfz-display">— Wochen</div></div>
+            <div><div class="info-badge" id="p2-lfz-display">— Wochen</div></div>
+
+            <!-- VORSORGE -->
+            <div class="buyer-separator" style="grid-column:1/-1">
+              <span class="buyer-separator-label">Vorsorge &amp; Pension</span>
+            </div>
+
+            <div class="buyer-row-label">Geplantes Pensionsalter</div>
+            <div>
+              <select id="p1-pensionsalter" class="form-input" onchange="updatePersonInfo('p1')">
+                <option value="58">58</option><option value="59">59</option>
+                <option value="60">60</option><option value="61">61</option>
+                <option value="62">62</option><option value="63">63</option>
+                <option value="64">64</option><option value="65" selected>65</option>
+              </select>
+            </div>
+            <div>
+              <select id="p2-pensionsalter" class="form-input" onchange="updatePersonInfo('p2')">
+                <option value="58">58</option><option value="59">59</option>
+                <option value="60">60</option><option value="61">61</option>
+                <option value="62">62</option><option value="63">63</option>
+                <option value="64">64</option><option value="65" selected>65</option>
+              </select>
+            </div>
+
+            <div class="buyer-row-label">Jahre bis Pension</div>
+            <div><div class="info-badge" id="p1-pension-display">— Jahre</div></div>
+            <div><div class="info-badge" id="p2-pension-display">— Jahre</div></div>
+
+          </div><!-- end buyer-grid -->
+        </div>
+      </div>
+
+      <!-- KINDER -->
+      <div class="card" style="margin-bottom:var(--space-lg)">
+        <div class="card-header">
+          <div class="card-title"><span class="card-title-icon">👶</span>Kinder</div>
+          <span class="badge badge-primary" id="kinder-count-badge">0 Kinder</span>
+        </div>
+        <div class="card-body">
+          <div class="dynamic-list" id="kinder-list">
+            <div class="empty-state" id="kinder-empty">
+              <div class="empty-state-icon">👶</div>
+              <p class="empty-state-text">Noch keine Kinder erfasst</p>
+            </div>
+          </div>
+          <div style="margin-top:var(--space-md)">
+            <button class="btn-add" onclick="addKind()">+ Kind hinzufügen</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- KPIs -->
+      <div class="kpi-grid" style="margin-bottom:var(--space-xl)">
+        <div class="kpi-tile primary">
+          <span class="kpi-tile-label">Haushaltseinkommen</span>
+          <span class="kpi-tile-value" id="kpi-haushalt">CHF —</span>
+          <span class="kpi-tile-sub">Brutto / Jahr</span>
+        </div>
+        <div class="kpi-tile">
+          <span class="kpi-tile-label">Person 1 — Netto</span>
+          <span class="kpi-tile-value" id="kpi-p1-netto">CHF —</span>
+          <span class="kpi-tile-sub">pro Monat</span>
+        </div>
+        <div class="kpi-tile">
+          <span class="kpi-tile-label">Person 2 — Netto</span>
+          <span class="kpi-tile-value" id="kpi-p2-netto">CHF —</span>
+          <span class="kpi-tile-sub">pro Monat</span>
+        </div>
+        <div class="kpi-tile">
+          <span class="kpi-tile-label">Kinder</span>
+          <span class="kpi-tile-value" id="kpi-kinder">0</span>
+          <span class="kpi-tile-sub">erfasst</span>
+        </div>
+      </div>
+
+      <div class="step-navigation">
+        <button class="btn btn-outline nav-prev" onclick="App.goToStep(App.currentStep-1)">← Zurück</button>
+        <div style="font-size:12px;color:var(--gray-mid)">Schritt 1 von 7</div>
+        <button class="btn btn-primary" onclick="App.goToStep(2)">Weiter →</button>
+      </div>
+    </div>
+
+    <!-- ══ SCHRITTE 2–7: PLATZHALTER ══ -->
+    <div class="section-panel" id="panel-versicherungen">
+      <div class="page-title"><div class="page-overline">Schritt 2</div><h1 class="page-heading">Versicherungen</h1></div>
+      <div class="placeholder-section"><div class="placeholder-icon">🛡️</div><h2 class="placeholder-title">Versicherungen</h2><p class="placeholder-text">Wird in Phase 3 ausgebaut — PK, KTG, UVGZ, Private Versicherungen (mehrere Policen pro Person).</p></div>
+      <div class="step-navigation"><button class="btn btn-outline nav-prev" onclick="App.goToStep(App.currentStep-1)">← Zurück</button><div style="font-size:12px;color:var(--gray-mid)">Schritt 2 von 7</div><button class="btn btn-primary" onclick="App.goToStep(3)">Weiter →</button></div>
+    </div>
+
+    <div class="section-panel" id="panel-vermoegen">
+      <div class="page-title"><div class="page-overline">Schritt 3</div><h1 class="page-heading">Eigenheim <em>&amp; Vermögen</em></h1></div>
+      <div class="placeholder-section"><div class="placeholder-icon">🏦</div><h2 class="placeholder-title">Vermögen</h2><p class="placeholder-text">Wird in Phase 4 ausgebaut — Eigenheim, Bankkonten mit IBAN, Wertschriften, Säule 3a/3b, Freizügigkeit.</p></div>
+      <div class="step-navigation"><button class="btn btn-outline nav-prev" onclick="App.goToStep(App.currentStep-1)">← Zurück</button><div style="font-size:12px;color:var(--gray-mid)">Schritt 3 von 7</div><button class="btn btn-primary" onclick="App.goToStep(4)">Weiter →</button></div>
+    </div>
+
+    <div class="section-panel" id="panel-eu-analyse">
+      <div class="page-title"><div class="page-overline">Schritt 4</div><h1 class="page-heading">Erwerbsunfähigkeit <em>Analyse</em></h1></div>
+      <div class="placeholder-section"><div class="placeholder-icon">📊</div><h2 class="placeholder-title">EU-Analyse</h2><p class="placeholder-text">Wird in Phase 6 ausgebaut.</p></div>
+      <div class="step-navigation"><button class="btn btn-outline nav-prev" onclick="App.goToStep(App.currentStep-1)">← Zurück</button><div style="font-size:12px;color:var(--gray-mid)">Schritt 4 von 7</div><button class="btn btn-primary" onclick="App.goToStep(5)">Weiter →</button></div>
+    </div>
+
+    <div class="section-panel" id="panel-todesfall">
+      <div class="page-title"><div class="page-overline">Schritt 5</div><h1 class="page-heading">Todesfall <em>Analyse</em></h1></div>
+      <div class="placeholder-section"><div class="placeholder-icon">📋</div><h2 class="placeholder-title">Todesfall</h2><p class="placeholder-text">Wird in Phase 7 ausgebaut.</p></div>
+      <div class="step-navigation"><button class="btn btn-outline nav-prev" onclick="App.goToStep(App.currentStep-1)">← Zurück</button><div style="font-size:12px;color:var(--gray-mid)">Schritt 5 von 7</div><button class="btn btn-primary" onclick="App.goToStep(6)">Weiter →</button></div>
+    </div>
+
+    <div class="section-panel" id="panel-pension">
+      <div class="page-title"><div class="page-overline">Schritt 6</div><h1 class="page-heading">Pension <em>&amp; Vermögensaufbau</em></h1></div>
+      <div class="placeholder-section"><div class="placeholder-icon">🔮</div><h2 class="placeholder-title">Pension</h2><p class="placeholder-text">Wird in Phase 8 ausgebaut.</p></div>
+      <div class="step-navigation"><button class="btn btn-outline nav-prev" onclick="App.goToStep(App.currentStep-1)">← Zurück</button><div style="font-size:12px;color:var(--gray-mid)">Schritt 6 von 7</div><button class="btn btn-primary" onclick="App.goToStep(7)">Weiter →</button></div>
+    </div>
+
+    <div class="section-panel" id="panel-zusammenfassung">
+      <div class="page-title"><div class="page-overline">Schritt 7</div><h1 class="page-heading">Zusammenfassung <em>&amp; Export</em></h1></div>
+      <div class="placeholder-section"><div class="placeholder-icon">✅</div><h2 class="placeholder-title">Zusammenfassung</h2><p class="placeholder-text">Wird in Phase 10–12 ausgebaut — Ampel-Tabelle, Massnahmenplan, Word/PDF-Export.</p></div>
+      <div class="step-navigation"><button class="btn btn-outline nav-prev" onclick="App.goToStep(App.currentStep-1)">← Zurück</button><div style="font-size:12px;color:var(--gray-mid)">Schritt 7 von 7</div><button class="btn btn-accent" onclick="Toast.show('Export kommt in Phase 11','info')">📄 Bericht generieren</button></div>
+    </div>
+
+  </main>
+
+  <!-- FOOTER -->
+  <footer class="app-footer">
+    <div class="footer-logo">Versicherungs<span>kompass</span></div>
+    <div class="footer-meta">Vorsorge-Analyse Tool · versicherungskompass.ch</div>
+  </footer>
+</div>
+
+
+<!-- ══ BERATER-MODAL ══ -->
+<div class="modal-overlay" id="berater-modal">
+  <div class="modal-box">
+    <div class="modal-header">
+      <h2>👥 Beraterliste verwalten</h2>
+      <button class="btn btn-ghost btn-sm" id="btn-berater-modal-close">✕ Schliessen</button>
+    </div>
+    <div class="modal-body">
+      <p style="font-size:12px;color:var(--gray-mid);margin-bottom:var(--space-md)">
+        Wähle einen Berater oder erfasse einen neuen in den Feldern auf der linken Seite und klicke "In Beraterliste speichern".
+      </p>
+      <div id="berater-modal-liste">
+        <!-- Wird dynamisch befüllt -->
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" id="btn-berater-modal-close2"
+              onclick="Berater.closeModal()">Schliessen</button>
+    </div>
+  </div>
+</div>
+
+
+<!-- ══ LFZ INFO MODAL ══ -->
+<div class="modal-overlay" id="lfz-modal">
+  <div class="modal-box" style="max-width:700px">
+    <div class="modal-header">
+      <h2>ℹ️ Lohnfortzahlungs-Skalen</h2>
+      <button class="btn btn-ghost btn-sm" onclick="closeLFZModal()">✕</button>
+    </div>
+    <div class="modal-body">
+      <p style="font-size:12px;color:var(--gray-mid);margin-bottom:var(--space-md)">
+        Die Lohnfortzahlung richtet sich nach dem Dienstjahr und dem kantonalen Recht (OR Art. 324a).
+        Die meisten Kantone verwenden eine der drei folgenden Skalen.
+      </p>
+      <div class="lfz-tabs">
+        <button class="lfz-tab active" onclick="showLFZTab('zuercher',this)">Zürcher Skala</button>
+        <button class="lfz-tab" onclick="showLFZTab('basler',this)">Basler Skala</button>
+        <button class="lfz-tab" onclick="showLFZTab('berner',this)">Berner Skala</button>
+      </div>
+      <div id="lfz-tab-content"></div>
+
+      <div style="margin-top:var(--space-lg);padding:var(--space-md);background:var(--primary-light);border-radius:var(--radius-md);font-size:12px">
+        <strong style="color:var(--primary)">Kanton → Skala:</strong><br>
+        <span style="color:var(--gray-dark)">
+          <strong>Zürcher:</strong> ZH, SG, LU, GR, TG, SZ, ZG, NW, OW, UR, GL, AI, AR, SH<br>
+          <strong>Basler:</strong> AG, BS, BL, SO<br>
+          <strong>Berner:</strong> BE, FR, GE, VD, JU, NE, TI, VS
+        </span>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-primary" onclick="closeLFZModal()">Verstanden</button>
+    </div>
+  </div>
+</div>
+
+
+<!-- ══ KIND TEMPLATE ══ -->
+<template id="kind-template">
+  <div class="list-item-card kind-item" data-kind-id="{ID}">
+    <div class="list-item-header">
+      <span class="list-item-title">Kind {NR}</span>
+      <button class="btn btn-danger btn-sm" onclick="removeKind('{ID}')">✕</button>
+    </div>
+    <div class="list-item-body">
+      <div class="grid-4">
+        <div class="form-group">
+          <label class="form-label">Vorname</label>
+          <input type="text" class="form-input" id="kind-{ID}-vorname" placeholder="Vorname">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Geburtsdatum</label>
+          <input type="text" class="form-input date-ch" id="kind-{ID}-geburt">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Status</label>
+          <select class="form-input" id="kind-{ID}-status">
+            <option value="">— Wählen —</option>
+            <option value="vorschule">Vorschule / Kita</option>
+            <option value="primarschule">Primarschule</option>
+            <option value="sekundarschule">Sekundarschule</option>
+            <option value="gymnasium">Gymnasium</option>
+            <option value="lehre">Berufslehre</option>
+            <option value="studium">Studium</option>
+            <option value="arbeitet">Arbeitet</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Schule / Institution</label>
+          <input type="text" class="form-input" id="kind-{ID}-institution">
+        </div>
+      </div>
+    </div>
+  </div>
+</template>
+
+
+<script src="js/app.js"></script>
+<script>
+let kindCounter = 0;
+
+// ── PERSON INFO ──
+function updatePersonInfo(p) {
+  const gebVal = document.getElementById(`${p}-geburt`)?.value;
+  const pensVal = document.getElementById(`${p}-pensionsalter`)?.value;
+  const alter = DateHelper.calcAlter(gebVal);
+  if (alter !== null) {
+    document.getElementById(`${p}-alter-display`).textContent = `${alter} Jahre`;
+    const bisPension = Math.max(0, (parseInt(pensVal)||65) - alter);
+    document.getElementById(`${p}-pension-display`).textContent = `${bisPension} Jahre`;
+  }
+  updateKPIs();
+}
+
+function updateLohnfortzahlung(p) {
+  const kanton = document.getElementById(`${p}-kanton`)?.value;
+  const seit   = document.getElementById(`${p}-angestellt-seit`)?.value;
+  const dj     = DateHelper.calcDienstjahre ? DateHelper.calcDienstjahre(seit) : 0;
+
+  document.getElementById(`${p}-dienstjahre-display`).textContent =
+    dj > 0 ? `${dj} Jahr${dj!==1?'e':''}` : '< 1 Jahr';
+
+  if (kanton) {
+    const w = getLFZWochen(kanton, dj);
+    document.getElementById(`${p}-lfz-display`).textContent = `${w} Wochen`;
+  }
+}
+
+function updateEinkommen(p) {
+  const lohn   = parseCHF(document.getElementById(`${p}-ahv-lohn`)?.value);
+  const monate = parseInt(document.getElementById(`${p}-monatsloehne`)?.value || 13);
+  if (lohn && monate) {
+    const netto = Math.round(lohn / monate);
+    document.getElementById(`${p}-netto-display`).textContent = `CHF ${fmtCHF(netto)}`;
+  }
+  updateKPIs();
+}
+
+function updateKPIs() {
+  const l1 = parseCHF(document.getElementById('p1-ahv-lohn')?.value) || 0;
+  const l2 = parseCHF(document.getElementById('p2-ahv-lohn')?.value) || 0;
+  const m1 = parseInt(document.getElementById('p1-monatsloehne')?.value || 13);
+  const m2 = parseInt(document.getElementById('p2-monatsloehne')?.value || 13);
+  const k  = document.querySelectorAll('.kind-item').length;
+
+  document.getElementById('kpi-haushalt').textContent  = l1+l2>0 ? `CHF ${fmtCHF(l1+l2)}` : 'CHF —';
+  document.getElementById('kpi-p1-netto').textContent  = l1>0 ? `CHF ${fmtCHF(Math.round(l1/m1))}` : 'CHF —';
+  document.getElementById('kpi-p2-netto').textContent  = l2>0 ? `CHF ${fmtCHF(Math.round(l2/m2))}` : 'CHF —';
+  document.getElementById('kpi-kinder').textContent    = k;
+  document.getElementById('kinder-count-badge').textContent = `${k} Kind${k!==1?'er':''}`;
+}
+
+function updateZivilstand() {
+  const zs = document.getElementById('p1-zivilstand')?.value;
+  const labels = {verheiratet:'Verheiratet seit', eingetragene_partnerschaft:'Partnerschaft seit',
+                  konkubinat:'Zusammenzug', geschieden:'Hochzeit war'};
+  const lbl = document.getElementById('label-partnerschaft');
+  if (lbl) lbl.childNodes[0].textContent = (labels[zs] || 'Partnerschaft seit') + ' ';
+}
+
+// ── KINDER ──
+function addKind(data = null) {
+  kindCounter++;
+  const id = data?.id || Date.now();
+  document.getElementById('kinder-empty').style.display = 'none';
+  const tpl = document.getElementById('kind-template').innerHTML
+    .replace(/{ID}/g, id).replace(/{NR}/g, kindCounter);
+  const div = document.createElement('div');
+  div.innerHTML = tpl;
+  const el = div.firstElementChild;
+  document.getElementById('kinder-list').appendChild(el);
+
+  // Datumsbindung für neue Elemente
+  DateHelper.bind(el.querySelector('.date-ch'));
+
+  if (data) {
+    const s = (fid, v) => { const f = document.getElementById(fid); if(f&&v) f.value=v; };
+    s(`kind-${id}-vorname`, data.vorname);
+    s(`kind-${id}-geburt`,  data.geburt);
+    s(`kind-${id}-status`,  data.status);
+    s(`kind-${id}-institution`, data.institution);
+  }
+  updateKPIs();
+}
+
+function removeKind(id) {
+  document.querySelector(`[data-kind-id="${id}"]`)?.remove();
+  if (!document.querySelectorAll('.kind-item').length)
+    document.getElementById('kinder-empty').style.display = '';
+  updateKPIs();
+}
+
+// ── LFZ MODAL ──
+const LFZ_DATA = {
+  zuercher: [{j:1,w:3},{j:2,w:8},{j:3,w:9},{j:4,w:10},{j:5,w:11},{j:6,w:12},
+    {j:7,w:13},{j:8,w:14},{j:9,w:15},{j:10,w:16},{j:11,w:17},{j:12,w:18},
+    {j:13,w:19},{j:14,w:20},{j:15,w:21},{j:20,w:22}],
+  basler: [{j:1,w:3},{j:2,w:9},{j:3,w:9},{j:4,w:13},{j:10,w:17},{j:20,w:22},{j:25,w:26}],
+  berner: [{j:1,w:3},{j:2,w:4},{j:3,w:9},{j:5,w:13},{j:10,w:17},{j:20,w:22},{j:25,w:26}],
+};
+
+function showLFZInfo() {
+  document.getElementById('lfz-modal').classList.add('open');
+  showLFZTab('zuercher', document.querySelector('.lfz-tab'));
+}
+
+function closeLFZModal() {
+  document.getElementById('lfz-modal').classList.remove('open');
+}
+
+function showLFZTab(key, btn) {
+  document.querySelectorAll('.lfz-tab').forEach(t => t.classList.remove('active'));
+  btn.classList.add('active');
+  const data = LFZ_DATA[key];
+  const names = {zuercher:'Zürcher Skala (OR 324a)', basler:'Basler Skala', berner:'Berner Skala'};
+  document.getElementById('lfz-tab-content').innerHTML = `
+    <table class="lfz-table">
+      <thead><tr>
+        <th>Ab Dienstjahr</th>
+        <th>Lohnfortzahlung (Wochen)</th>
+        <th>Bemerkung</th>
+      </tr></thead>
+      <tbody>
+        ${data.map((e,i) => {
+          const next = data[i+1];
+          const bis = next ? `bis ${next.j-1}. Dienstjahr` : `ab ${e.j}. Dienstjahr`;
+          return `<tr>
+            <td>Ab ${e.j}. Dienstjahr</td>
+            <td><strong>${e.w} Wochen</strong></td>
+            <td style="color:var(--gray-mid)">${bis}</td>
+          </tr>`;
+        }).join('')}
+      </tbody>
+    </table>`;
+}
+
+// Modals schliessen bei Klick auf Overlay
+document.addEventListener('click', e => {
+  if (e.target.id === 'lfz-modal') closeLFZModal();
+  if (e.target.id === 'berater-modal') Berater.closeModal();
+});
+</script>
+</body>
+</html>
