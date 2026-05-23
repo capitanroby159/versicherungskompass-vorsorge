@@ -1089,6 +1089,9 @@ function setBVGPflichtig(person, pflichtig) {
   document.getElementById(`${person}-bvg-nein`).classList.toggle('active', !pflichtig);
   document.getElementById(`${person}-pk-content`).style.display = pflichtig ? '' : 'none';
   document.getElementById(`${person}-pk-not-pflichtig`).style.display = pflichtig ? 'none' : '';
+  if (pflichtig && !document.querySelectorAll(`[data-person="${person}"].pk-vertrag-item`).length) {
+    addPKVertrag(person);
+  }
 }
 
 function calcAltersrente(id) {
