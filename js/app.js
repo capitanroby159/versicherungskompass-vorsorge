@@ -345,6 +345,8 @@ const DataManager = {
       privVersichert2: document.getElementById('p2-priv-ja')?.classList.contains('active') ?? true,
       priv1: this._collectTyp('priv', 'p1'),
       priv2: this._collectTyp('priv', 'p2'),
+
+      immobilien: this._collectImmobilien(),
     };
   },
 
@@ -436,6 +438,49 @@ const DataManager = {
       });
     });
     return contracts;
+  },
+
+  _collectImmobilien() {
+    const list = [];
+    document.querySelectorAll('.immo-item').forEach(item => {
+      const id   = item.dataset.immoId;
+      const get  = fid => document.getElementById(fid)?.value || '';
+      const getN = fid => parseCHF(document.getElementById(fid)?.value);
+
+      const hypotheken = [];
+      document.querySelectorAll(`[data-immo="${id}"].hypo-item`).forEach(h => {
+        const hid = h.dataset.hypoId;
+        hypotheken.push({
+          id:     hid,
+          art:    get(`hypo-${hid}-art`),
+          betrag: getN(`hypo-${hid}-betrag`),
+          zins:   get(`hypo-${hid}-zins`),
+          bis:    get(`hypo-${hid}-bis`),
+        });
+      });
+
+      list.push({
+        id,
+        bezeichnung:   get(`immo-${id}-bezeichnung`),
+        typ:           get(`immo-${id}-typ`),
+        adresse:       get(`immo-${id}-adresse`),
+        kaufpreis:     getN(`immo-${id}-kaufpreis`),
+        kaufdatum:     get(`immo-${id}-kaufdatum`),
+        verkehrswert:  getN(`immo-${id}-verkehrswert`),
+        renovation:    document.getElementById(`immo-${id}-renov-ja`)?.classList.contains('active') ?? false,
+        renovKosten:   getN(`immo-${id}-renov-kosten`),
+        renovJahr:     get(`immo-${id}-renov-jahr`),
+        vermietet:     document.getElementById(`immo-${id}-vermietet-ja`)?.classList.contains('active') ?? false,
+        mieteBrutto:   getN(`immo-${id}-miete-brutto`),
+        mieteNK:       getN(`immo-${id}-miete-nk`),
+        gvVersicherer: get(`immo-${id}-gv-versicherer`),
+        gvPolice:      get(`immo-${id}-gv-police`),
+        gvWert:        getN(`immo-${id}-gv-wert`),
+        gvPraemie:     getN(`immo-${id}-gv-praemie`),
+        hypotheken,
+      });
+    });
+    return list;
   },
 
   populate(data) {
@@ -547,6 +592,15 @@ const DataManager = {
       restoreTyp('uvgz', 'p2', data.uvgzVersichert2, data.uvgz2, addUVGZVertrag);
       restoreTyp('priv', 'p1', data.privVersichert1, data.priv1, addPrivVertrag);
       restoreTyp('priv', 'p2', data.privVersichert2, data.priv2, addPrivVertrag);
+    }
+
+    // Phase 4 restore — Immobilien
+    if (data.immobilien?.length && typeof addImmobilie === 'function') {
+      document.querySelectorAll('.immo-item').forEach(el => el.remove());
+      immoCounter = 0;
+      const emptyEl = document.getElementById('immo-empty');
+      if (emptyEl) emptyEl.style.display = '';
+      data.immobilien.forEach(immo => addImmobilie(immo));
     }
 
     updateKPIs();

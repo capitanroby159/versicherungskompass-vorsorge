@@ -6,6 +6,40 @@
   <title>Versicherungskompass — Vorsorge-Analyse</title>
   <link rel="stylesheet" href="css/styles.css">
   <style>
+    /* ── IMMOBILIEN ACCORDION ── */
+    .immo-acc-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: var(--space-md);
+      padding: var(--space-sm) var(--space-md);
+      background: var(--primary-light);
+      border-bottom: 1px solid var(--gray-light);
+      cursor: pointer;
+      user-select: none;
+      transition: background var(--transition);
+      border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+    }
+    .immo-acc-header:hover { background: #dde8dd; }
+    .immo-chevron {
+      font-size: 10px;
+      color: var(--gray-mid);
+      transition: transform var(--transition);
+      display: inline-block;
+    }
+    .immo-chevron.open { transform: rotate(180deg); }
+    .immo-section-label {
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--primary);
+      text-transform: uppercase;
+      letter-spacing: .05em;
+      margin-bottom: var(--space-sm);
+      padding-top: var(--space-sm);
+      border-top: 1px solid var(--primary-light);
+    }
+    .immo-section-label:first-child { border-top: none; padding-top: 0; }
+
     /* ── BERATER MODAL ── */
     .modal-overlay {
       display: none;
@@ -891,8 +925,66 @@
 
     <div class="section-panel" id="panel-vermoegen">
       <div class="page-title"><div class="page-overline">Schritt 3</div><h1 class="page-heading">Eigenheim <em>&amp; Vermögen</em></h1></div>
-      <div class="placeholder-section"><div class="placeholder-icon">🏦</div><h2 class="placeholder-title">Vermögen</h2><p class="placeholder-text">Wird in Phase 4 ausgebaut — Eigenheim, Bankkonten mit IBAN, Wertschriften, Säule 3a/3b, Freizügigkeit.</p></div>
-      <div class="step-navigation"><button class="btn btn-outline nav-prev" onclick="App.goToStep(App.currentStep-1)">← Zurück</button><div style="font-size:12px;color:var(--gray-mid)">Schritt 3 von 7</div><button class="btn btn-primary" onclick="App.goToStep(4)">Weiter →</button></div>
+
+      <!-- PORTFOLIO ÜBERSICHT -->
+      <div class="card" style="margin-bottom:var(--space-lg)">
+        <div class="card-header">
+          <div class="card-title"><span class="card-title-icon">🏘</span>Immobilien-Portfolio</div>
+          <span class="badge badge-primary" id="immo-count-badge">0 Immobilien</span>
+        </div>
+        <div class="card-body">
+          <div class="kpi-grid" style="grid-template-columns:repeat(auto-fit,minmax(160px,1fr))">
+            <div class="kpi-tile">
+              <div class="kpi-tile-label">Gesamtportfoliowert</div>
+              <div class="kpi-tile-value" id="kpi-immo-portfolio">CHF —</div>
+            </div>
+            <div class="kpi-tile">
+              <div class="kpi-tile-label">Gesamthypotheken</div>
+              <div class="kpi-tile-value" id="kpi-immo-hypotheken">CHF —</div>
+            </div>
+            <div class="kpi-tile primary">
+              <div class="kpi-tile-label">Netto-Immobilienvermögen</div>
+              <div class="kpi-tile-value" id="kpi-immo-netto">CHF —</div>
+            </div>
+            <div class="kpi-tile">
+              <div class="kpi-tile-label">Ø Belehnung</div>
+              <div class="kpi-tile-value" id="kpi-immo-belehnung">— %</div>
+            </div>
+            <div class="kpi-tile">
+              <div class="kpi-tile-label">Gesamtzins / Jahr</div>
+              <div class="kpi-tile-value" id="kpi-immo-zins">CHF —</div>
+            </div>
+            <div class="kpi-tile">
+              <div class="kpi-tile-label">Mieteinnahmen / Jahr</div>
+              <div class="kpi-tile-value" id="kpi-immo-miete">CHF —</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- IMMOBILIEN LISTE -->
+      <div class="card" style="margin-bottom:var(--space-lg)">
+        <div class="card-header">
+          <div class="card-title"><span class="card-title-icon">🏠</span>Immobilien</div>
+        </div>
+        <div class="card-body">
+          <div class="dynamic-list" id="immo-list">
+            <div class="empty-state" id="immo-empty">
+              <div class="empty-state-icon">🏠</div>
+              <p class="empty-state-text">Noch keine Immobilien erfasst</p>
+            </div>
+          </div>
+          <div style="margin-top:var(--space-md)">
+            <button class="btn-add" onclick="addImmobilie()">+ Immobilie hinzufügen</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="step-navigation">
+        <button class="btn btn-outline nav-prev" onclick="App.goToStep(App.currentStep-1)">← Zurück</button>
+        <div style="font-size:12px;color:var(--gray-mid)">Schritt 3 von 7</div>
+        <button class="btn btn-primary" onclick="App.goToStep(4)">Weiter →</button>
+      </div>
     </div>
 
     <div class="section-panel" id="panel-eu-analyse">
@@ -1522,6 +1614,267 @@
           </div>
         </div>
 
+      </div>
+    </div>
+  </div>
+</template>
+
+<!-- ══ IMMOBILIEN TEMPLATE ══ -->
+<template id="immo-template">
+  <div class="list-item-card immo-item" data-immo-id="{ID}">
+    <!-- Accordion Header -->
+    <div class="immo-acc-header" onclick="toggleImmobilieAccordion('{ID}')">
+      <div style="display:flex;flex-direction:column;gap:4px;flex:1;min-width:0">
+        <div style="display:flex;align-items:center;gap:var(--space-sm);flex-wrap:wrap">
+          <span class="list-item-title" id="immo-{ID}-title">Neue Immobilie</span>
+          <span class="badge badge-primary" id="immo-{ID}-badge-typ" style="display:none"></span>
+        </div>
+        <div style="display:flex;gap:var(--space-xs);flex-wrap:wrap">
+          <span class="info-badge" id="immo-{ID}-badge-wert" style="display:none"></span>
+          <span class="info-badge" id="immo-{ID}-badge-belehnung" style="display:none"></span>
+          <span class="info-badge" id="immo-{ID}-badge-rendite" style="display:none"></span>
+        </div>
+      </div>
+      <div style="display:flex;gap:var(--space-sm);align-items:center;flex-shrink:0">
+        <span class="immo-chevron" id="immo-{ID}-chevron">▼</span>
+        <button class="btn btn-danger btn-sm" onclick="event.stopPropagation();removeImmobilie('{ID}')">✕</button>
+      </div>
+    </div>
+
+    <!-- Accordion Body -->
+    <div id="immo-{ID}-body" style="display:none">
+      <div style="padding:var(--space-md);display:flex;flex-direction:column;gap:var(--space-md)">
+
+        <!-- Basisdaten -->
+        <div>
+          <div class="immo-section-label">Basisdaten</div>
+          <div class="grid-3" style="gap:var(--space-md)">
+            <div class="form-group">
+              <label class="form-label">Bezeichnung</label>
+              <input type="text" class="form-input" id="immo-{ID}-bezeichnung"
+                     placeholder="z.B. Einfamilienhaus Zürich"
+                     oninput="updateImmoTitle('{ID}');updateImmobilieCalc('{ID}')">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Typ</label>
+              <select class="form-input" id="immo-{ID}-typ"
+                      onchange="updateImmoTitle('{ID}');updateImmobilieCalc('{ID}')">
+                <option value="">— Wählen —</option>
+                <option value="eigenheim">Eigenheim</option>
+                <option value="ferienhaus">Ferienhaus</option>
+                <option value="renditeobjekt">Renditeobjekt</option>
+                <option value="buero">Büro / Gewerbe</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Adresse</label>
+              <input type="text" class="form-input" id="immo-{ID}-adresse"
+                     placeholder="Musterstrasse 1, 8000 Zürich">
+            </div>
+          </div>
+        </div>
+
+        <!-- Kaufdaten & Wert -->
+        <div>
+          <div class="immo-section-label">Kaufdaten &amp; Aktueller Wert</div>
+          <div class="grid-3" style="gap:var(--space-md)">
+            <div class="form-group">
+              <label class="form-label">Kaufpreis</label>
+              <div class="form-input-prefix">
+                <span class="prefix">CHF</span>
+                <input type="text" class="form-input money-input" id="immo-{ID}-kaufpreis"
+                       oninput="updateImmobilieCalc('{ID}')">
+              </div>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Kaufdatum</label>
+              <input type="text" class="form-input date-ch" id="immo-{ID}-kaufdatum"
+                     placeholder="TT.MM.JJJJ">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Verkehrswert (aktuell)</label>
+              <div class="form-input-prefix">
+                <span class="prefix">CHF</span>
+                <input type="text" class="form-input money-input" id="immo-{ID}-verkehrswert"
+                       oninput="updateImmobilieCalc('{ID}')">
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Renovation -->
+        <div>
+          <div style="display:flex;align-items:center;gap:var(--space-md);margin-bottom:var(--space-sm)">
+            <div class="immo-section-label" style="margin:0;border:none;padding:0">Renovation</div>
+            <div class="person-toggle">
+              <button class="person-toggle-btn" id="immo-{ID}-renov-ja"
+                      onclick="setImmoRenovation('{ID}',true)">Ja</button>
+              <button class="person-toggle-btn active" id="immo-{ID}-renov-nein"
+                      onclick="setImmoRenovation('{ID}',false)">Nein</button>
+            </div>
+          </div>
+          <div id="immo-{ID}-renov-row" style="display:none">
+            <div class="grid-3" style="gap:var(--space-md)">
+              <div class="form-group">
+                <label class="form-label">Renovationskosten</label>
+                <div class="form-input-prefix">
+                  <span class="prefix">CHF</span>
+                  <input type="text" class="form-input money-input" id="immo-{ID}-renov-kosten">
+                </div>
+              </div>
+              <div class="form-group">
+                <label class="form-label">Jahr</label>
+                <input type="number" class="form-input" id="immo-{ID}-renov-jahr"
+                       placeholder="2024" min="1900" max="2100" step="1">
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Vermietung -->
+        <div>
+          <div style="display:flex;align-items:center;gap:var(--space-md);margin-bottom:var(--space-sm)">
+            <div class="immo-section-label" style="margin:0;border:none;padding:0">Vermietung</div>
+            <div class="person-toggle">
+              <button class="person-toggle-btn" id="immo-{ID}-vermietet-ja"
+                      onclick="setImmoVermietung('{ID}',true)">Ja</button>
+              <button class="person-toggle-btn active" id="immo-{ID}-vermietet-nein"
+                      onclick="setImmoVermietung('{ID}',false)">Nein</button>
+            </div>
+          </div>
+          <div id="immo-{ID}-vermietet-row" style="display:none">
+            <div class="grid-3" style="gap:var(--space-md)">
+              <div class="form-group">
+                <label class="form-label">Mieteinnahmen / Jahr</label>
+                <div class="form-input-prefix">
+                  <span class="prefix">CHF</span>
+                  <input type="text" class="form-input money-input" id="immo-{ID}-miete-brutto"
+                         oninput="updateImmobilieCalc('{ID}')">
+                </div>
+              </div>
+              <div class="form-group">
+                <label class="form-label">Nebenkosten / Jahr</label>
+                <div class="form-input-prefix">
+                  <span class="prefix">CHF</span>
+                  <input type="text" class="form-input money-input" id="immo-{ID}-miete-nk"
+                         oninput="updateImmobilieCalc('{ID}')">
+                </div>
+              </div>
+              <div class="form-group">
+                <label class="form-label">Netto-Rendite (berechnet)</label>
+                <div class="info-badge" id="immo-{ID}-rendite-display" style="margin-top:4px">— %</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Gebäudeversicherung -->
+        <div>
+          <div class="immo-section-label">Gebäudeversicherung</div>
+          <div class="grid-3" style="gap:var(--space-md)">
+            <div class="form-group">
+              <label class="form-label">Versicherer</label>
+              <input type="text" class="form-input" id="immo-{ID}-gv-versicherer"
+                     placeholder="Gebäudeversicherung ZH …">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Police Nr.</label>
+              <input type="text" class="form-input" id="immo-{ID}-gv-police">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Gebäudeversicherungswert</label>
+              <div class="form-input-prefix">
+                <span class="prefix">CHF</span>
+                <input type="text" class="form-input money-input" id="immo-{ID}-gv-wert">
+              </div>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Prämie / Jahr</label>
+              <div class="form-input-prefix">
+                <span class="prefix">CHF</span>
+                <input type="text" class="form-input money-input" id="immo-{ID}-gv-praemie">
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Hypotheken -->
+        <div>
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:var(--space-sm)">
+            <div class="immo-section-label" style="margin:0;border:none;padding:0">Hypotheken</div>
+            <span class="badge badge-primary" id="immo-{ID}-hypo-count">0 Tranchen</span>
+          </div>
+          <div class="dynamic-list" id="immo-{ID}-hypo-list" style="margin-bottom:var(--space-sm)">
+            <div class="empty-state" id="immo-{ID}-hypo-empty" style="padding:var(--space-md)">
+              <p class="empty-state-text" style="font-size:12px">Keine Hypotheken erfasst</p>
+            </div>
+          </div>
+          <button class="btn-add" onclick="addHypoTranche('{ID}')">+ Hypotheken-Tranche hinzufügen</button>
+        </div>
+
+        <!-- KPI Summary -->
+        <div style="background:var(--primary-light);border-radius:var(--radius-md);padding:var(--space-md)">
+          <div style="font-size:11px;font-weight:600;color:var(--primary);text-transform:uppercase;letter-spacing:.05em;margin-bottom:var(--space-sm)">Kennzahlen</div>
+          <div style="display:flex;gap:var(--space-sm);flex-wrap:wrap">
+            <div class="info-badge" id="immo-{ID}-kpi-ek">Eigenkapital: CHF —</div>
+            <div class="info-badge" id="immo-{ID}-kpi-belehnung">Belehnung: — %</div>
+            <div class="info-badge" id="immo-{ID}-kpi-wertzuwachs">Wertzuwachs: —</div>
+            <div class="info-badge" id="immo-{ID}-kpi-zins">Zins/Jahr: CHF —</div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</template>
+
+<!-- ══ HYPOTHEK TEMPLATE ══ -->
+<template id="hypo-template">
+  <div class="list-item-card hypo-item" data-hypo-id="{ID}" data-immo="{IMMO}"
+       style="background:var(--white-pure)">
+    <div class="list-item-header" style="background:rgba(46,61,50,0.06)">
+      <span class="list-item-title" id="hypo-{ID}-title">Neue Tranche</span>
+      <button class="btn btn-danger btn-sm" onclick="removeHypoTranche('{ID}','{IMMO}')">✕</button>
+    </div>
+    <div class="list-item-body">
+      <div class="grid-3" style="gap:var(--space-md)">
+        <div class="form-group">
+          <label class="form-label">Art</label>
+          <select class="form-input" id="hypo-{ID}-art"
+                  onchange="updateHypoTitle('{ID}');updateImmobilieCalc('{IMMO}')">
+            <option value="">— Wählen —</option>
+            <option value="fest">Festhypothek</option>
+            <option value="saron">SARON-Hypothek</option>
+            <option value="variabel">Variable Hypothek</option>
+            <option value="libor">LIBOR / Flexibel</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Betrag</label>
+          <div class="form-input-prefix">
+            <span class="prefix">CHF</span>
+            <input type="text" class="form-input money-input" id="hypo-{ID}-betrag"
+                   oninput="updateHypoTitle('{ID}');updateHypoZins('{ID}');updateImmobilieCalc('{IMMO}')">
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Zinssatz</label>
+          <div class="form-input-suffix">
+            <input type="number" class="form-input" id="hypo-{ID}-zins"
+                   placeholder="2.50" min="0" max="15" step="0.01"
+                   oninput="updateHypoZins('{ID}');updateImmobilieCalc('{IMMO}')">
+            <span class="suffix">%</span>
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Laufzeit bis</label>
+          <input type="text" class="form-input date-ch" id="hypo-{ID}-bis"
+                 placeholder="TT.MM.JJJJ">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Zinsen / Jahr</label>
+          <div class="info-badge" id="hypo-{ID}-zins-display" style="margin-top:4px">CHF —</div>
+        </div>
       </div>
     </div>
   </div>
@@ -2248,6 +2601,313 @@ function showLFZTab(key, btn) {
         }).join('')}
       </tbody>
     </table>`;
+}
+
+// ── IMMOBILIEN ──
+let immoCounter = 0;
+
+function addImmobilie(data = null) {
+  immoCounter++;
+  const id = data?.id || `immo_${Date.now()}`;
+  document.getElementById('immo-empty').style.display = 'none';
+
+  const tpl = document.getElementById('immo-template').innerHTML
+    .replace(/{ID}/g, id);
+  const div = document.createElement('div');
+  div.innerHTML = tpl;
+  const el = div.firstElementChild;
+  document.getElementById('immo-list').appendChild(el);
+
+  el.querySelectorAll('.money-input').forEach(inp => {
+    inp.addEventListener('blur',  () => { const v = parseCHF(inp.value); if (v !== '') inp.value = fmtCHF(v); });
+    inp.addEventListener('focus', () => { const v = parseCHF(inp.value); if (v !== '') inp.value = v; });
+  });
+  el.querySelectorAll('.date-ch').forEach(inp => DateHelper.bind(inp));
+
+  if (data) {
+    const s  = (fid, v) => { const f = document.getElementById(fid); if (f && v !== undefined && v !== null) f.value = v; };
+    const sN = (fid, v) => { const f = document.getElementById(fid); if (f && v) f.value = fmtCHF(v); };
+    s(`immo-${id}-bezeichnung`,   data.bezeichnung);
+    s(`immo-${id}-typ`,           data.typ);
+    s(`immo-${id}-adresse`,       data.adresse);
+    sN(`immo-${id}-kaufpreis`,    data.kaufpreis);
+    s(`immo-${id}-kaufdatum`,     data.kaufdatum);
+    sN(`immo-${id}-verkehrswert`, data.verkehrswert);
+    if (data.renovation)   setImmoRenovation(id, true);
+    sN(`immo-${id}-renov-kosten`, data.renovKosten);
+    s(`immo-${id}-renov-jahr`,    data.renovJahr);
+    if (data.vermietet)    setImmoVermietung(id, true);
+    sN(`immo-${id}-miete-brutto`, data.mieteBrutto);
+    sN(`immo-${id}-miete-nk`,     data.mieteNK);
+    s(`immo-${id}-gv-versicherer`,data.gvVersicherer);
+    s(`immo-${id}-gv-police`,     data.gvPolice);
+    sN(`immo-${id}-gv-wert`,      data.gvWert);
+    sN(`immo-${id}-gv-praemie`,   data.gvPraemie);
+    if (data.hypotheken?.length) data.hypotheken.forEach(h => addHypoTranche(id, h));
+    updateImmoTitle(id);
+    updateImmobilieCalc(id);
+  } else {
+    // Open accordion immediately for brand-new items
+    toggleImmobilieAccordion(id);
+  }
+
+  updateImmoCountBadge();
+}
+
+function removeImmobilie(id) {
+  document.querySelector(`[data-immo-id="${id}"]`)?.remove();
+  if (!document.querySelectorAll('.immo-item').length)
+    document.getElementById('immo-empty').style.display = '';
+  updateImmoCountBadge();
+  updatePortfolioKPIs();
+}
+
+function toggleImmobilieAccordion(id) {
+  const body    = document.getElementById(`immo-${id}-body`);
+  const chevron = document.getElementById(`immo-${id}-chevron`);
+  if (!body) return;
+  const willOpen = body.style.display === 'none';
+  body.style.display = willOpen ? '' : 'none';
+  chevron?.classList.toggle('open', willOpen);
+}
+
+function updateImmoTitle(id) {
+  const bez  = document.getElementById(`immo-${id}-bezeichnung`)?.value;
+  const typ  = document.getElementById(`immo-${id}-typ`)?.value;
+  const typLabel = { eigenheim:'Eigenheim', ferienhaus:'Ferienhaus', renditeobjekt:'Renditeobjekt', buero:'Büro/Gewerbe' };
+  const titleEl  = document.getElementById(`immo-${id}-title`);
+  const typBadge = document.getElementById(`immo-${id}-badge-typ`);
+  if (titleEl) titleEl.textContent = bez || 'Neue Immobilie';
+  if (typBadge) {
+    if (typ) { typBadge.textContent = typLabel[typ] || typ; typBadge.style.display = ''; }
+    else     { typBadge.style.display = 'none'; }
+  }
+}
+
+function setImmoRenovation(id, active) {
+  document.getElementById(`immo-${id}-renov-ja`)?.classList.toggle('active', active);
+  document.getElementById(`immo-${id}-renov-nein`)?.classList.toggle('active', !active);
+  const row = document.getElementById(`immo-${id}-renov-row`);
+  if (row) row.style.display = active ? '' : 'none';
+}
+
+function setImmoVermietung(id, active) {
+  document.getElementById(`immo-${id}-vermietet-ja`)?.classList.toggle('active', active);
+  document.getElementById(`immo-${id}-vermietet-nein`)?.classList.toggle('active', !active);
+  const row = document.getElementById(`immo-${id}-vermietet-row`);
+  if (row) row.style.display = active ? '' : 'none';
+  updateImmobilieCalc(id);
+}
+
+function addHypoTranche(immoId, data = null) {
+  const id = data?.id || `hypo_${Date.now()}`;
+  document.getElementById(`immo-${immoId}-hypo-empty`).style.display = 'none';
+
+  const tpl = document.getElementById('hypo-template').innerHTML
+    .replace(/{ID}/g, id).replace(/{IMMO}/g, immoId);
+  const div = document.createElement('div');
+  div.innerHTML = tpl;
+  const el = div.firstElementChild;
+  document.getElementById(`immo-${immoId}-hypo-list`).appendChild(el);
+
+  el.querySelectorAll('.money-input').forEach(inp => {
+    inp.addEventListener('blur',  () => { const v = parseCHF(inp.value); if (v !== '') inp.value = fmtCHF(v); });
+    inp.addEventListener('focus', () => { const v = parseCHF(inp.value); if (v !== '') inp.value = v; });
+  });
+  el.querySelectorAll('.date-ch').forEach(inp => DateHelper.bind(inp));
+
+  if (data) {
+    const s  = (fid, v) => { const f = document.getElementById(fid); if (f && v !== undefined && v !== null) f.value = v; };
+    const sN = (fid, v) => { const f = document.getElementById(fid); if (f && v) f.value = fmtCHF(v); };
+    s(`hypo-${id}-art`,   data.art);
+    sN(`hypo-${id}-betrag`, data.betrag);
+    s(`hypo-${id}-zins`,  data.zins);
+    s(`hypo-${id}-bis`,   data.bis);
+    updateHypoTitle(id);
+    updateHypoZins(id);
+  }
+  updateHypoCount(immoId);
+  updateImmobilieCalc(immoId);
+}
+
+function removeHypoTranche(id, immoId) {
+  document.querySelector(`[data-hypo-id="${id}"]`)?.remove();
+  if (!document.querySelectorAll(`[data-immo="${immoId}"].hypo-item`).length)
+    document.getElementById(`immo-${immoId}-hypo-empty`).style.display = '';
+  updateHypoCount(immoId);
+  updateImmobilieCalc(immoId);
+}
+
+function updateHypoCount(immoId) {
+  const count = document.querySelectorAll(`[data-immo="${immoId}"].hypo-item`).length;
+  const badge = document.getElementById(`immo-${immoId}-hypo-count`);
+  if (badge) badge.textContent = `${count} Tranche${count !== 1 ? 'n' : ''}`;
+}
+
+function updateHypoTitle(id) {
+  const art   = document.getElementById(`hypo-${id}-art`)?.value;
+  const artLabel = { fest:'Festhypothek', saron:'SARON', variabel:'Variabel', libor:'LIBOR/Flexibel' };
+  const betrag   = parseCHF(document.getElementById(`hypo-${id}-betrag`)?.value);
+  const el = document.getElementById(`hypo-${id}-title`);
+  if (!el) return;
+  let title = artLabel[art] || 'Tranche';
+  if (betrag) title += ` · CHF ${fmtCHF(betrag)}`;
+  el.textContent = title;
+}
+
+function updateHypoZins(id) {
+  const betrag   = parseCHF(document.getElementById(`hypo-${id}-betrag`)?.value) || 0;
+  const zinssatz = parseFloat(document.getElementById(`hypo-${id}-zins`)?.value) || 0;
+  const zinsJahr = Math.round(betrag * zinssatz / 100);
+  const dispEl   = document.getElementById(`hypo-${id}-zins-display`);
+  if (dispEl) dispEl.textContent = zinsJahr > 0 ? `CHF ${fmtCHF(zinsJahr)} / Jahr` : 'CHF —';
+}
+
+function updateImmobilieCalc(id) {
+  const verkehrswert = parseCHF(document.getElementById(`immo-${id}-verkehrswert`)?.value) || 0;
+  const kaufpreis    = parseCHF(document.getElementById(`immo-${id}-kaufpreis`)?.value) || 0;
+
+  // Hypotheken summieren
+  let hypoTotal = 0, zinsTotal = 0;
+  document.querySelectorAll(`[data-immo="${id}"].hypo-item`).forEach(item => {
+    const hid      = item.dataset.hypoId;
+    const betrag   = parseCHF(document.getElementById(`hypo-${hid}-betrag`)?.value) || 0;
+    const zinssatz = parseFloat(document.getElementById(`hypo-${hid}-zins`)?.value) || 0;
+    hypoTotal += betrag;
+    zinsTotal += Math.round(betrag * zinssatz / 100);
+    updateHypoZins(hid);
+    updateHypoTitle(hid);
+  });
+
+  const eigenkapital = verkehrswert - hypoTotal;
+  const belehnung    = verkehrswert > 0 ? Math.round(hypoTotal / verkehrswert * 1000) / 10 : 0;
+
+  // Wertzuwachs
+  const wertZuwachsCHF = (kaufpreis > 0 && verkehrswert > 0) ? verkehrswert - kaufpreis : null;
+  const wertZuwachsPct = (wertZuwachsCHF !== null && kaufpreis > 0)
+    ? Math.round(wertZuwachsCHF / kaufpreis * 1000) / 10 : null;
+
+  // Rendite (falls vermietet)
+  const isVermietet = document.getElementById(`immo-${id}-vermietet-ja`)?.classList.contains('active');
+  let rendite = null;
+  if (isVermietet) {
+    const brutto = parseCHF(document.getElementById(`immo-${id}-miete-brutto`)?.value) || 0;
+    const nk     = parseCHF(document.getElementById(`immo-${id}-miete-nk`)?.value) || 0;
+    if (verkehrswert > 0 && brutto > 0) {
+      rendite = Math.round((brutto - nk) / verkehrswert * 1000) / 10;
+      const rEl = document.getElementById(`immo-${id}-rendite-display`);
+      if (rEl) rEl.textContent = `${rendite} %`;
+    }
+  }
+
+  // KPI-Badges in der Karte
+  const kpiEk   = document.getElementById(`immo-${id}-kpi-ek`);
+  const kpiBel  = document.getElementById(`immo-${id}-kpi-belehnung`);
+  const kpiWz   = document.getElementById(`immo-${id}-kpi-wertzuwachs`);
+  const kpiZins = document.getElementById(`immo-${id}-kpi-zins`);
+
+  if (kpiEk) kpiEk.textContent = verkehrswert > 0
+    ? `Eigenkapital: CHF ${fmtCHF(eigenkapital)}` : 'Eigenkapital: CHF —';
+
+  if (kpiBel) {
+    kpiBel.textContent = verkehrswert > 0 ? `Belehnung: ${belehnung} %` : 'Belehnung: — %';
+    kpiBel.style.cssText = '';
+    if      (belehnung > 80)             kpiBel.style.cssText = 'background:var(--danger-bg);color:var(--danger)';
+    else if (belehnung > 66)             kpiBel.style.cssText = 'background:var(--warning-bg);color:var(--warning)';
+    else if (belehnung > 0)              kpiBel.style.cssText = 'background:var(--ok-bg);color:var(--ok)';
+  }
+
+  if (kpiWz) {
+    if (wertZuwachsCHF !== null) {
+      const sign = wertZuwachsCHF >= 0 ? '+' : '';
+      kpiWz.textContent    = `Wertzuwachs: ${sign}CHF ${fmtCHF(wertZuwachsCHF)} (${sign}${wertZuwachsPct} %)`;
+      kpiWz.style.cssText  = wertZuwachsCHF >= 0
+        ? 'background:var(--ok-bg);color:var(--ok)'
+        : 'background:var(--danger-bg);color:var(--danger)';
+    } else {
+      kpiWz.textContent   = 'Wertzuwachs: —';
+      kpiWz.style.cssText = '';
+    }
+  }
+  if (kpiZins) kpiZins.textContent = zinsTotal > 0
+    ? `Zins/Jahr: CHF ${fmtCHF(zinsTotal)}` : 'Zins/Jahr: CHF —';
+
+  // Header-Badges (sichtbar auch wenn zugeklappt)
+  const badgeWert    = document.getElementById(`immo-${id}-badge-wert`);
+  const badgeBel     = document.getElementById(`immo-${id}-badge-belehnung`);
+  const badgeRendite = document.getElementById(`immo-${id}-badge-rendite`);
+
+  if (badgeWert) {
+    badgeWert.style.display = verkehrswert > 0 ? '' : 'none';
+    badgeWert.textContent   = `CHF ${fmtCHF(verkehrswert)}`;
+  }
+  if (badgeBel) {
+    badgeBel.style.display  = verkehrswert > 0 ? '' : 'none';
+    badgeBel.textContent    = `${belehnung} % belehnt`;
+    badgeBel.style.background = ''; badgeBel.style.color = '';
+    if      (belehnung > 80) { badgeBel.style.background = 'var(--danger-bg)';  badgeBel.style.color = 'var(--danger)'; }
+    else if (belehnung > 66) { badgeBel.style.background = 'var(--warning-bg)'; badgeBel.style.color = 'var(--warning)'; }
+    else if (belehnung > 0)  { badgeBel.style.background = 'var(--ok-bg)';      badgeBel.style.color = 'var(--ok)'; }
+  }
+  if (badgeRendite) {
+    if (rendite !== null) { badgeRendite.style.display = ''; badgeRendite.textContent = `${rendite} % Rendite`; }
+    else                  { badgeRendite.style.display = 'none'; }
+  }
+
+  updatePortfolioKPIs();
+}
+
+function updateImmoCountBadge() {
+  const count = document.querySelectorAll('.immo-item').length;
+  const badge = document.getElementById('immo-count-badge');
+  if (badge) badge.textContent = `${count} Immobilie${count !== 1 ? 'n' : ''}`;
+  updatePortfolioKPIs();
+}
+
+function updatePortfolioKPIs() {
+  let totalWert = 0, totalHypo = 0, totalZins = 0, totalMiete = 0;
+
+  document.querySelectorAll('.immo-item').forEach(item => {
+    const id   = item.dataset.immoId;
+    const wert = parseCHF(document.getElementById(`immo-${id}-verkehrswert`)?.value) || 0;
+    totalWert += wert;
+
+    document.querySelectorAll(`[data-immo="${id}"].hypo-item`).forEach(h => {
+      const hid      = h.dataset.hypoId;
+      const betrag   = parseCHF(document.getElementById(`hypo-${hid}-betrag`)?.value) || 0;
+      const zinssatz = parseFloat(document.getElementById(`hypo-${hid}-zins`)?.value) || 0;
+      totalHypo += betrag;
+      totalZins += Math.round(betrag * zinssatz / 100);
+    });
+
+    if (document.getElementById(`immo-${id}-vermietet-ja`)?.classList.contains('active')) {
+      totalMiete += parseCHF(document.getElementById(`immo-${id}-miete-brutto`)?.value) || 0;
+    }
+  });
+
+  const nettoVerm    = totalWert - totalHypo;
+  const avgBelehnung = totalWert > 0 ? Math.round(totalHypo / totalWert * 1000) / 10 : 0;
+
+  const fmt = (v, id) => { const el = document.getElementById(id); if (el) el.textContent = v > 0 ? `CHF ${fmtCHF(v)}` : 'CHF —'; };
+  fmt(totalWert,  'kpi-immo-portfolio');
+  fmt(totalHypo,  'kpi-immo-hypotheken');
+  fmt(totalZins,  'kpi-immo-zins');
+  fmt(totalMiete, 'kpi-immo-miete');
+
+  const nettoEl = document.getElementById('kpi-immo-netto');
+  if (nettoEl) nettoEl.textContent = totalWert > 0 ? `CHF ${fmtCHF(nettoVerm)}` : 'CHF —';
+
+  const belEl = document.getElementById('kpi-immo-belehnung');
+  if (belEl) {
+    belEl.textContent = totalWert > 0 ? `${avgBelehnung} %` : '— %';
+    const tile = belEl.closest('.kpi-tile');
+    if (tile) {
+      tile.classList.remove('ok','warning','danger');
+      if      (avgBelehnung > 80)             tile.classList.add('danger');
+      else if (avgBelehnung > 66)             tile.classList.add('warning');
+      else if (avgBelehnung > 0)              tile.classList.add('ok');
+    }
+  }
 }
 
 // Modals schliessen bei Klick auf Overlay
