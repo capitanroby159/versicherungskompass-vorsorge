@@ -318,11 +318,99 @@ const DataManager = {
 
       kinder,
 
+      arbeitgeber1: this._collectAG('p1'),
+      arbeitgeber2: this._collectAG('p2'),
+
       bvgPflichtig1: document.getElementById('p1-bvg-ja')?.classList.contains('active') ?? true,
       bvgPflichtig2: document.getElementById('p2-bvg-ja')?.classList.contains('active') ?? true,
       pk1: this._collectPK('p1'),
       pk2: this._collectPK('p2'),
+
+      uvgVersichert1: document.getElementById('p1-uvg-ja')?.classList.contains('active') ?? true,
+      uvgVersichert2: document.getElementById('p2-uvg-ja')?.classList.contains('active') ?? true,
+      uvg1: this._collectTyp('uvg', 'p1'),
+      uvg2: this._collectTyp('uvg', 'p2'),
+
+      ktgVersichert1: document.getElementById('p1-ktg-ja')?.classList.contains('active') ?? true,
+      ktgVersichert2: document.getElementById('p2-ktg-ja')?.classList.contains('active') ?? true,
+      ktg1: this._collectTyp('ktg', 'p1'),
+      ktg2: this._collectTyp('ktg', 'p2'),
+
+      uvgzVersichert1: document.getElementById('p1-uvgz-ja')?.classList.contains('active') ?? true,
+      uvgzVersichert2: document.getElementById('p2-uvgz-ja')?.classList.contains('active') ?? true,
+      uvgz1: this._collectTyp('uvgz', 'p1'),
+      uvgz2: this._collectTyp('uvgz', 'p2'),
+
+      privVersichert1: document.getElementById('p1-priv-ja')?.classList.contains('active') ?? true,
+      privVersichert2: document.getElementById('p2-priv-ja')?.classList.contains('active') ?? true,
+      priv1: this._collectTyp('priv', 'p1'),
+      priv2: this._collectTyp('priv', 'p2'),
     };
+  },
+
+  _collectAG(person) {
+    const list = [];
+    document.querySelectorAll(`[data-person="${person}"].ag-item`).forEach(item => {
+      const id  = item.dataset.agId;
+      const get  = fid => document.getElementById(fid)?.value || '';
+      const getN = fid => parseCHF(document.getElementById(fid)?.value);
+      const isKantonal = document.getElementById(`ag-${id}-lfz-kantonal`)?.classList.contains('active');
+      list.push({
+        id,
+        name:        get(`ag-${id}-name`),
+        kanton:      get(`ag-${id}-kanton`),
+        seit:        get(`ag-${id}-seit`),
+        pensum:      get(`ag-${id}-pensum`),
+        lohn:        getN(`ag-${id}-lohn`),
+        monatsloehne:get(`ag-${id}-monatsloehne`),
+        lfzTyp:      isKantonal ? 'kantonal' : 'personalreglement',
+        lfzWochen:   get(`ag-${id}-lfz-wochen`),
+      });
+    });
+    return list;
+  },
+
+  _collectTyp(typ, person) {
+    const list = [];
+    document.querySelectorAll(`[data-person="${person}"].${typ}-item`).forEach(item => {
+      const id  = item.dataset[`${typ}Id`];
+      const get  = fid => document.getElementById(fid)?.value || '';
+      const getN = fid => parseCHF(document.getElementById(fid)?.value);
+      const obj  = { id };
+      if (typ === 'uvg') {
+        obj.versicherer = get(`uvg-${id}-versicherer`);
+        obj.lohn        = getN(`uvg-${id}-lohn`);
+        obj.deckung     = get(`uvg-${id}-deckung`);
+        obj.taggeld     = getN(`uvg-${id}-taggeld`);
+        obj.ivRente     = getN(`uvg-${id}-iv-rente`);
+        obj.heilung     = getN(`uvg-${id}-heilung`);
+        obj.ivKapital   = getN(`uvg-${id}-iv-kapital`);
+        obj.tfKapital   = getN(`uvg-${id}-tf-kapital`);
+      } else if (typ === 'ktg') {
+        obj.versicherer = get(`ktg-${id}-versicherer`);
+        obj.wartefrist  = get(`ktg-${id}-wartefrist`);
+        obj.dauer       = get(`ktg-${id}-dauer`);
+        obj.lohn        = getN(`ktg-${id}-lohn`);
+        obj.deckung     = get(`ktg-${id}-deckung`);
+        obj.taggeld     = getN(`ktg-${id}-taggeld`);
+        obj.praemie     = getN(`ktg-${id}-praemie`);
+      } else if (typ === 'uvgz') {
+        obj.versicherer = get(`uvgz-${id}-versicherer`);
+        obj.lohn        = getN(`uvgz-${id}-lohn`);
+        obj.taggeld     = getN(`uvgz-${id}-taggeld`);
+        obj.heilung     = getN(`uvgz-${id}-heilung`);
+        obj.ivKapital   = getN(`uvgz-${id}-iv-kapital`);
+        obj.ivRente     = getN(`uvgz-${id}-iv-rente`);
+        obj.tfKapital   = getN(`uvgz-${id}-tf-kapital`);
+      } else if (typ === 'priv') {
+        obj.art         = get(`priv-${id}-art`);
+        obj.versicherer = get(`priv-${id}-versicherer`);
+        obj.leistung    = getN(`priv-${id}-leistung`);
+        obj.praemie     = getN(`priv-${id}-praemie`);
+      }
+      list.push(obj);
+    });
+    return list;
   },
 
   _collectPK(person) {
@@ -384,11 +472,8 @@ const DataManager = {
       set('p1-geburt', p.geburt);          set('p1-geschlecht', p.geschlecht);
       set('p1-zivilstand', p.zivilstand);  set('p1-partnerschaft-datum', p.partnerschaftDatum);
       set('p1-ausbildung', p.ausbildung);  set('p1-erwerbsstatus', p.erwerbsstatus);
-      set('p1-beruf', p.beruf);            set('p1-arbeitgeber', p.arbeitgeber);
-      set('p1-kanton', p.kanton);          set('p1-angestellt-seit', p.angestelltSeit);
-      set('p1-pensum', p.pensum);          setN('p1-ahv-lohn', p.ahvLohn);
-      set('p1-monatsloehne', p.monatsloehne); set('p1-pensionsalter', p.pensionsalter);
-      updatePersonInfo('p1'); updateLohnfortzahlung('p1'); updateEinkommen('p1');
+      set('p1-beruf', p.beruf);            set('p1-pensionsalter', p.pensionsalter);
+      updatePersonInfo('p1');
     }
 
     if (data.person2) {
@@ -397,11 +482,32 @@ const DataManager = {
       set('p2-geburt', p.geburt);          set('p2-geschlecht', p.geschlecht);
       set('p2-zivilstand', p.zivilstand);
       set('p2-ausbildung', p.ausbildung);  set('p2-erwerbsstatus', p.erwerbsstatus);
-      set('p2-beruf', p.beruf);            set('p2-arbeitgeber', p.arbeitgeber);
-      set('p2-kanton', p.kanton);          set('p2-angestellt-seit', p.angestelltSeit);
-      set('p2-pensum', p.pensum);          setN('p2-ahv-lohn', p.ahvLohn);
-      set('p2-monatsloehne', p.monatsloehne); set('p2-pensionsalter', p.pensionsalter);
-      updatePersonInfo('p2'); updateLohnfortzahlung('p2'); updateEinkommen('p2');
+      set('p2-beruf', p.beruf);            set('p2-pensionsalter', p.pensionsalter);
+      updatePersonInfo('p2');
+    }
+
+    // Arbeitgeber-Listen
+    const restoreAG = (person, list, legacyPerson) => {
+      document.querySelectorAll(`[data-person="${person}"].ag-item`).forEach(el => el.remove());
+      agCounters[person] = 0;
+      document.getElementById(`${person}-ag-empty`).style.display = '';
+      if (list?.length) {
+        list.forEach(ag => addArbeitgeber(person, ag));
+      } else if (legacyPerson?.arbeitgeber || legacyPerson?.ahvLohn) {
+        // Backward compat: single employer from old save format
+        addArbeitgeber(person, {
+          name:        legacyPerson.arbeitgeber || '',
+          kanton:      legacyPerson.kanton || '',
+          seit:        legacyPerson.angestelltSeit || '',
+          pensum:      legacyPerson.pensum || 100,
+          lohn:        legacyPerson.ahvLohn || null,
+          monatsloehne:legacyPerson.monatsloehne || '13',
+        });
+      }
+    };
+    if (typeof addArbeitgeber === 'function') {
+      restoreAG('p1', data.arbeitgeber1, data.person1);
+      restoreAG('p2', data.arbeitgeber2, data.person2);
     }
 
     if (data.kinder?.length) {
@@ -423,6 +529,25 @@ const DataManager = {
       restorePK('p2', data.pk2);
       if (data.bvgPflichtig1 === false && typeof setBVGPflichtig === 'function') setBVGPflichtig('p1', false);
       if (data.bvgPflichtig2 === false && typeof setBVGPflichtig === 'function') setBVGPflichtig('p2', false);
+    }
+
+    // Phase 3 restore
+    if (typeof setVersicherungToggle === 'function') {
+      const restoreTyp = (typ, person, versichert, list, addFn) => {
+        document.querySelectorAll(`[data-person="${person}"].${typ}-item`).forEach(el => el.remove());
+        document.getElementById(`${person}-${typ}-empty`).style.display = '';
+        if (versichert === false) setVersicherungToggle(person, typ, false);
+        if (list?.length) list.forEach(v => addFn(person, v));
+        updateVertragBadge(typ, person);
+      };
+      restoreTyp('uvg',  'p1', data.uvgVersichert1,  data.uvg1,  addUVGVertrag);
+      restoreTyp('uvg',  'p2', data.uvgVersichert2,  data.uvg2,  addUVGVertrag);
+      restoreTyp('ktg',  'p1', data.ktgVersichert1,  data.ktg1,  addKTGVertrag);
+      restoreTyp('ktg',  'p2', data.ktgVersichert2,  data.ktg2,  addKTGVertrag);
+      restoreTyp('uvgz', 'p1', data.uvgzVersichert1, data.uvgz1, addUVGZVertrag);
+      restoreTyp('uvgz', 'p2', data.uvgzVersichert2, data.uvgz2, addUVGZVertrag);
+      restoreTyp('priv', 'p1', data.privVersichert1, data.priv1, addPrivVertrag);
+      restoreTyp('priv', 'p2', data.privVersichert2, data.priv2, addPrivVertrag);
     }
 
     updateKPIs();
