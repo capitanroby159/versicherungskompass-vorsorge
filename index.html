@@ -40,6 +40,11 @@
     }
     .immo-section-label:first-child { border-top: none; padding-top: 0; }
 
+    /* Portfolio-Grid responsive */
+    @media (max-width: 900px) {
+      #panel-vermoegen .kpi-grid { grid-template-columns: repeat(2, 1fr) !important; }
+    }
+
     /* ── BERATER MODAL ── */
     .modal-overlay {
       display: none;
@@ -933,7 +938,7 @@
           <span class="badge badge-primary" id="immo-count-badge">0 Immobilien</span>
         </div>
         <div class="card-body">
-          <div class="kpi-grid" style="grid-template-columns:repeat(auto-fit,minmax(160px,1fr))">
+          <div class="kpi-grid" style="grid-template-columns:repeat(4,1fr)">
             <div class="kpi-tile">
               <div class="kpi-tile-label">Gesamtportfoliowert</div>
               <div class="kpi-tile-value" id="kpi-immo-portfolio">CHF —</div>
@@ -957,6 +962,16 @@
             <div class="kpi-tile">
               <div class="kpi-tile-label">Mieteinnahmen / Jahr</div>
               <div class="kpi-tile-value" id="kpi-immo-miete">CHF —</div>
+            </div>
+            <div class="kpi-tile">
+              <div class="kpi-tile-label">Ø Bruttomietrendite</div>
+              <div class="kpi-tile-value" id="kpi-immo-bruttorendite">— %</div>
+              <div class="kpi-tile-sub">auf Verkehrswert</div>
+            </div>
+            <div class="kpi-tile">
+              <div class="kpi-tile-label">Netto-Cashflow / Monat</div>
+              <div class="kpi-tile-value" id="kpi-immo-cashflow">CHF —</div>
+              <div class="kpi-tile-sub">nach Hypothekarzinsen</div>
             </div>
           </div>
         </div>
@@ -1820,6 +1835,8 @@
             <div class="info-badge" id="immo-{ID}-kpi-belehnung">Belehnung: — %</div>
             <div class="info-badge" id="immo-{ID}-kpi-wertzuwachs">Wertzuwachs: —</div>
             <div class="info-badge" id="immo-{ID}-kpi-zins">Zins/Jahr: CHF —</div>
+            <div class="info-badge" id="immo-{ID}-kpi-bruttorendite" style="display:none">Bruttorendite: — %</div>
+            <div class="info-badge" id="immo-{ID}-kpi-ekrendite" style="display:none">EK-Rendite: — % (Leverage)</div>
           </div>
         </div>
 
@@ -2832,6 +2849,35 @@ function updateImmobilieCalc(id) {
   if (kpiZins) kpiZins.textContent = zinsTotal > 0
     ? `Zins/Jahr: CHF ${fmtCHF(zinsTotal)}` : 'Zins/Jahr: CHF —';
 
+  // Brutto-Rendite (nur wenn vermietet + Verkehrswert vorhanden)
+  const kpiBrutto  = document.getElementById(`immo-${id}-kpi-bruttorendite`);
+  const kpiEKRente = document.getElementById(`immo-${id}-kpi-ekrendite`);
+  if (isVermietet && verkehrswert > 0) {
+    const brutto     = parseCHF(document.getElementById(`immo-${id}-miete-brutto`)?.value) || 0;
+    const nk         = parseCHF(document.getElementById(`immo-${id}-miete-nk`)?.value) || 0;
+    const bruttoRend = brutto > 0 ? Math.round(brutto / verkehrswert * 1000) / 10 : null;
+    // EK-Rendite (Leverage): (Mieteinnahmen netto - Zinsen) / Eigenkapital
+    const reingewinn = (brutto - nk) - zinsTotal;
+    const ekRendite  = eigenkapital > 0 ? Math.round(reingewinn / eigenkapital * 1000) / 10 : null;
+
+    if (kpiBrutto) {
+      kpiBrutto.style.display = bruttoRend !== null ? '' : 'none';
+      if (bruttoRend !== null) kpiBrutto.textContent = `Bruttorendite: ${bruttoRend} %`;
+    }
+    if (kpiEKRente) {
+      kpiEKRente.style.display = ekRendite !== null ? '' : 'none';
+      if (ekRendite !== null) {
+        kpiEKRente.textContent = `EK-Rendite: ${ekRendite} % (Leverage)`;
+        kpiEKRente.style.cssText = ekRendite > 0
+          ? 'background:var(--ok-bg);color:var(--ok)'
+          : 'background:var(--danger-bg);color:var(--danger)';
+      }
+    }
+  } else {
+    if (kpiBrutto)  { kpiBrutto.style.display = 'none'; }
+    if (kpiEKRente) { kpiEKRente.style.display = 'none'; }
+  }
+
   // Header-Badges (sichtbar auch wenn zugeklappt)
   const badgeWert    = document.getElementById(`immo-${id}-badge-wert`);
   const badgeBel     = document.getElementById(`immo-${id}-badge-belehnung`);
@@ -2887,6 +2933,12 @@ function updatePortfolioKPIs() {
 
   const nettoVerm    = totalWert - totalHypo;
   const avgBelehnung = totalWert > 0 ? Math.round(totalHypo / totalWert * 1000) / 10 : 0;
+  // Ø Bruttomietrendite (gewichtet nach Verkehrswert) — nur vermietete Objekte
+  const bruttoRendite = (totalMiete > 0 && totalWert > 0)
+    ? Math.round(totalMiete / totalWert * 1000) / 10 : null;
+  // Netto-Cashflow/Monat: Mieteinnahmen − Gesamtzinsen
+  const cashflowJahr  = totalMiete - totalZins;
+  const cashflowMonat = Math.round(cashflowJahr / 12);
 
   const fmt = (v, id) => { const el = document.getElementById(id); if (el) el.textContent = v > 0 ? `CHF ${fmtCHF(v)}` : 'CHF —'; };
   fmt(totalWert,  'kpi-immo-portfolio');
@@ -2903,9 +2955,30 @@ function updatePortfolioKPIs() {
     const tile = belEl.closest('.kpi-tile');
     if (tile) {
       tile.classList.remove('ok','warning','danger');
-      if      (avgBelehnung > 80)             tile.classList.add('danger');
-      else if (avgBelehnung > 66)             tile.classList.add('warning');
-      else if (avgBelehnung > 0)              tile.classList.add('ok');
+      if      (avgBelehnung > 80) tile.classList.add('danger');
+      else if (avgBelehnung > 66) tile.classList.add('warning');
+      else if (avgBelehnung > 0)  tile.classList.add('ok');
+    }
+  }
+
+  // Ø Bruttomietrendite
+  const bruttoEl = document.getElementById('kpi-immo-bruttorendite');
+  if (bruttoEl) bruttoEl.textContent = bruttoRendite !== null ? `${bruttoRendite} %` : '— %';
+
+  // Netto-Cashflow / Monat (grün = positiv, rot = negativ)
+  const cfEl   = document.getElementById('kpi-immo-cashflow');
+  const cfTile = cfEl?.closest('.kpi-tile');
+  if (cfEl) {
+    if (totalMiete > 0) {
+      const sign = cashflowMonat >= 0 ? '+' : '';
+      cfEl.textContent = `${sign}CHF ${fmtCHF(Math.abs(cashflowMonat))}`;
+      if (cfTile) {
+        cfTile.classList.remove('ok','danger');
+        cfTile.classList.add(cashflowMonat >= 0 ? 'ok' : 'danger');
+      }
+    } else {
+      cfEl.textContent = 'CHF —';
+      if (cfTile) cfTile.classList.remove('ok','danger');
     }
   }
 }
