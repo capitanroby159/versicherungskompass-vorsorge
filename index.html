@@ -619,7 +619,7 @@
       <div class="page-title">
         <div class="page-overline">Schritt 2</div>
         <h1 class="page-heading">Versicherungen <em>&amp; Vorsorge</em></h1>
-        <p class="page-description">Pensionskasse (2. Säule) — beliebig viele Verträge pro Person (Basis, Kader, 1e …)</p>
+        <p class="page-description">Pensionskasse (2. Säule) — beliebig viele Verträge pro Person</p>
       </div>
 
       <!-- PK PERSON 1 -->
@@ -632,14 +632,26 @@
           <span class="badge badge-primary" id="p1-pk-count-badge">0 Verträge</span>
         </div>
         <div class="card-body">
-          <div class="dynamic-list" id="p1-pk-list">
-            <div class="empty-state" id="p1-pk-empty">
-              <div class="empty-state-icon">🏦</div>
-              <p class="empty-state-text">Noch kein PK-Vertrag erfasst</p>
+          <div style="display:flex;align-items:center;gap:var(--space-md);margin-bottom:var(--space-md)">
+            <span style="font-size:13px;font-weight:500;color:var(--black)">BVG-pflichtig?</span>
+            <div class="person-toggle">
+              <button class="person-toggle-btn active" id="p1-bvg-ja" onclick="setBVGPflichtig('p1',true)">Ja</button>
+              <button class="person-toggle-btn" id="p1-bvg-nein" onclick="setBVGPflichtig('p1',false)">Nein</button>
             </div>
           </div>
-          <div style="margin-top:var(--space-md)">
-            <button class="btn-add" onclick="addPKVertrag('p1')">+ PK-Vertrag hinzufügen</button>
+          <div id="p1-pk-content">
+            <div class="dynamic-list" id="p1-pk-list">
+              <div class="empty-state" id="p1-pk-empty">
+                <div class="empty-state-icon">🏦</div>
+                <p class="empty-state-text">Noch kein PK-Vertrag erfasst</p>
+              </div>
+            </div>
+            <div style="margin-top:var(--space-md)">
+              <button class="btn-add" onclick="addPKVertrag('p1')">+ PK-Vertrag hinzufügen</button>
+            </div>
+          </div>
+          <div id="p1-pk-not-pflichtig" style="display:none;padding:var(--space-md);background:var(--gray-lighter);border-radius:var(--radius-md);font-size:13px;color:var(--gray-mid);text-align:center">
+            Nicht BVG-versichert
           </div>
         </div>
       </div>
@@ -654,14 +666,26 @@
           <span class="badge badge-accent" id="p2-pk-count-badge">0 Verträge</span>
         </div>
         <div class="card-body">
-          <div class="dynamic-list" id="p2-pk-list">
-            <div class="empty-state" id="p2-pk-empty">
-              <div class="empty-state-icon">🏦</div>
-              <p class="empty-state-text">Noch kein PK-Vertrag erfasst</p>
+          <div style="display:flex;align-items:center;gap:var(--space-md);margin-bottom:var(--space-md)">
+            <span style="font-size:13px;font-weight:500;color:var(--black)">BVG-pflichtig?</span>
+            <div class="person-toggle">
+              <button class="person-toggle-btn active" id="p2-bvg-ja" onclick="setBVGPflichtig('p2',true)">Ja</button>
+              <button class="person-toggle-btn" id="p2-bvg-nein" onclick="setBVGPflichtig('p2',false)">Nein</button>
             </div>
           </div>
-          <div style="margin-top:var(--space-md)">
-            <button class="btn-add" onclick="addPKVertrag('p2')">+ PK-Vertrag hinzufügen</button>
+          <div id="p2-pk-content">
+            <div class="dynamic-list" id="p2-pk-list">
+              <div class="empty-state" id="p2-pk-empty">
+                <div class="empty-state-icon">🏦</div>
+                <p class="empty-state-text">Noch kein PK-Vertrag erfasst</p>
+              </div>
+            </div>
+            <div style="margin-top:var(--space-md)">
+              <button class="btn-add" onclick="addPKVertrag('p2')">+ PK-Vertrag hinzufügen</button>
+            </div>
+          </div>
+          <div id="p2-pk-not-pflichtig" style="display:none;padding:var(--space-md);background:var(--gray-lighter);border-radius:var(--radius-md);font-size:13px;color:var(--gray-mid);text-align:center">
+            Nicht BVG-versichert
           </div>
         </div>
       </div>
@@ -875,14 +899,14 @@
           </div>
         </div>
         <div class="form-group">
-          <label class="form-label">BVG-Lohn (koordiniert)</label>
+          <label class="form-label">BVG-Lohn</label>
           <div class="info-badge" id="pk-{ID}-bvglohn">— CHF</div>
         </div>
 
         <div style="grid-column:1/-1;padding-top:var(--space-xs);border-top:1px solid var(--primary-light);font-size:11px;font-weight:600;color:var(--primary);text-transform:uppercase;letter-spacing:.05em">Altersleistungen</div>
 
         <div class="form-group">
-          <label class="form-label">Altersguthaben heute</label>
+          <label class="form-label">Altersguthaben</label>
           <div class="form-input-prefix">
             <span class="prefix">CHF</span>
             <input type="text" class="form-input money-input" id="pk-{ID}-guthaben"
@@ -890,33 +914,39 @@
           </div>
         </div>
         <div class="form-group">
-          <label class="form-label">Voraus. Guthaben (Pension)</label>
+          <label class="form-label">Voraus. Altersguthaben</label>
           <div class="form-input-prefix">
             <span class="prefix">CHF</span>
-            <input type="text" class="form-input money-input" id="pk-{ID}-guthaben-pension">
+            <input type="text" class="form-input money-input" id="pk-{ID}-guthaben-pension"
+                   oninput="calcAltersrente('{ID}')">
           </div>
         </div>
         <div class="form-group">
-          <label class="form-label">Umwandlungssatz (UWS)</label>
+          <label class="form-label">Umwandlungssatz</label>
           <div class="form-input-suffix">
             <input type="number" class="form-input" id="pk-{ID}-uws"
-                   value="6.80" min="4" max="9" step="0.01">
+                   value="6.80" min="4" max="9" step="0.01"
+                   oninput="calcAltersrente('{ID}')">
             <span class="suffix">%</span>
           </div>
         </div>
         <div class="form-group" style="grid-column:1/-1">
-          <label class="form-label">Voraus. Altersrente PK (aus Ausweis / Jahr)</label>
-          <div class="form-input-prefix" style="max-width:220px">
-            <span class="prefix">CHF</span>
-            <input type="text" class="form-input money-input" id="pk-{ID}-altersrente"
-                   placeholder="aus Ausweis">
+          <label class="form-label">Voraus. Altersrente PK</label>
+          <div style="display:flex;gap:var(--space-xs);align-items:flex-start">
+            <div class="form-input-prefix" style="max-width:220px">
+              <span class="prefix">CHF</span>
+              <input type="text" class="form-input money-input" id="pk-{ID}-altersrente">
+            </div>
+            <button class="btn btn-outline btn-sm" onclick="calcAltersrente('{ID}')"
+                    title="Aus Voraus. Altersguthaben × Umwandlungssatz berechnen"
+                    style="flex-shrink:0">↺</button>
           </div>
         </div>
 
-        <div style="grid-column:1/-1;padding-top:var(--space-xs);border-top:1px solid var(--primary-light);font-size:11px;font-weight:600;color:var(--primary);text-transform:uppercase;letter-spacing:.05em">Invalidenleistungen (IV-Grad 100%)</div>
+        <div style="grid-column:1/-1;padding-top:var(--space-xs);border-top:1px solid var(--primary-light);font-size:11px;font-weight:600;color:var(--primary);text-transform:uppercase;letter-spacing:.05em">Invalidenleistungen</div>
 
         <div class="form-group" style="grid-column:1/-1">
-          <label class="form-label">IV-Jahresrente PK (aus Ausweis)</label>
+          <label class="form-label">IV-Jahresrente PK</label>
           <div class="form-input-prefix" style="max-width:220px">
             <span class="prefix">CHF</span>
             <input type="text" class="form-input money-input" id="pk-{ID}-iv-rente"
@@ -941,7 +971,7 @@
           </div>
         </div>
         <div class="form-group">
-          <label class="form-label">Waisenrente (pro Kind)</label>
+          <label class="form-label">Waisenrente</label>
           <div class="form-input-prefix">
             <span class="prefix">CHF</span>
             <input type="text" class="form-input money-input" id="pk-{ID}-waisen-rente">
@@ -1053,6 +1083,22 @@ function updateZivilstand() {
   if (lbl) lbl.childNodes[0].textContent = (labels[zs] || 'Partnerschaft seit') + ' ';
 }
 
+// ── BVG-PFLICHTIG ──
+function setBVGPflichtig(person, pflichtig) {
+  document.getElementById(`${person}-bvg-ja`).classList.toggle('active', pflichtig);
+  document.getElementById(`${person}-bvg-nein`).classList.toggle('active', !pflichtig);
+  document.getElementById(`${person}-pk-content`).style.display = pflichtig ? '' : 'none';
+  document.getElementById(`${person}-pk-not-pflichtig`).style.display = pflichtig ? 'none' : '';
+}
+
+function calcAltersrente(id) {
+  const guth = parseCHF(document.getElementById(`pk-${id}-guthaben-pension`)?.value) || 0;
+  const uws  = parseFloat(document.getElementById(`pk-${id}-uws`)?.value) || 0;
+  if (!guth || !uws) return;
+  const field = document.getElementById(`pk-${id}-altersrente`);
+  if (field) field.value = fmtCHF(Math.round(guth * uws / 100));
+}
+
 // ── PK VERTRÄGE ──
 const pkCounters = { p1: 0, p2: 0 };
 
@@ -1094,6 +1140,7 @@ function addPKVertrag(person, data = null) {
     sN(`pk-${id}-waisen-rente`,    data.waisenRente);
     updatePKVertrag(id, person);
     updatePKVertragTitle(id);
+    calcAltersrente(id);
   }
 
   updatePKBadge(person);

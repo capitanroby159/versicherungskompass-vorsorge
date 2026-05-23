@@ -318,6 +318,8 @@ const DataManager = {
 
       kinder,
 
+      bvgPflichtig1: document.getElementById('p1-bvg-ja')?.classList.contains('active') ?? true,
+      bvgPflichtig2: document.getElementById('p2-bvg-ja')?.classList.contains('active') ?? true,
       pk1: this._collectPK('p1'),
       pk2: this._collectPK('p2'),
     };
@@ -418,6 +420,8 @@ const DataManager = {
     if (typeof addPKVertrag === 'function') {
       restorePK('p1', data.pk1);
       restorePK('p2', data.pk2);
+      if (data.bvgPflichtig1 === false && typeof setBVGPflichtig === 'function') setBVGPflichtig('p1', false);
+      if (data.bvgPflichtig2 === false && typeof setBVGPflichtig === 'function') setBVGPflichtig('p2', false);
     }
 
     updateKPIs();
