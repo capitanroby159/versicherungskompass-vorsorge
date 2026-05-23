@@ -895,12 +895,21 @@
           <div class="form-input-prefix">
             <span class="prefix">CHF</span>
             <input type="text" class="form-input money-input" id="pk-{ID}-koord"
-                   value="25725" oninput="updatePKVertrag('{ID}','{PERSON}')">
+                   value="26460" oninput="updatePKVertrag('{ID}','{PERSON}')">
           </div>
         </div>
         <div class="form-group">
           <label class="form-label">BVG-Lohn</label>
           <div class="info-badge" id="pk-{ID}-bvglohn">— CHF</div>
+        </div>
+
+        <div style="grid-column:1/-1;display:flex;align-items:center;gap:var(--space-sm);flex-wrap:wrap;margin-top:-4px">
+          <span style="font-size:12px;color:var(--text-muted);white-space:nowrap">Teilzeit-Koordination</span>
+          <button class="person-toggle-btn" id="pk-{ID}-teilzeit-ja"
+                  onclick="setTeilzeit('{ID}','{PERSON}',true)">Ja</button>
+          <button class="person-toggle-btn active" id="pk-{ID}-teilzeit-nein"
+                  onclick="setTeilzeit('{ID}','{PERSON}',false)">Nein</button>
+          <span id="pk-{ID}-bvg-warn" style="display:none;font-size:12px;color:#c0392b;font-weight:600"></span>
         </div>
 
         <div style="grid-column:1/-1;padding-top:var(--space-xs);border-top:1px solid var(--primary-light);font-size:11px;font-weight:600;color:var(--primary);text-transform:uppercase;letter-spacing:.05em">Altersleistungen</div>
@@ -1141,6 +1150,7 @@ function addPKVertrag(person, data = null) {
     sN(`pk-${id}-tf-kapital`,      data.tfKapital);
     sN(`pk-${id}-hl-rente`,        data.hlRente);
     sN(`pk-${id}-waisen-rente`,    data.waisenRente);
+    if (data.teilzeit) setTeilzeit(id, person, true);
     updatePKVertrag(id, person);
     updatePKVertragTitle(id);
     calcAltersrente(id);
@@ -1166,13 +1176,48 @@ function updatePKVertragTitle(id) {
 }
 
 function updatePKVertrag(id, person) {
+  const KOORD_STD         = 26460;
+  const EINTRITTSSCHWELLE = 22680;
+  const MIN_BVG           = 3780;
+
   const verslohn = parseCHF(document.getElementById(`pk-${id}-verslohn`)?.value) || 0;
   const koordRaw = parseCHF(document.getElementById(`pk-${id}-koord`)?.value);
-  const koord    = (koordRaw === '' || koordRaw === false || koordRaw === null) ? 25725 : koordRaw;
-  const bvgLohn  = Math.max(0, verslohn - koord);
+  const koord    = (koordRaw === '' || koordRaw === false || koordRaw === null) ? KOORD_STD : koordRaw;
   const bvgEl    = document.getElementById(`pk-${id}-bvglohn`);
-  if (bvgEl) bvgEl.textContent = verslohn > 0 ? `CHF ${fmtCHF(bvgLohn)}` : '— CHF';
+  const warnEl   = document.getElementById(`pk-${id}-bvg-warn`);
+
+  if (!verslohn) {
+    if (bvgEl)  bvgEl.textContent = '— CHF';
+    if (warnEl) warnEl.style.display = 'none';
+    updatePKKPIs();
+    return;
+  }
+  if (verslohn < EINTRITTSSCHWELLE) {
+    if (bvgEl)  bvgEl.textContent = '— CHF';
+    if (warnEl) { warnEl.textContent = `⚠ Lohn unter Eintrittsschwelle (CHF ${fmtCHF(EINTRITTSSCHWELLE)})`; warnEl.style.display = ''; }
+    updatePKKPIs();
+    return;
+  }
+  if (warnEl) warnEl.style.display = 'none';
+  const diff    = verslohn - koord;
+  const bvgLohn = diff < MIN_BVG ? MIN_BVG : diff;
+  if (bvgEl) bvgEl.textContent = `CHF ${fmtCHF(bvgLohn)}`;
   updatePKKPIs();
+}
+
+function setTeilzeit(id, person, active) {
+  document.getElementById(`pk-${id}-teilzeit-ja`)?.classList.toggle('active', active);
+  document.getElementById(`pk-${id}-teilzeit-nein`)?.classList.toggle('active', !active);
+  const koordEl = document.getElementById(`pk-${id}-koord`);
+  if (koordEl) {
+    if (active) {
+      const grad     = parseFloat(document.getElementById(`${person}-pensum`)?.value) || 100;
+      koordEl.value  = fmtCHF(Math.round(26460 * grad / 100));
+    } else {
+      koordEl.value = fmtCHF(26460);
+    }
+  }
+  updatePKVertrag(id, person);
 }
 
 function updatePKBadge(person) {

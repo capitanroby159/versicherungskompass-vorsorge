@@ -345,6 +345,7 @@ const DataManager = {
         tfKapital:       getN(`pk-${id}-tf-kapital`),
         hlRente:         getN(`pk-${id}-hl-rente`),
         waisenRente:     getN(`pk-${id}-waisen-rente`),
+        teilzeit:        document.getElementById(`pk-${id}-teilzeit-ja`)?.classList.contains('active') ?? false,
       });
     });
     return contracts;
