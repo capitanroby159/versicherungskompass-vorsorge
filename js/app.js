@@ -265,6 +265,7 @@ const DataManager = {
       version:   '1.2',
       savedAt:   new Date().toISOString(),
       erstelltAm: get('erstellt-am'),
+      personenAnzahl: typeof personenAnzahl !== 'undefined' ? personenAnzahl : 1,
 
       berater: {
         vorname: get('berater-vorname'),
@@ -316,11 +317,43 @@ const DataManager = {
       },
 
       kinder,
+
+      pk1: this._collectPK('p1'),
+      pk2: this._collectPK('p2'),
     };
+  },
+
+  _collectPK(person) {
+    const contracts = [];
+    document.querySelectorAll(`[data-person="${person}"].pk-vertrag-item`).forEach(item => {
+      const id  = item.dataset.pkId;
+      const get  = fid => document.getElementById(fid)?.value || '';
+      const getN = fid => parseCHF(document.getElementById(fid)?.value);
+      contracts.push({
+        id,
+        plan:            get(`pk-${id}-plan`),
+        name:            get(`pk-${id}-name`),
+        versLohn:        getN(`pk-${id}-verslohn`),
+        koord:           getN(`pk-${id}-koord`),
+        guthaben:        getN(`pk-${id}-guthaben`),
+        guthabenPension: getN(`pk-${id}-guthaben-pension`),
+        uws:             get(`pk-${id}-uws`),
+        altersrente:     getN(`pk-${id}-altersrente`),
+        ivRente:         getN(`pk-${id}-iv-rente`),
+        tfKapital:       getN(`pk-${id}-tf-kapital`),
+        hlRente:         getN(`pk-${id}-hl-rente`),
+        waisenRente:     getN(`pk-${id}-waisen-rente`),
+      });
+    });
+    return contracts;
   },
 
   populate(data) {
     if (!data) return;
+    // Personen-Anzahl zuerst wiederherstellen
+    if (data.personenAnzahl && typeof setPersonenAnzahl === 'function') {
+      setPersonenAnzahl(data.personenAnzahl, true);
+    }
     const set  = (id, v) => { const el = document.getElementById(id); if (el && v !== undefined && v !== null) el.value = v; };
     const setN = (id, v) => { const el = document.getElementById(id); if (el && v) el.value = fmtCHF(v); };
 
@@ -373,6 +406,18 @@ const DataManager = {
       document.querySelectorAll('.kind-item').forEach(el => el.remove());
       kindCounter = 0;
       data.kinder.forEach(k => addKind(k));
+    }
+
+    const restorePK = (person, contracts) => {
+      if (!contracts?.length) return;
+      document.querySelectorAll(`[data-person="${person}"].pk-vertrag-item`).forEach(el => el.remove());
+      pkCounters[person] = 0;
+      document.getElementById(`${person}-pk-empty`).style.display = '';
+      contracts.forEach(v => addPKVertrag(person, v));
+    };
+    if (typeof addPKVertrag === 'function') {
+      restorePK('p1', data.pk1);
+      restorePK('p2', data.pk2);
     }
 
     updateKPIs();

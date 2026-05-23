@@ -92,6 +92,48 @@
       flex: 1;
     }
 
+    /* ── PERSONEN TOGGLE ── */
+    .person-toggle {
+      display: flex;
+      gap: 4px;
+      background: var(--gray-lighter);
+      padding: 4px;
+      border-radius: var(--radius-md);
+    }
+    .person-toggle-btn {
+      padding: 6px 16px;
+      border: none;
+      border-radius: var(--radius-sm);
+      font-family: var(--font-body);
+      font-size: 12px;
+      font-weight: 500;
+      cursor: pointer;
+      color: var(--gray-mid);
+      background: transparent;
+      transition: all var(--transition);
+      white-space: nowrap;
+    }
+    .person-toggle-btn.active {
+      background: var(--primary);
+      color: var(--white-pure);
+      box-shadow: var(--shadow-sm);
+    }
+    .person-toggle-btn:not(.active):hover {
+      background: var(--gray-light);
+      color: var(--black);
+    }
+
+    /* Person 2 Spalte ausblenden */
+    .buyer-grid.single-mode {
+      grid-template-columns: 200px 1fr;
+    }
+    .buyer-grid.single-mode .p2-col {
+      display: none;
+    }
+
+    /* KPI bei 1 Person */
+    .kpi-p2-hidden { display: none !important; }
+
     /* ── LFZ INFO MODAL ── */
     .lfz-table { width: 100%; border-collapse: collapse; font-size: 12px; }
     .lfz-table th {
@@ -225,17 +267,26 @@
             <span class="card-title-icon">👥</span>
             Kunden
           </div>
+          <!-- PERSONEN TOGGLE -->
+          <div class="person-toggle" id="person-toggle">
+            <button class="person-toggle-btn active" id="toggle-1p" onclick="setPersonenAnzahl(1)">
+              👤 1 Person
+            </button>
+            <button class="person-toggle-btn" id="toggle-2p" onclick="setPersonenAnzahl(2)">
+              👥 2 Personen
+            </button>
+          </div>
         </div>
         <div class="card-body">
 
-          <div class="buyer-grid">
+          <div class="buyer-grid" id="buyer-grid">
             <!-- Header -->
             <div></div>
             <div style="padding-bottom:var(--space-sm);border-bottom:2px solid var(--primary-light)">
               <span class="person-badge person-1">Person 1</span>
               <span style="font-size:10px;color:var(--gray-mid);margin-left:6px">Hauptperson</span>
             </div>
-            <div style="padding-bottom:var(--space-sm);border-bottom:2px solid var(--accent-light)">
+            <div class="p2-col" style="padding-bottom:var(--space-sm);border-bottom:2px solid var(--accent-light)">
               <span class="person-badge person-2">Person 2</span>
               <span style="font-size:10px;color:var(--gray-mid);margin-left:6px">Partner/in</span>
             </div>
@@ -247,21 +298,21 @@
 
             <div class="buyer-row-label">Vorname</div>
             <div><input type="text" id="p1-vorname" class="form-input" placeholder="Roberto"></div>
-            <div><input type="text" id="p2-vorname" class="form-input" placeholder="Iuliia"></div>
+            <div class="p2-col"><input type="text" id="p2-vorname" class="form-input" placeholder="Iuliia"></div>
 
             <div class="buyer-row-label">Name</div>
             <div><input type="text" id="p1-nachname" class="form-input" placeholder="Valentini"></div>
-            <div><input type="text" id="p2-nachname" class="form-input" placeholder="Valentini"></div>
+            <div class="p2-col"><input type="text" id="p2-nachname" class="form-input" placeholder="Valentini"></div>
 
             <div class="buyer-row-label">Geburtsdatum</div>
             <div><input type="text" id="p1-geburt" class="form-input date-ch"
                         oninput="updatePersonInfo('p1')"></div>
-            <div><input type="text" id="p2-geburt" class="form-input date-ch"
+            <div class="p2-col"><input type="text" id="p2-geburt" class="form-input date-ch"
                         oninput="updatePersonInfo('p2')"></div>
 
             <div class="buyer-row-label">Alter</div>
             <div><div class="info-badge" id="p1-alter-display">— Jahre</div></div>
-            <div><div class="info-badge" id="p2-alter-display">— Jahre</div></div>
+            <div class="p2-col"><div class="info-badge" id="p2-alter-display">— Jahre</div></div>
 
             <div class="buyer-row-label">Geschlecht</div>
             <div>
@@ -271,7 +322,7 @@
                 <option value="weiblich">Weiblich</option>
               </select>
             </div>
-            <div>
+            <div class="p2-col">
               <select id="p2-geschlecht" class="form-input">
                 <option value="">— Wählen —</option>
                 <option value="maennlich">Männlich</option>
@@ -291,7 +342,7 @@
                 <option value="verwitwet">Verwitwet</option>
               </select>
             </div>
-            <div>
+            <div class="p2-col">
               <select id="p2-zivilstand" class="form-input">
                 <option value="">— Wählen —</option>
                 <option value="ledig">Ledig</option>
@@ -305,7 +356,7 @@
 
             <div class="buyer-row-label" id="label-partnerschaft">Verheiratet seit</div>
             <div><input type="text" id="p1-partnerschaft-datum" class="form-input date-ch"></div>
-            <div></div>
+            <div class="p2-col"></div>
 
             <div class="buyer-row-label">Ausbildung</div>
             <div>
@@ -322,7 +373,7 @@
                 <option value="doktorat">Doktorat / PhD</option>
               </select>
             </div>
-            <div>
+            <div class="p2-col">
               <select id="p2-ausbildung" class="form-input">
                 <option value="">— Wählen —</option>
                 <option value="obligatorisch">Obligatorische Schule</option>
@@ -354,7 +405,7 @@
                 <option value="nichterwerbstaetig">Nicht erwerbstätig</option>
               </select>
             </div>
-            <div>
+            <div class="p2-col">
               <select id="p2-erwerbsstatus" class="form-input">
                 <option value="">— Wählen —</option>
                 <option value="angestellt">Angestellt</option>
@@ -368,11 +419,11 @@
 
             <div class="buyer-row-label">Beruf / Funktion</div>
             <div><input type="text" id="p1-beruf" class="form-input" placeholder="z.B. Projektleiter IT"></div>
-            <div><input type="text" id="p2-beruf" class="form-input" placeholder="z.B. Geschäftsführerin"></div>
+            <div class="p2-col"><input type="text" id="p2-beruf" class="form-input" placeholder="z.B. Geschäftsführerin"></div>
 
             <div class="buyer-row-label">Arbeitgeber</div>
             <div><input type="text" id="p1-arbeitgeber" class="form-input" placeholder="Firma AG"></div>
-            <div><input type="text" id="p2-arbeitgeber" class="form-input" placeholder="Bonamente GmbH"></div>
+            <div class="p2-col"><input type="text" id="p2-arbeitgeber" class="form-input" placeholder="Bonamente GmbH"></div>
 
             <div class="buyer-row-label">Kanton (Arbeit)</div>
             <div>
@@ -393,7 +444,7 @@
                 <option value="ZG">ZG – Zug</option><option value="ZH">ZH – Zürich</option>
               </select>
             </div>
-            <div>
+            <div class="p2-col">
               <select id="p2-kanton" class="form-input" onchange="updateLohnfortzahlung('p2')">
                 <option value="">— Wählen —</option>
                 <option value="AG">AG – Aargau</option><option value="AI">AI – Appenzell Innerrhoden</option>
@@ -415,12 +466,12 @@
             <div class="buyer-row-label">Angestellt seit</div>
             <div><input type="text" id="p1-angestellt-seit" class="form-input date-ch"
                         oninput="updateLohnfortzahlung('p1')"></div>
-            <div><input type="text" id="p2-angestellt-seit" class="form-input date-ch"
+            <div class="p2-col"><input type="text" id="p2-angestellt-seit" class="form-input date-ch"
                         oninput="updateLohnfortzahlung('p2')"></div>
 
             <div class="buyer-row-label">Dienstjahre</div>
             <div><div class="info-badge" id="p1-dienstjahre-display">— Jahre</div></div>
-            <div><div class="info-badge" id="p2-dienstjahre-display">— Jahre</div></div>
+            <div class="p2-col"><div class="info-badge" id="p2-dienstjahre-display">— Jahre</div></div>
 
             <div class="buyer-row-label">Arbeitspensum</div>
             <div>
@@ -429,7 +480,7 @@
                 <span class="suffix">%</span>
               </div>
             </div>
-            <div>
+            <div class="p2-col">
               <div class="form-input-suffix">
                 <input type="number" id="p2-pensum" class="form-input" value="100" min="10" max="100" step="10">
                 <span class="suffix">%</span>
@@ -447,7 +498,7 @@
                        placeholder="157'000" oninput="updateEinkommen('p1')">
               </div>
             </div>
-            <div>
+            <div class="p2-col">
               <div class="form-input-prefix">
                 <span class="prefix">CHF</span>
                 <input type="text" id="p2-ahv-lohn" class="form-input money-input"
@@ -463,7 +514,7 @@
                 <option value="14">14 Monatslöhne</option>
               </select>
             </div>
-            <div>
+            <div class="p2-col">
               <select id="p2-monatsloehne" class="form-input" onchange="updateEinkommen('p2')">
                 <option value="12">12 Monatslöhne</option>
                 <option value="13" selected>13 Monatslöhne</option>
@@ -473,14 +524,14 @@
 
             <div class="buyer-row-label">Netto / Monat</div>
             <div><div class="info-badge" id="p1-netto-display">— CHF</div></div>
-            <div><div class="info-badge" id="p2-netto-display">— CHF</div></div>
+            <div class="p2-col"><div class="info-badge" id="p2-netto-display">— CHF</div></div>
 
             <div class="buyer-row-label">
               Lohnfortzahlung
               <button onclick="showLFZInfo()" style="background:none;border:none;cursor:pointer;color:var(--accent);font-size:13px;padding:0;margin-left:4px" title="Skalen anzeigen">ℹ️</button>
             </div>
             <div><div class="info-badge" id="p1-lfz-display">— Wochen</div></div>
-            <div><div class="info-badge" id="p2-lfz-display">— Wochen</div></div>
+            <div class="p2-col"><div class="info-badge" id="p2-lfz-display">— Wochen</div></div>
 
             <!-- VORSORGE -->
             <div class="buyer-separator" style="grid-column:1/-1">
@@ -496,7 +547,7 @@
                 <option value="64">64</option><option value="65" selected>65</option>
               </select>
             </div>
-            <div>
+            <div class="p2-col">
               <select id="p2-pensionsalter" class="form-input" onchange="updatePersonInfo('p2')">
                 <option value="58">58</option><option value="59">59</option>
                 <option value="60">60</option><option value="61">61</option>
@@ -507,7 +558,7 @@
 
             <div class="buyer-row-label">Jahre bis Pension</div>
             <div><div class="info-badge" id="p1-pension-display">— Jahre</div></div>
-            <div><div class="info-badge" id="p2-pension-display">— Jahre</div></div>
+            <div class="p2-col"><div class="info-badge" id="p2-pension-display">— Jahre</div></div>
 
           </div><!-- end buyer-grid -->
         </div>
@@ -544,7 +595,7 @@
           <span class="kpi-tile-value" id="kpi-p1-netto">CHF —</span>
           <span class="kpi-tile-sub">pro Monat</span>
         </div>
-        <div class="kpi-tile">
+        <div class="kpi-tile kpi-p2-tile" id="kpi-p2-tile">
           <span class="kpi-tile-label">Person 2 — Netto</span>
           <span class="kpi-tile-value" id="kpi-p2-netto">CHF —</span>
           <span class="kpi-tile-sub">pro Monat</span>
@@ -565,9 +616,85 @@
 
     <!-- ══ SCHRITTE 2–7: PLATZHALTER ══ -->
     <div class="section-panel" id="panel-versicherungen">
-      <div class="page-title"><div class="page-overline">Schritt 2</div><h1 class="page-heading">Versicherungen</h1></div>
-      <div class="placeholder-section"><div class="placeholder-icon">🛡️</div><h2 class="placeholder-title">Versicherungen</h2><p class="placeholder-text">Wird in Phase 3 ausgebaut — PK, KTG, UVGZ, Private Versicherungen (mehrere Policen pro Person).</p></div>
-      <div class="step-navigation"><button class="btn btn-outline nav-prev" onclick="App.goToStep(App.currentStep-1)">← Zurück</button><div style="font-size:12px;color:var(--gray-mid)">Schritt 2 von 7</div><button class="btn btn-primary" onclick="App.goToStep(3)">Weiter →</button></div>
+      <div class="page-title">
+        <div class="page-overline">Schritt 2</div>
+        <h1 class="page-heading">Versicherungen <em>&amp; Vorsorge</em></h1>
+        <p class="page-description">Pensionskasse (2. Säule) — beliebig viele Verträge pro Person (Basis, Kader, 1e …)</p>
+      </div>
+
+      <!-- PK PERSON 1 -->
+      <div class="card" style="margin-bottom:var(--space-lg)">
+        <div class="card-header">
+          <div class="card-title">
+            <span class="card-title-icon">🏦</span>
+            Pensionskasse (2. Säule) &nbsp;<span class="person-badge person-1">Person 1</span>
+          </div>
+          <span class="badge badge-primary" id="p1-pk-count-badge">0 Verträge</span>
+        </div>
+        <div class="card-body">
+          <div class="dynamic-list" id="p1-pk-list">
+            <div class="empty-state" id="p1-pk-empty">
+              <div class="empty-state-icon">🏦</div>
+              <p class="empty-state-text">Noch kein PK-Vertrag erfasst</p>
+            </div>
+          </div>
+          <div style="margin-top:var(--space-md)">
+            <button class="btn-add" onclick="addPKVertrag('p1')">+ PK-Vertrag hinzufügen</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- PK PERSON 2 -->
+      <div class="card kpi-p2-tile" id="pk2-card" style="margin-bottom:var(--space-lg)">
+        <div class="card-header">
+          <div class="card-title">
+            <span class="card-title-icon">🏦</span>
+            Pensionskasse (2. Säule) &nbsp;<span class="person-badge person-2">Person 2</span>
+          </div>
+          <span class="badge badge-accent" id="p2-pk-count-badge">0 Verträge</span>
+        </div>
+        <div class="card-body">
+          <div class="dynamic-list" id="p2-pk-list">
+            <div class="empty-state" id="p2-pk-empty">
+              <div class="empty-state-icon">🏦</div>
+              <p class="empty-state-text">Noch kein PK-Vertrag erfasst</p>
+            </div>
+          </div>
+          <div style="margin-top:var(--space-md)">
+            <button class="btn-add" onclick="addPKVertrag('p2')">+ PK-Vertrag hinzufügen</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- KPIs -->
+      <div class="kpi-grid" style="margin-bottom:var(--space-xl)">
+        <div class="kpi-tile primary">
+          <span class="kpi-tile-label">PK-Guthaben P1</span>
+          <span class="kpi-tile-value" id="kpi-pk-p1-guthaben">CHF —</span>
+          <span class="kpi-tile-sub">aktuell (alle Verträge)</span>
+        </div>
+        <div class="kpi-tile kpi-p2-tile">
+          <span class="kpi-tile-label">PK-Guthaben P2</span>
+          <span class="kpi-tile-value" id="kpi-pk-p2-guthaben">CHF —</span>
+          <span class="kpi-tile-sub">aktuell (alle Verträge)</span>
+        </div>
+        <div class="kpi-tile">
+          <span class="kpi-tile-label">IV-Rente PK P1</span>
+          <span class="kpi-tile-value" id="kpi-pk-p1-iv">CHF —</span>
+          <span class="kpi-tile-sub">pro Jahr (alle Verträge)</span>
+        </div>
+        <div class="kpi-tile kpi-p2-tile">
+          <span class="kpi-tile-label">IV-Rente PK P2</span>
+          <span class="kpi-tile-value" id="kpi-pk-p2-iv">CHF —</span>
+          <span class="kpi-tile-sub">pro Jahr (alle Verträge)</span>
+        </div>
+      </div>
+
+      <div class="step-navigation">
+        <button class="btn btn-outline nav-prev" onclick="App.goToStep(App.currentStep-1)">← Zurück</button>
+        <div style="font-size:12px;color:var(--gray-mid)">Schritt 2 von 7</div>
+        <button class="btn btn-primary" onclick="App.goToStep(3)">Weiter →</button>
+      </div>
     </div>
 
     <div class="section-panel" id="panel-vermoegen">
@@ -708,9 +835,164 @@
 </template>
 
 
+<!-- ══ PK-VERTRAG TEMPLATE ══ -->
+<template id="pk-vertrag-template">
+  <div class="list-item-card pk-vertrag-item" data-pk-id="{ID}" data-person="{PERSON}">
+    <div class="list-item-header">
+      <span class="list-item-title" id="pk-{ID}-title">Neuer Vertrag</span>
+      <button class="btn btn-danger btn-sm" onclick="removePKVertrag('{ID}','{PERSON}')">✕</button>
+    </div>
+    <div class="list-item-body">
+      <div class="grid-3" style="gap:var(--space-md)">
+
+        <div class="form-group">
+          <label class="form-label">Plan-Bezeichnung</label>
+          <input type="text" class="form-input" id="pk-{ID}-plan"
+                 placeholder="z.B. Basis, Kader, 1e"
+                 oninput="updatePKVertragTitle('{ID}')">
+        </div>
+        <div class="form-group" style="grid-column:span 2">
+          <label class="form-label">PK-Name / Versicherer</label>
+          <input type="text" class="form-input" id="pk-{ID}-name"
+                 placeholder="z.B. PKZH, BVK, PAX …"
+                 oninput="updatePKVertragTitle('{ID}')">
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Versicherter Lohn</label>
+          <div class="form-input-prefix">
+            <span class="prefix">CHF</span>
+            <input type="text" class="form-input money-input" id="pk-{ID}-verslohn"
+                   oninput="updatePKVertrag('{ID}','{PERSON}')">
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Koordinationsabzug</label>
+          <div class="form-input-prefix">
+            <span class="prefix">CHF</span>
+            <input type="text" class="form-input money-input" id="pk-{ID}-koord"
+                   value="25725" oninput="updatePKVertrag('{ID}','{PERSON}')">
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">BVG-Lohn (koordiniert)</label>
+          <div class="info-badge" id="pk-{ID}-bvglohn">— CHF</div>
+        </div>
+
+        <div style="grid-column:1/-1;padding-top:var(--space-xs);border-top:1px solid var(--primary-light);font-size:11px;font-weight:600;color:var(--primary);text-transform:uppercase;letter-spacing:.05em">Altersleistungen</div>
+
+        <div class="form-group">
+          <label class="form-label">Altersguthaben heute</label>
+          <div class="form-input-prefix">
+            <span class="prefix">CHF</span>
+            <input type="text" class="form-input money-input" id="pk-{ID}-guthaben"
+                   oninput="updatePKKPIs()">
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Voraus. Guthaben (Pension)</label>
+          <div class="form-input-prefix">
+            <span class="prefix">CHF</span>
+            <input type="text" class="form-input money-input" id="pk-{ID}-guthaben-pension">
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Umwandlungssatz (UWS)</label>
+          <div class="form-input-suffix">
+            <input type="number" class="form-input" id="pk-{ID}-uws"
+                   value="6.80" min="4" max="9" step="0.01">
+            <span class="suffix">%</span>
+          </div>
+        </div>
+        <div class="form-group" style="grid-column:1/-1">
+          <label class="form-label">Voraus. Altersrente PK (aus Ausweis / Jahr)</label>
+          <div class="form-input-prefix" style="max-width:220px">
+            <span class="prefix">CHF</span>
+            <input type="text" class="form-input money-input" id="pk-{ID}-altersrente"
+                   placeholder="aus Ausweis">
+          </div>
+        </div>
+
+        <div style="grid-column:1/-1;padding-top:var(--space-xs);border-top:1px solid var(--primary-light);font-size:11px;font-weight:600;color:var(--primary);text-transform:uppercase;letter-spacing:.05em">Invalidenleistungen (IV-Grad 100%)</div>
+
+        <div class="form-group" style="grid-column:1/-1">
+          <label class="form-label">IV-Jahresrente PK (aus Ausweis)</label>
+          <div class="form-input-prefix" style="max-width:220px">
+            <span class="prefix">CHF</span>
+            <input type="text" class="form-input money-input" id="pk-{ID}-iv-rente"
+                   oninput="updatePKKPIs()">
+          </div>
+        </div>
+
+        <div style="grid-column:1/-1;padding-top:var(--space-xs);border-top:1px solid var(--primary-light);font-size:11px;font-weight:600;color:var(--primary);text-transform:uppercase;letter-spacing:.05em">Todesfallleistungen</div>
+
+        <div class="form-group">
+          <label class="form-label">Todesfallkapital</label>
+          <div class="form-input-prefix">
+            <span class="prefix">CHF</span>
+            <input type="text" class="form-input money-input" id="pk-{ID}-tf-kapital">
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Ehegatten-/Partnerrente</label>
+          <div class="form-input-prefix">
+            <span class="prefix">CHF</span>
+            <input type="text" class="form-input money-input" id="pk-{ID}-hl-rente">
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Waisenrente (pro Kind)</label>
+          <div class="form-input-prefix">
+            <span class="prefix">CHF</span>
+            <input type="text" class="form-input money-input" id="pk-{ID}-waisen-rente">
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</template>
+
 <script src="js/app.js"></script>
 <script>
 let kindCounter = 0;
+let personenAnzahl = 1; // Standard: 1 Person
+
+// ── PERSONEN TOGGLE ──
+function setPersonenAnzahl(n, silent = false) {
+  // Warnung wenn von 2 auf 1 gewechselt wird und Person 2 Daten hat
+  if (!silent && n === 1 && personenAnzahl === 2) {
+    const p2hat = document.getElementById('p2-vorname')?.value ||
+                  document.getElementById('p2-nachname')?.value;
+    if (p2hat) {
+      const ok = confirm(
+        'Person 2 hat bereits Daten erfasst.\n\n' +
+        'Die Daten bleiben gespeichert, werden aber ausgeblendet.\n' +
+        'Bei Wechsel zurück auf "2 Personen" sind sie wieder sichtbar.\n\n' +
+        'Fortfahren?'
+      );
+      if (!ok) return;
+    }
+  }
+
+  personenAnzahl = n;
+
+  // Toggle Buttons
+  document.getElementById('toggle-1p')?.classList.toggle('active', n === 1);
+  document.getElementById('toggle-2p')?.classList.toggle('active', n === 2);
+
+  // Alle Grids umschalten
+  document.querySelectorAll('.buyer-grid').forEach(g => g.classList.toggle('single-mode', n === 1));
+
+  // Alle KPI-Kacheln Person 2 ein-/ausblenden
+  document.querySelectorAll('.kpi-p2-tile').forEach(el => el.classList.toggle('kpi-p2-hidden', n === 1));
+
+  // KPI Haushaltseinkommen Label anpassen
+  const kpiLabel = document.querySelector('#kpi-haushalt')?.closest('.kpi-tile')?.querySelector('.kpi-tile-label');
+  if (kpiLabel) kpiLabel.textContent = n === 1 ? 'Einkommen' : 'Haushaltseinkommen';
+
+  updateKPIs();
+}
 
 // ── PERSON INFO ──
 function updatePersonInfo(p) {
@@ -769,6 +1051,103 @@ function updateZivilstand() {
                   konkubinat:'Zusammenzug', geschieden:'Hochzeit war'};
   const lbl = document.getElementById('label-partnerschaft');
   if (lbl) lbl.childNodes[0].textContent = (labels[zs] || 'Partnerschaft seit') + ' ';
+}
+
+// ── PK VERTRÄGE ──
+const pkCounters = { p1: 0, p2: 0 };
+
+function addPKVertrag(person, data = null) {
+  pkCounters[person]++;
+  const id = data?.id || `pk_${person}_${Date.now()}`;
+
+  document.getElementById(`${person}-pk-empty`).style.display = 'none';
+
+  const tpl = document.getElementById('pk-vertrag-template').innerHTML
+    .replace(/{ID}/g, id)
+    .replace(/{PERSON}/g, person);
+
+  const div = document.createElement('div');
+  div.innerHTML = tpl;
+  const el = div.firstElementChild;
+  document.getElementById(`${person}-pk-list`).appendChild(el);
+
+  // Money-Input-Handler für neue Felder
+  el.querySelectorAll('.money-input').forEach(inp => {
+    inp.addEventListener('blur',  () => { const v = parseCHF(inp.value); if (v !== '') inp.value = fmtCHF(v); });
+    inp.addEventListener('focus', () => { const v = parseCHF(inp.value); if (v !== '') inp.value = v; });
+  });
+
+  if (data) {
+    const s  = (fid, v) => { const f = document.getElementById(fid); if (f && v !== undefined && v !== null) f.value = v; };
+    const sN = (fid, v) => { const f = document.getElementById(fid); if (f && v) f.value = fmtCHF(v); };
+    s(`pk-${id}-plan`,             data.plan);
+    s(`pk-${id}-name`,             data.name);
+    sN(`pk-${id}-verslohn`,        data.versLohn);
+    sN(`pk-${id}-koord`,           data.koord);
+    sN(`pk-${id}-guthaben`,        data.guthaben);
+    sN(`pk-${id}-guthaben-pension`,data.guthabenPension);
+    s(`pk-${id}-uws`,              data.uws);
+    sN(`pk-${id}-altersrente`,     data.altersrente);
+    sN(`pk-${id}-iv-rente`,        data.ivRente);
+    sN(`pk-${id}-tf-kapital`,      data.tfKapital);
+    sN(`pk-${id}-hl-rente`,        data.hlRente);
+    sN(`pk-${id}-waisen-rente`,    data.waisenRente);
+    updatePKVertrag(id, person);
+    updatePKVertragTitle(id);
+  }
+
+  updatePKBadge(person);
+}
+
+function removePKVertrag(id, person) {
+  document.querySelector(`[data-pk-id="${id}"]`)?.remove();
+  const list = document.getElementById(`${person}-pk-list`);
+  if (!list.querySelectorAll('.pk-vertrag-item').length)
+    document.getElementById(`${person}-pk-empty`).style.display = '';
+  updatePKBadge(person);
+  updatePKKPIs();
+}
+
+function updatePKVertragTitle(id) {
+  const plan = document.getElementById(`pk-${id}-plan`)?.value;
+  const name = document.getElementById(`pk-${id}-name`)?.value;
+  const el   = document.getElementById(`pk-${id}-title`);
+  if (el) el.textContent = [plan, name].filter(Boolean).join(' · ') || 'Neuer Vertrag';
+}
+
+function updatePKVertrag(id, person) {
+  const verslohn = parseCHF(document.getElementById(`pk-${id}-verslohn`)?.value) || 0;
+  const koordRaw = parseCHF(document.getElementById(`pk-${id}-koord`)?.value);
+  const koord    = (koordRaw === '' || koordRaw === false || koordRaw === null) ? 25725 : koordRaw;
+  const bvgLohn  = Math.max(0, verslohn - koord);
+  const bvgEl    = document.getElementById(`pk-${id}-bvglohn`);
+  if (bvgEl) bvgEl.textContent = verslohn > 0 ? `CHF ${fmtCHF(bvgLohn)}` : '— CHF';
+  updatePKKPIs();
+}
+
+function updatePKBadge(person) {
+  const count = document.querySelectorAll(`[data-person="${person}"].pk-vertrag-item`).length;
+  const badge = document.getElementById(`${person}-pk-count-badge`);
+  if (badge) badge.textContent = `${count} ${count !== 1 ? 'Verträge' : 'Vertrag'}`;
+}
+
+function updatePKKPIs() {
+  const sumField = (person, field) => {
+    let total = 0;
+    document.querySelectorAll(`[data-person="${person}"].pk-vertrag-item`).forEach(item => {
+      const v = parseCHF(document.getElementById(`pk-${item.dataset.pkId}-${field}`)?.value);
+      if (v) total += v;
+    });
+    return total;
+  };
+  const fmt = (v, id) => {
+    const el = document.getElementById(id);
+    if (el) el.textContent = v > 0 ? `CHF ${fmtCHF(v)}` : 'CHF —';
+  };
+  fmt(sumField('p1', 'guthaben'),  'kpi-pk-p1-guthaben');
+  fmt(sumField('p2', 'guthaben'),  'kpi-pk-p2-guthaben');
+  fmt(sumField('p1', 'iv-rente'),  'kpi-pk-p1-iv');
+  fmt(sumField('p2', 'iv-rente'),  'kpi-pk-p2-iv');
 }
 
 // ── KINDER ──
