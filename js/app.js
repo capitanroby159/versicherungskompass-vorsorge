@@ -365,6 +365,7 @@ const DataManager = {
         monatsloehne:get(`ag-${id}-monatsloehne`),
         lfzTyp:      isKantonal ? 'kantonal' : 'personalreglement',
         lfzWochen:   get(`ag-${id}-lfz-wochen`),
+        lfzDeckung:  parseFloat(get(`ag-${id}-lfz-deckung`)) || 100,
       });
     });
     return list;
@@ -379,34 +380,31 @@ const DataManager = {
       const obj  = { id };
       if (typ === 'uvg') {
         obj.versicherer = get(`uvg-${id}-versicherer`);
+        obj.agId        = get(`uvg-${id}-ag`);
         obj.lohn        = getN(`uvg-${id}-lohn`);
-        obj.deckung     = get(`uvg-${id}-deckung`);
-        obj.taggeld     = getN(`uvg-${id}-taggeld`);
-        obj.ivRente     = getN(`uvg-${id}-iv-rente`);
-        obj.heilung     = getN(`uvg-${id}-heilung`);
-        obj.ivKapital   = getN(`uvg-${id}-iv-kapital`);
-        obj.tfKapital   = getN(`uvg-${id}-tf-kapital`);
       } else if (typ === 'ktg') {
         obj.versicherer = get(`ktg-${id}-versicherer`);
+        obj.agId        = get(`ktg-${id}-ag`);
         obj.wartefrist  = get(`ktg-${id}-wartefrist`);
         obj.dauer       = get(`ktg-${id}-dauer`);
         obj.lohn        = getN(`ktg-${id}-lohn`);
         obj.deckung     = get(`ktg-${id}-deckung`);
-        obj.taggeld     = getN(`ktg-${id}-taggeld`);
-        obj.praemie     = getN(`ktg-${id}-praemie`);
+        obj.praemie     = parseFloat(get(`ktg-${id}-praemie`)) || 50;
       } else if (typ === 'uvgz') {
         obj.versicherer = get(`uvgz-${id}-versicherer`);
+        obj.agId        = get(`uvgz-${id}-ag`);
         obj.lohn        = getN(`uvgz-${id}-lohn`);
-        obj.taggeld     = getN(`uvgz-${id}-taggeld`);
-        obj.heilung     = getN(`uvgz-${id}-heilung`);
-        obj.ivKapital   = getN(`uvgz-${id}-iv-kapital`);
-        obj.ivRente     = getN(`uvgz-${id}-iv-rente`);
-        obj.tfKapital   = getN(`uvgz-${id}-tf-kapital`);
+        obj.taggeldPct  = parseFloat(get(`uvgz-${id}-taggeld-pct`)) || 90;
+        obj.heilung     = get(`uvgz-${id}-heilung`);
+        obj.ivRentePct  = parseFloat(get(`uvgz-${id}-iv-rente-pct`)) || 0;
+        obj.hlRentePct  = parseFloat(get(`uvgz-${id}-hl-rente-pct`)) || 0;
       } else if (typ === 'priv') {
-        obj.art         = get(`priv-${id}-art`);
-        obj.versicherer = get(`priv-${id}-versicherer`);
-        obj.leistung    = getN(`priv-${id}-leistung`);
-        obj.praemie     = getN(`priv-${id}-praemie`);
+        obj.art          = get(`priv-${id}-art`);
+        obj.versicherer  = get(`priv-${id}-versicherer`);
+        obj.leistung     = getN(`priv-${id}-leistung`);
+        obj.praemie      = getN(`priv-${id}-praemie`);
+        obj.deckungsart  = get(`priv-${id}-deckungsart`) || 'erwerbsausfall';
+        obj.leistungsart = get(`priv-${id}-leistungsart`) || 'rente';
       }
       list.push(obj);
     });
@@ -423,6 +421,7 @@ const DataManager = {
         id,
         plan:            get(`pk-${id}-plan`),
         name:            get(`pk-${id}-name`),
+        agId:            get(`pk-${id}-ag`),
         versLohn:        getN(`pk-${id}-verslohn`),
         koord:           getN(`pk-${id}-koord`),
         guthaben:        getN(`pk-${id}-guthaben`),

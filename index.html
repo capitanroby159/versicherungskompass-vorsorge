@@ -467,16 +467,28 @@
           <span class="badge badge-primary" id="p1-ag-count-badge">0 Arbeitgeber</span>
         </div>
         <div class="card-body">
-          <div class="dynamic-list" id="p1-ag-list">
-            <div class="empty-state" id="p1-ag-empty">
-              <div class="empty-state-icon">🏢</div>
-              <p class="empty-state-text">Noch keine Arbeitsverhältnisse erfasst</p>
+          <div style="display:flex;align-items:center;gap:var(--space-md);margin-bottom:var(--space-md)">
+            <span style="font-size:13px;font-weight:500;color:var(--black)">Arbeitstätig?</span>
+            <div class="person-toggle">
+              <button class="person-toggle-btn active" id="p1-ag-ja" onclick="setArbeitstaetig('p1',true)">Ja</button>
+              <button class="person-toggle-btn" id="p1-ag-nein" onclick="setArbeitstaetig('p1',false)">Nein</button>
             </div>
           </div>
-          <div style="margin-top:var(--space-md);display:flex;align-items:center;gap:var(--space-md);flex-wrap:wrap">
-            <button class="btn-add" onclick="addArbeitgeber('p1')">+ Arbeitgeber hinzufügen</button>
-            <span class="info-badge" id="p1-ag-total-lohn">CHF —</span>
-            <span class="info-badge" id="p1-ag-total-pensum">— %</span>
+          <div id="p1-ag-content">
+            <div class="dynamic-list" id="p1-ag-list">
+              <div class="empty-state" id="p1-ag-empty">
+                <div class="empty-state-icon">🏢</div>
+                <p class="empty-state-text">Noch keine Arbeitsverhältnisse erfasst</p>
+              </div>
+            </div>
+            <div style="margin-top:var(--space-md);display:flex;align-items:center;gap:var(--space-md);flex-wrap:wrap">
+              <button class="btn-add" onclick="addArbeitgeber('p1')">+ Arbeitgeber hinzufügen</button>
+              <span class="info-badge" id="p1-ag-total-lohn">CHF —</span>
+              <span class="info-badge" id="p1-ag-total-pensum">— %</span>
+            </div>
+          </div>
+          <div id="p1-ag-not-arbeitstaetig" style="display:none" class="empty-state">
+            <p class="empty-state-text">Nicht arbeitstätig</p>
           </div>
         </div>
       </div>
@@ -488,16 +500,28 @@
           <span class="badge badge-primary" id="p2-ag-count-badge">0 Arbeitgeber</span>
         </div>
         <div class="card-body">
-          <div class="dynamic-list" id="p2-ag-list">
-            <div class="empty-state" id="p2-ag-empty">
-              <div class="empty-state-icon">🏢</div>
-              <p class="empty-state-text">Noch keine Arbeitsverhältnisse erfasst</p>
+          <div style="display:flex;align-items:center;gap:var(--space-md);margin-bottom:var(--space-md)">
+            <span style="font-size:13px;font-weight:500;color:var(--black)">Arbeitstätig?</span>
+            <div class="person-toggle">
+              <button class="person-toggle-btn active" id="p2-ag-ja" onclick="setArbeitstaetig('p2',true)">Ja</button>
+              <button class="person-toggle-btn" id="p2-ag-nein" onclick="setArbeitstaetig('p2',false)">Nein</button>
             </div>
           </div>
-          <div style="margin-top:var(--space-md);display:flex;align-items:center;gap:var(--space-md);flex-wrap:wrap">
-            <button class="btn-add" onclick="addArbeitgeber('p2')">+ Arbeitgeber hinzufügen</button>
-            <span class="info-badge" id="p2-ag-total-lohn">CHF —</span>
-            <span class="info-badge" id="p2-ag-total-pensum">— %</span>
+          <div id="p2-ag-content">
+            <div class="dynamic-list" id="p2-ag-list">
+              <div class="empty-state" id="p2-ag-empty">
+                <div class="empty-state-icon">🏢</div>
+                <p class="empty-state-text">Noch keine Arbeitsverhältnisse erfasst</p>
+              </div>
+            </div>
+            <div style="margin-top:var(--space-md);display:flex;align-items:center;gap:var(--space-md);flex-wrap:wrap">
+              <button class="btn-add" onclick="addArbeitgeber('p2')">+ Arbeitgeber hinzufügen</button>
+              <span class="info-badge" id="p2-ag-total-lohn">CHF —</span>
+              <span class="info-badge" id="p2-ag-total-pensum">— %</span>
+            </div>
+          </div>
+          <div id="p2-ag-not-arbeitstaetig" style="display:none" class="empty-state">
+            <p class="empty-state-text">Nicht arbeitstätig</p>
           </div>
         </div>
       </div>
@@ -670,7 +694,14 @@
             <div class="dynamic-list" id="p1-uvg-list">
               <div class="empty-state" id="p1-uvg-empty"><p class="empty-state-text">Noch keine UVG-Verträge erfasst</p></div>
             </div>
-            <div style="margin-top:var(--space-md)"><button class="btn-add" onclick="addUVGVertrag('p1')">+ UVG-Vertrag hinzufügen</button></div>
+            <div style="margin-top:var(--space-md);display:flex;align-items:center;gap:var(--space-md);flex-wrap:wrap">
+              <button class="btn-add" onclick="addUVGVertrag('p1')">+ UVG-Vertrag hinzufügen</button>
+              <div class="info-badge" id="p1-uvg-total-lohn" style="display:none">UVG-Lohn Total: CHF —</div>
+              <span id="p1-uvg-total-warn" style="display:none;font-size:12px;color:#c0392b;font-weight:600"></span>
+            </div>
+            <div id="p1-uvg-mehrfach-notice" style="display:none;margin-top:var(--space-sm);padding:var(--space-sm) var(--space-md);background:#fff3cd;border:1px solid #ffc107;border-radius:var(--radius-md);font-size:12px;color:#856404">
+              ⚖ Lohnaufteilung bei Mehrfachbeschäftigung — UVG-Lohn auf CHF 148'200 begrenzt, anteilmässig auf Arbeitgeber verteilt.
+            </div>
           </div>
           <div id="p1-uvg-not-versichert" style="display:none" class="empty-state"><p class="empty-state-text">Nicht versichert</p></div>
         </div>
@@ -694,57 +725,16 @@
             <div class="dynamic-list" id="p2-uvg-list">
               <div class="empty-state" id="p2-uvg-empty"><p class="empty-state-text">Noch keine UVG-Verträge erfasst</p></div>
             </div>
-            <div style="margin-top:var(--space-md)"><button class="btn-add" onclick="addUVGVertrag('p2')">+ UVG-Vertrag hinzufügen</button></div>
+            <div style="margin-top:var(--space-md);display:flex;align-items:center;gap:var(--space-md);flex-wrap:wrap">
+              <button class="btn-add" onclick="addUVGVertrag('p2')">+ UVG-Vertrag hinzufügen</button>
+              <div class="info-badge" id="p2-uvg-total-lohn" style="display:none">UVG-Lohn Total: CHF —</div>
+              <span id="p2-uvg-total-warn" style="display:none;font-size:12px;color:#c0392b;font-weight:600"></span>
+            </div>
+            <div id="p2-uvg-mehrfach-notice" style="display:none;margin-top:var(--space-sm);padding:var(--space-sm) var(--space-md);background:#fff3cd;border:1px solid #ffc107;border-radius:var(--radius-md);font-size:12px;color:#856404">
+              ⚖ Lohnaufteilung bei Mehrfachbeschäftigung — UVG-Lohn auf CHF 148'200 begrenzt, anteilmässig auf Arbeitgeber verteilt.
+            </div>
           </div>
           <div id="p2-uvg-not-versichert" style="display:none" class="empty-state"><p class="empty-state-text">Nicht versichert</p></div>
-        </div>
-      </div>
-
-      <!-- KTG P1 -->
-      <div class="card" style="margin-bottom:var(--space-lg)">
-        <div class="card-header">
-          <div class="card-title"><span class="card-title-icon">🏥</span>KTG (Krankentaggeld) &nbsp;<span class="person-badge person-1">Person 1</span></div>
-          <span class="badge badge-primary" id="p1-ktg-count-badge">0 Verträge</span>
-        </div>
-        <div class="card-body">
-          <div style="display:flex;align-items:center;gap:var(--space-md);margin-bottom:var(--space-md)">
-            <span style="font-size:13px;font-weight:500;color:var(--black)">KTG-versichert?</span>
-            <div class="person-toggle">
-              <button class="person-toggle-btn active" id="p1-ktg-ja" onclick="setVersicherungToggle('p1','ktg',true)">Ja</button>
-              <button class="person-toggle-btn" id="p1-ktg-nein" onclick="setVersicherungToggle('p1','ktg',false)">Nein</button>
-            </div>
-          </div>
-          <div id="p1-ktg-content">
-            <div class="dynamic-list" id="p1-ktg-list">
-              <div class="empty-state" id="p1-ktg-empty"><p class="empty-state-text">Noch keine KTG-Verträge erfasst</p></div>
-            </div>
-            <div style="margin-top:var(--space-md)"><button class="btn-add" onclick="addKTGVertrag('p1')">+ KTG-Vertrag hinzufügen</button></div>
-          </div>
-          <div id="p1-ktg-not-versichert" style="display:none" class="empty-state"><p class="empty-state-text">Nicht versichert</p></div>
-        </div>
-      </div>
-
-      <!-- KTG P2 -->
-      <div class="card kpi-p2-tile" style="margin-bottom:var(--space-lg)">
-        <div class="card-header">
-          <div class="card-title"><span class="card-title-icon">🏥</span>KTG (Krankentaggeld) &nbsp;<span class="person-badge person-2">Person 2</span></div>
-          <span class="badge badge-primary" id="p2-ktg-count-badge">0 Verträge</span>
-        </div>
-        <div class="card-body">
-          <div style="display:flex;align-items:center;gap:var(--space-md);margin-bottom:var(--space-md)">
-            <span style="font-size:13px;font-weight:500;color:var(--black)">KTG-versichert?</span>
-            <div class="person-toggle">
-              <button class="person-toggle-btn active" id="p2-ktg-ja" onclick="setVersicherungToggle('p2','ktg',true)">Ja</button>
-              <button class="person-toggle-btn" id="p2-ktg-nein" onclick="setVersicherungToggle('p2','ktg',false)">Nein</button>
-            </div>
-          </div>
-          <div id="p2-ktg-content">
-            <div class="dynamic-list" id="p2-ktg-list">
-              <div class="empty-state" id="p2-ktg-empty"><p class="empty-state-text">Noch keine KTG-Verträge erfasst</p></div>
-            </div>
-            <div style="margin-top:var(--space-md)"><button class="btn-add" onclick="addKTGVertrag('p2')">+ KTG-Vertrag hinzufügen</button></div>
-          </div>
-          <div id="p2-ktg-not-versichert" style="display:none" class="empty-state"><p class="empty-state-text">Nicht versichert</p></div>
         </div>
       </div>
 
@@ -793,6 +783,54 @@
             <div style="margin-top:var(--space-md)"><button class="btn-add" onclick="addUVGZVertrag('p2')">+ UVGZ-Vertrag hinzufügen</button></div>
           </div>
           <div id="p2-uvgz-not-versichert" style="display:none" class="empty-state"><p class="empty-state-text">Nicht versichert</p></div>
+        </div>
+      </div>
+
+      <!-- KTG P1 -->
+      <div class="card" style="margin-bottom:var(--space-lg)">
+        <div class="card-header">
+          <div class="card-title"><span class="card-title-icon">🏥</span>KTG (Krankentaggeld) &nbsp;<span class="person-badge person-1">Person 1</span></div>
+          <span class="badge badge-primary" id="p1-ktg-count-badge">0 Verträge</span>
+        </div>
+        <div class="card-body">
+          <div style="display:flex;align-items:center;gap:var(--space-md);margin-bottom:var(--space-md)">
+            <span style="font-size:13px;font-weight:500;color:var(--black)">KTG-versichert?</span>
+            <div class="person-toggle">
+              <button class="person-toggle-btn active" id="p1-ktg-ja" onclick="setVersicherungToggle('p1','ktg',true)">Ja</button>
+              <button class="person-toggle-btn" id="p1-ktg-nein" onclick="setVersicherungToggle('p1','ktg',false)">Nein</button>
+            </div>
+          </div>
+          <div id="p1-ktg-content">
+            <div class="dynamic-list" id="p1-ktg-list">
+              <div class="empty-state" id="p1-ktg-empty"><p class="empty-state-text">Noch keine KTG-Verträge erfasst</p></div>
+            </div>
+            <div style="margin-top:var(--space-md)"><button class="btn-add" onclick="addKTGVertrag('p1')">+ KTG-Vertrag hinzufügen</button></div>
+          </div>
+          <div id="p1-ktg-not-versichert" style="display:none" class="empty-state"><p class="empty-state-text">Nicht versichert</p></div>
+        </div>
+      </div>
+
+      <!-- KTG P2 -->
+      <div class="card kpi-p2-tile" style="margin-bottom:var(--space-lg)">
+        <div class="card-header">
+          <div class="card-title"><span class="card-title-icon">🏥</span>KTG (Krankentaggeld) &nbsp;<span class="person-badge person-2">Person 2</span></div>
+          <span class="badge badge-primary" id="p2-ktg-count-badge">0 Verträge</span>
+        </div>
+        <div class="card-body">
+          <div style="display:flex;align-items:center;gap:var(--space-md);margin-bottom:var(--space-md)">
+            <span style="font-size:13px;font-weight:500;color:var(--black)">KTG-versichert?</span>
+            <div class="person-toggle">
+              <button class="person-toggle-btn active" id="p2-ktg-ja" onclick="setVersicherungToggle('p2','ktg',true)">Ja</button>
+              <button class="person-toggle-btn" id="p2-ktg-nein" onclick="setVersicherungToggle('p2','ktg',false)">Nein</button>
+            </div>
+          </div>
+          <div id="p2-ktg-content">
+            <div class="dynamic-list" id="p2-ktg-list">
+              <div class="empty-state" id="p2-ktg-empty"><p class="empty-state-text">Noch keine KTG-Verträge erfasst</p></div>
+            </div>
+            <div style="margin-top:var(--space-md)"><button class="btn-add" onclick="addKTGVertrag('p2')">+ KTG-Vertrag hinzufügen</button></div>
+          </div>
+          <div id="p2-ktg-not-versichert" style="display:none" class="empty-state"><p class="empty-state-text">Nicht versichert</p></div>
         </div>
       </div>
 
@@ -929,63 +967,26 @@
                  oninput="updateVertragTitle('uvg','{ID}')">
         </div>
         <div class="form-group">
+          <label class="form-label">Arbeitgeber</label>
+          <select class="form-input" id="uvg-{ID}-ag" onchange="onAGSelected('uvg','{ID}','{PERSON}')">
+            <option value="">— Wählen —</option>
+          </select>
+        </div>
+        <div class="form-group">
           <label class="form-label">Versicherter Lohn UVG</label>
           <div class="form-input-prefix">
             <span class="prefix">CHF</span>
             <input type="text" class="form-input money-input" id="uvg-{ID}-lohn"
-                   oninput="updateUVGCalc('{ID}','{PERSON}')">
+                   oninput="updateUVGTotal('{PERSON}')">
           </div>
         </div>
-        <div class="form-group">
-          <label class="form-label">UVG-Lohn Total (alle Verträge)</label>
-          <div class="info-badge" id="{PERSON}-uvg-total-warn" style="color:#c0392b">CHF —</div>
-        </div>
-
-        <div style="grid-column:1/-1;padding-top:var(--space-xs);border-top:1px solid var(--primary-light);font-size:11px;font-weight:600;color:var(--primary);text-transform:uppercase;letter-spacing:.05em">Leistungen</div>
-
-        <div class="form-group">
-          <label class="form-label">Deckungsgrad Taggeld</label>
-          <div class="form-input-suffix">
-            <input type="number" class="form-input" id="uvg-{ID}-deckung"
-                   value="80" min="1" max="100" step="1"
-                   oninput="updateUVGCalc('{ID}','{PERSON}')">
-            <span class="suffix">%</span>
+        <div style="grid-column:1/-1;display:none" id="uvg-{ID}-lohn-gekuerzt-row">
+          <div style="padding:var(--space-sm) var(--space-md);background:#fff3cd;border:1px solid #ffc107;border-radius:var(--radius-md);font-size:12px;color:#856404;font-weight:500">
+            <span id="uvg-{ID}-lohn-gekuerzt-text"></span>
           </div>
         </div>
-        <div class="form-group">
-          <label class="form-label">Taggeld (berechnet)</label>
-          <div class="form-input-prefix">
-            <span class="prefix">CHF</span>
-            <input type="text" class="form-input money-input" id="uvg-{ID}-taggeld">
-          </div>
-        </div>
-        <div class="form-group">
-          <label class="form-label">IV-Rente / Jahr</label>
-          <div class="form-input-prefix">
-            <span class="prefix">CHF</span>
-            <input type="text" class="form-input money-input" id="uvg-{ID}-iv-rente">
-          </div>
-        </div>
-        <div class="form-group">
-          <label class="form-label">Heilungskosten</label>
-          <div class="form-input-prefix">
-            <span class="prefix">CHF</span>
-            <input type="text" class="form-input money-input" id="uvg-{ID}-heilung">
-          </div>
-        </div>
-        <div class="form-group">
-          <label class="form-label">Invaliditätskapital</label>
-          <div class="form-input-prefix">
-            <span class="prefix">CHF</span>
-            <input type="text" class="form-input money-input" id="uvg-{ID}-iv-kapital">
-          </div>
-        </div>
-        <div class="form-group">
-          <label class="form-label">Todesfallkapital</label>
-          <div class="form-input-prefix">
-            <span class="prefix">CHF</span>
-            <input type="text" class="form-input money-input" id="uvg-{ID}-tf-kapital">
-          </div>
+        <div style="grid-column:1/-1;padding:var(--space-sm) var(--space-md);background:var(--primary-light);border-radius:var(--radius-md);font-size:12px;color:var(--primary);font-weight:500">
+          Leistungen nach Gesetz (UVG)
         </div>
       </div>
     </div>
@@ -1007,22 +1008,11 @@
                  oninput="updateVertragTitle('ktg','{ID}')">
         </div>
         <div class="form-group">
-          <label class="form-label">Wartefrist</label>
-          <div class="form-input-suffix">
-            <input type="number" class="form-input" id="ktg-{ID}-wartefrist"
-                   value="30" min="0" max="720" step="1">
-            <span class="suffix">Tage</span>
-          </div>
+          <label class="form-label">Arbeitgeber</label>
+          <select class="form-input" id="ktg-{ID}-ag" onchange="onAGSelected('ktg','{ID}','{PERSON}')">
+            <option value="">— Wählen —</option>
+          </select>
         </div>
-        <div class="form-group">
-          <label class="form-label">Leistungsdauer</label>
-          <div class="form-input-suffix">
-            <input type="number" class="form-input" id="ktg-{ID}-dauer"
-                   value="720" min="1" max="1080" step="1">
-            <span class="suffix">Tage</span>
-          </div>
-        </div>
-
         <div class="form-group">
           <label class="form-label">Versicherter Lohn</label>
           <div class="form-input-prefix">
@@ -1031,6 +1021,7 @@
                    oninput="updateKTGCalc('{ID}')">
           </div>
         </div>
+
         <div class="form-group">
           <label class="form-label">Deckungsgrad</label>
           <div class="form-input-suffix">
@@ -1047,12 +1038,29 @@
             <input type="text" class="form-input money-input" id="ktg-{ID}-taggeld">
           </div>
         </div>
+        <div class="form-group">
+          <label class="form-label">Wartefrist</label>
+          <div class="form-input-suffix">
+            <input type="number" class="form-input" id="ktg-{ID}-wartefrist"
+                   value="30" min="0" max="720" step="1">
+            <span class="suffix">Tage</span>
+          </div>
+        </div>
 
-        <div class="form-group" style="grid-column:1/-1">
-          <label class="form-label">AN-Anteil Prämie / Jahr</label>
-          <div class="form-input-prefix" style="max-width:220px">
-            <span class="prefix">CHF</span>
-            <input type="text" class="form-input money-input" id="ktg-{ID}-praemie">
+        <div class="form-group">
+          <label class="form-label">Leistungsdauer</label>
+          <div class="form-input-suffix">
+            <input type="number" class="form-input" id="ktg-{ID}-dauer"
+                   value="730" min="1" max="1080" step="1">
+            <span class="suffix">Tage</span>
+          </div>
+        </div>
+        <div class="form-group" style="grid-column:2/-1">
+          <label class="form-label">AN-Anteil Prämie</label>
+          <div class="form-input-suffix">
+            <input type="number" class="form-input" id="ktg-{ID}-praemie"
+                   value="50" min="0" max="100" step="1">
+            <span class="suffix">%</span>
           </div>
         </div>
       </div>
@@ -1075,45 +1083,55 @@
                  oninput="updateVertragTitle('uvgz','{ID}')">
         </div>
         <div class="form-group">
+          <label class="form-label">Arbeitgeber</label>
+          <select class="form-input" id="uvgz-{ID}-ag" onchange="onAGSelected('uvgz','{ID}','{PERSON}')">
+            <option value="">— Wählen —</option>
+          </select>
+        </div>
+        <div class="form-group">
           <label class="form-label">Versicherter Lohn UVGZ</label>
           <div class="form-input-prefix">
             <span class="prefix">CHF</span>
-            <input type="text" class="form-input money-input" id="uvgz-{ID}-lohn">
+            <input type="text" class="form-input money-input" id="uvgz-{ID}-lohn"
+                   oninput="updateUVGZCalc('{ID}')">
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Taggeld</label>
+          <div class="form-input-suffix">
+            <input type="number" class="form-input" id="uvgz-{ID}-taggeld-pct"
+                   value="90" min="1" max="150" step="1"
+                   oninput="updateUVGZCalc('{ID}')">
+            <span class="suffix">%</span>
           </div>
         </div>
         <div class="form-group">
-          <label class="form-label">Taggeld</label>
-          <div class="form-input-prefix">
-            <span class="prefix">CHF</span>
-            <input type="text" class="form-input money-input" id="uvgz-{ID}-taggeld">
-          </div>
+          <label class="form-label">Taggeld (berechnet)</label>
+          <div class="info-badge" id="uvgz-{ID}-taggeld-display" style="margin-top:4px">CHF —</div>
         </div>
         <div class="form-group">
           <label class="form-label">Heilungskosten</label>
-          <div class="form-input-prefix">
-            <span class="prefix">CHF</span>
-            <input type="text" class="form-input money-input" id="uvgz-{ID}-heilung">
+          <select class="form-input" id="uvgz-{ID}-heilung">
+            <option value="privat">Privat</option>
+            <option value="halbprivat">Halbprivat</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Invalidenrente</label>
+          <div class="form-input-suffix">
+            <input type="number" class="form-input" id="uvgz-{ID}-iv-rente-pct"
+                   placeholder="0" min="0" max="300" step="1">
+            <span class="suffix">%</span>
           </div>
         </div>
         <div class="form-group">
-          <label class="form-label">Invaliditätskapital</label>
-          <div class="form-input-prefix">
-            <span class="prefix">CHF</span>
-            <input type="text" class="form-input money-input" id="uvgz-{ID}-iv-kapital">
-          </div>
-        </div>
-        <div class="form-group">
-          <label class="form-label">Invalidenrente / Jahr</label>
-          <div class="form-input-prefix">
-            <span class="prefix">CHF</span>
-            <input type="text" class="form-input money-input" id="uvgz-{ID}-iv-rente">
-          </div>
-        </div>
-        <div class="form-group">
-          <label class="form-label">Todesfallkapital</label>
-          <div class="form-input-prefix">
-            <span class="prefix">CHF</span>
-            <input type="text" class="form-input money-input" id="uvgz-{ID}-tf-kapital">
+          <label class="form-label">Hinterlassenenrente</label>
+          <div class="form-input-suffix">
+            <input type="number" class="form-input" id="uvgz-{ID}-hl-rente-pct"
+                   placeholder="0" min="0" max="300" step="1">
+            <span class="suffix">%</span>
           </div>
         </div>
       </div>
@@ -1131,19 +1149,32 @@
     <div class="list-item-body">
       <div class="grid-3" style="gap:var(--space-md)">
         <div class="form-group">
-          <label class="form-label">Art der Versicherung</label>
-          <input type="text" class="form-input" id="priv-{ID}-art"
-                 placeholder="z.B. Risikolebens, EUI, Unfall …"
-                 oninput="updateVertragTitle('priv','{ID}')">
-        </div>
-        <div class="form-group">
           <label class="form-label">Versicherer</label>
           <input type="text" class="form-input" id="priv-{ID}-versicherer"
                  placeholder="Zürich, Swiss Life …"
                  oninput="updateVertragTitle('priv','{ID}')">
         </div>
+        <div style="display:flex;gap:var(--space-lg);align-items:flex-end;flex-wrap:wrap">
+          <div>
+            <div style="font-size:12px;font-weight:500;color:var(--black);margin-bottom:4px">Deckungsart</div>
+            <div style="display:flex;gap:4px">
+              <button class="person-toggle-btn active" id="priv-{ID}-ea" onclick="setPrivDeckungsart('{ID}','erwerbsausfall')">Erwerbsausfall</button>
+              <button class="person-toggle-btn" id="priv-{ID}-tod" onclick="setPrivDeckungsart('{ID}','todesfall')">Todesfall</button>
+            </div>
+            <input type="hidden" id="priv-{ID}-deckungsart" value="erwerbsausfall">
+          </div>
+          <div>
+            <div style="font-size:12px;font-weight:500;color:var(--black);margin-bottom:4px">Leistungsart</div>
+            <div style="display:flex;gap:4px">
+              <button class="person-toggle-btn active" id="priv-{ID}-rente" onclick="setPrivLeistungsart('{ID}','rente')">Rente</button>
+              <button class="person-toggle-btn" id="priv-{ID}-kapital" onclick="setPrivLeistungsart('{ID}','kapital')">Kapital</button>
+            </div>
+            <input type="hidden" id="priv-{ID}-leistungsart" value="rente">
+          </div>
+        </div>
+
         <div class="form-group">
-          <label class="form-label">Leistung / Versicherungssumme</label>
+          <label class="form-label">Versicherungssumme / Rente</label>
           <div class="form-input-prefix">
             <span class="prefix">CHF</span>
             <input type="text" class="form-input money-input" id="priv-{ID}-leistung">
@@ -1155,6 +1186,12 @@
             <span class="prefix">CHF</span>
             <input type="text" class="form-input money-input" id="priv-{ID}-praemie">
           </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Art / Bemerkung</label>
+          <input type="text" class="form-input" id="priv-{ID}-art"
+                 placeholder="z.B. Risikolebens, EUI, Unfall …"
+                 oninput="updateVertragTitle('priv','{ID}')">
         </div>
       </div>
     </div>
@@ -1311,7 +1348,7 @@
           <button onclick="showLFZInfo()" style="background:none;border:none;cursor:pointer;color:var(--accent);font-size:13px;padding:0" title="Skalen anzeigen">ℹ️</button>
         </div>
 
-        <div style="grid-column:1/-1" id="ag-{ID}-lfz-pr-row" style="display:none">
+        <div style="grid-column:1/-1;display:none" id="ag-{ID}-lfz-pr-row">
           <div style="display:flex;align-items:center;gap:var(--space-md);flex-wrap:wrap">
             <div class="form-group" style="margin:0">
               <label class="form-label">Wochen (100%)</label>
@@ -1320,6 +1357,21 @@
                      oninput="validateAGLFZ('{ID}','{PERSON}')">
             </div>
             <span id="ag-{ID}-lfz-pr-warn" style="display:none;font-size:12px;color:#c0392b;font-weight:600;margin-top:18px"></span>
+          </div>
+        </div>
+
+        <div style="grid-column:1/-1">
+          <div style="display:flex;align-items:center;gap:var(--space-md);flex-wrap:wrap">
+            <div class="form-group" style="margin:0">
+              <label class="form-label">Lohndeckung bei Krankheit</label>
+              <div class="form-input-suffix" style="max-width:140px">
+                <input type="number" class="form-input" id="ag-{ID}-lfz-deckung"
+                       value="100" min="0" max="100" step="1"
+                       oninput="validateAGLFZDeckung('{ID}','{PERSON}')">
+                <span class="suffix">%</span>
+              </div>
+            </div>
+            <span id="ag-{ID}-lfz-deckung-warn" style="display:none;font-size:12px;font-weight:600;margin-top:18px"></span>
           </div>
         </div>
 
@@ -1356,6 +1408,14 @@
                  placeholder="z.B. PKZH, BVK, PAX …"
                  oninput="updatePKVertragTitle('{ID}')">
         </div>
+
+        <div class="form-group">
+          <label class="form-label">Arbeitgeber</label>
+          <select class="form-input" id="pk-{ID}-ag" onchange="onAGSelected('pk','{ID}','{PERSON}')">
+            <option value="">— Wählen —</option>
+          </select>
+        </div>
+        <div class="form-group" style="grid-column:span 2"><!-- spacer --></div>
 
         <div class="form-group">
           <label class="form-label">Versicherter Lohn</label>
@@ -1538,6 +1598,7 @@ function addArbeitgeber(person, data = null) {
     inp.addEventListener('blur',  () => { const v = parseCHF(inp.value); if (v !== '') inp.value = fmtCHF(v); });
     inp.addEventListener('focus', () => { const v = parseCHF(inp.value); if (v !== '') inp.value = v; });
   });
+  el.querySelectorAll('.date-ch').forEach(inp => DateHelper.bind(inp));
   if (data) {
     const s  = (fid, v) => { const f = document.getElementById(fid); if (f && v !== undefined && v !== null) f.value = v; };
     const sN = (fid, v) => { const f = document.getElementById(fid); if (f && v) f.value = fmtCHF(v); };
@@ -1551,11 +1612,16 @@ function addArbeitgeber(person, data = null) {
       setAGLFZTyp(id, person, 'personalreglement');
       s(`ag-${id}-lfz-wochen`, data.lfzWochen);
     }
+    if (data.lfzDeckung !== undefined) {
+      s(`ag-${id}-lfz-deckung`, data.lfzDeckung);
+      validateAGLFZDeckung(id, person);
+    }
     updateAGTitle(id);
     updateAGLFZ(id, person);
   }
   updateAGSummen(person);
   updateAGBadge(person);
+  refreshAGSelectsForPerson(person);
 }
 
 function removeArbeitgeber(id, person) {
@@ -1564,12 +1630,19 @@ function removeArbeitgeber(id, person) {
     document.getElementById(`${person}-ag-empty`).style.display = '';
   updateAGSummen(person);
   updateAGBadge(person);
+  refreshAGSelectsForPerson(person);
 }
 
 function updateAGTitle(id) {
-  const name = document.getElementById(`ag-${id}-name`)?.value;
-  const el   = document.getElementById(`ag-${id}-title`);
+  const name   = document.getElementById(`ag-${id}-name`)?.value;
+  const el     = document.getElementById(`ag-${id}-title`);
   if (el) el.textContent = name || 'Neuer Arbeitgeber';
+  // Sync AG selects in contracts so the name stays current
+  const agItem = document.querySelector(`[data-ag-id="${id}"]`);
+  if (agItem) {
+    const person = agItem.dataset.person;
+    if (person) refreshAGSelectsForPerson(person);
+  }
 }
 
 function updateAGLFZ(id, person) {
@@ -1709,68 +1782,87 @@ function addListItemAndAttachHandlers(typ, person, id) {
 function addUVGVertrag(person, data = null) {
   const id = data?.id || `uvg_${person}_${Date.now()}`;
   addListItemAndAttachHandlers('uvg', person, id);
+  const agSel = document.getElementById(`uvg-${id}-ag`);
+  if (agSel) refreshAGSelect(agSel, person);
   if (data) {
     const s  = (fid, v) => { const f = document.getElementById(fid); if (f && v !== undefined && v !== null) f.value = v; };
     const sN = (fid, v) => { const f = document.getElementById(fid); if (f && v) f.value = fmtCHF(v); };
     s(`uvg-${id}-versicherer`, data.versicherer);
     sN(`uvg-${id}-lohn`, data.lohn);
-    s(`uvg-${id}-deckung`, data.deckung ?? 80);
-    sN(`uvg-${id}-taggeld`, data.taggeld);
-    sN(`uvg-${id}-iv-rente`, data.ivRente);
-    sN(`uvg-${id}-heilung`, data.heilung);
-    sN(`uvg-${id}-iv-kapital`, data.ivKapital);
-    sN(`uvg-${id}-tf-kapital`, data.tfKapital);
-    updateUVGCalc(id, person);
+    if (data.agId && agSel) agSel.value = data.agId;
     updateVertragTitle('uvg', id);
   }
-  updateVertragBadge('uvg', person);
-}
-
-function updateUVGCalc(id, person) {
-  const lohn   = parseCHF(document.getElementById(`uvg-${id}-lohn`)?.value) || 0;
-  const deckung = parseFloat(document.getElementById(`uvg-${id}-deckung`)?.value) || 80;
-  const taggeld = Math.round(lohn / 365 * deckung / 100);
-  const tagEl   = document.getElementById(`uvg-${id}-taggeld`);
-  if (tagEl) tagEl.value = taggeld > 0 ? fmtCHF(taggeld) : '';
   updateUVGTotal(person);
+  updateVertragBadge('uvg', person);
 }
 
 function updateUVGTotal(person) {
   const UVG_MAX = 148200;
-  let total = 0;
+  const contracts = [];
   document.querySelectorAll(`[data-person="${person}"].uvg-item`).forEach(item => {
-    const id = item.dataset.uvgId;
-    total += parseCHF(document.getElementById(`uvg-${id}-lohn`)?.value) || 0;
+    const id   = item.dataset.uvgId;
+    const lohn = parseCHF(document.getElementById(`uvg-${id}-lohn`)?.value) || 0;
+    contracts.push({ id, lohn });
   });
-  const warnEl = document.getElementById(`${person}-uvg-total-warn`);
-  if (warnEl) {
-    if (total > 0 && total > UVG_MAX) {
-      warnEl.textContent = `⚠ Total CHF ${fmtCHF(total)} > Maximum CHF ${fmtCHF(UVG_MAX)}`;
-      warnEl.style.color = '#c0392b';
-    } else if (total > 0) {
-      warnEl.textContent = `Total CHF ${fmtCHF(total)}`;
-      warnEl.style.color = '';
-    } else {
-      warnEl.textContent = 'CHF —';
-      warnEl.style.color = '';
-    }
+
+  const total   = contracts.reduce((s, c) => s + c.lohn, 0);
+  const mehrfach = contracts.length > 1;
+  const ueberschritten = total > UVG_MAX;
+
+  // Card-level badges
+  const totalEl  = document.getElementById(`${person}-uvg-total-lohn`);
+  const warnEl   = document.getElementById(`${person}-uvg-total-warn`);
+  const mehrEl   = document.getElementById(`${person}-uvg-mehrfach-notice`);
+
+  if (totalEl) {
+    totalEl.style.display = total > 0 ? '' : 'none';
+    totalEl.textContent   = `UVG-Lohn Total: CHF ${fmtCHF(total)}`;
   }
+  if (warnEl) {
+    warnEl.style.display = ueberschritten ? '' : 'none';
+    if (ueberschritten && !mehrfach) warnEl.textContent = `⚠ Überschreitet Maximum CHF ${fmtCHF(UVG_MAX)}`;
+    else if (ueberschritten && mehrfach) warnEl.textContent = '';
+  }
+  if (mehrEl) mehrEl.style.display = (ueberschritten && mehrfach) ? '' : 'none';
+
+  // Per-contract gekürzter Lohn
+  contracts.forEach(c => {
+    const rowEl  = document.getElementById(`uvg-${c.id}-lohn-gekuerzt-row`);
+    const textEl = document.getElementById(`uvg-${c.id}-lohn-gekuerzt-text`);
+    if (!rowEl || !textEl) return;
+
+    if (ueberschritten) {
+      const anteil      = total > 0 ? c.lohn / total : 0;
+      const gekuerzt    = Math.round(anteil * UVG_MAX);
+      const anteilPct   = Math.round(anteil * 1000) / 10;
+      if (mehrfach) {
+        textEl.textContent = `Gekürzter UVG-Lohn (${anteilPct}% von CHF ${fmtCHF(UVG_MAX)}): CHF ${fmtCHF(gekuerzt)}`;
+      } else {
+        textEl.textContent = `UVG-Maximum: CHF ${fmtCHF(UVG_MAX)} — Gekürzter Lohn: CHF ${fmtCHF(UVG_MAX)}`;
+      }
+      rowEl.style.display = '';
+    } else {
+      rowEl.style.display = 'none';
+    }
+  });
 }
 
 // ── KTG ──
 function addKTGVertrag(person, data = null) {
   const id = data?.id || `ktg_${person}_${Date.now()}`;
   addListItemAndAttachHandlers('ktg', person, id);
+  const agSel = document.getElementById(`ktg-${id}-ag`);
+  if (agSel) refreshAGSelect(agSel, person);
   if (data) {
     const s  = (fid, v) => { const f = document.getElementById(fid); if (f && v !== undefined && v !== null) f.value = v; };
     const sN = (fid, v) => { const f = document.getElementById(fid); if (f && v) f.value = fmtCHF(v); };
     s(`ktg-${id}-versicherer`, data.versicherer);
     s(`ktg-${id}-wartefrist`, data.wartefrist ?? 30);
-    s(`ktg-${id}-dauer`, data.dauer ?? 720);
+    s(`ktg-${id}-dauer`, data.dauer ?? 730);
     sN(`ktg-${id}-lohn`, data.lohn);
     s(`ktg-${id}-deckung`, data.deckung ?? 80);
-    sN(`ktg-${id}-taggeld`, data.taggeld);
-    sN(`ktg-${id}-praemie`, data.praemie);
+    s(`ktg-${id}-praemie`, data.praemie ?? 50);
+    if (data.agId && agSel) agSel.value = data.agId;
     updateKTGCalc(id);
     updateVertragTitle('ktg', id);
   }
@@ -1789,16 +1881,19 @@ function updateKTGCalc(id) {
 function addUVGZVertrag(person, data = null) {
   const id = data?.id || `uvgz_${person}_${Date.now()}`;
   addListItemAndAttachHandlers('uvgz', person, id);
+  const agSel = document.getElementById(`uvgz-${id}-ag`);
+  if (agSel) refreshAGSelect(agSel, person);
   if (data) {
     const s  = (fid, v) => { const f = document.getElementById(fid); if (f && v !== undefined && v !== null) f.value = v; };
     const sN = (fid, v) => { const f = document.getElementById(fid); if (f && v) f.value = fmtCHF(v); };
     s(`uvgz-${id}-versicherer`, data.versicherer);
     sN(`uvgz-${id}-lohn`, data.lohn);
-    sN(`uvgz-${id}-taggeld`, data.taggeld);
-    sN(`uvgz-${id}-heilung`, data.heilung);
-    sN(`uvgz-${id}-iv-kapital`, data.ivKapital);
-    sN(`uvgz-${id}-iv-rente`, data.ivRente);
-    sN(`uvgz-${id}-tf-kapital`, data.tfKapital);
+    s(`uvgz-${id}-taggeld-pct`, data.taggeldPct ?? 90);
+    s(`uvgz-${id}-heilung`, data.heilung ?? 'privat');
+    s(`uvgz-${id}-iv-rente-pct`, data.ivRentePct);
+    s(`uvgz-${id}-hl-rente-pct`, data.hlRentePct);
+    if (data.agId && agSel) agSel.value = data.agId;
+    updateUVGZCalc(id);
     updateVertragTitle('uvgz', id);
   }
   updateVertragBadge('uvgz', person);
@@ -1815,9 +1910,102 @@ function addPrivVertrag(person, data = null) {
     s(`priv-${id}-versicherer`, data.versicherer);
     sN(`priv-${id}-leistung`, data.leistung);
     sN(`priv-${id}-praemie`, data.praemie);
+    if (data.deckungsart) setPrivDeckungsart(id, data.deckungsart);
+    if (data.leistungsart) setPrivLeistungsart(id, data.leistungsart);
     updateVertragTitle('priv', id);
   }
   updateVertragBadge('priv', person);
+}
+
+// ── ARBEITSTÄTIG TOGGLE ──
+function setArbeitstaetig(person, active) {
+  document.getElementById(`${person}-ag-ja`).classList.toggle('active', active);
+  document.getElementById(`${person}-ag-nein`).classList.toggle('active', !active);
+  document.getElementById(`${person}-ag-content`).style.display = active ? '' : 'none';
+  document.getElementById(`${person}-ag-not-arbeitstaetig`).style.display = active ? 'none' : '';
+}
+
+// ── LFZ DECKUNG VALIDATION ──
+function validateAGLFZDeckung(id, person) {
+  const pct    = parseFloat(document.getElementById(`ag-${id}-lfz-deckung`)?.value) ?? 100;
+  const warnEl = document.getElementById(`ag-${id}-lfz-deckung-warn`);
+  if (!warnEl) return;
+  if (pct < 80) {
+    warnEl.textContent    = '⚠ Unter 80% — KTG dringend empfehlen';
+    warnEl.style.color    = '#c0392b';
+    warnEl.style.display  = '';
+  } else if (pct < 100) {
+    warnEl.textContent    = 'ℹ Unter 100% — KTG-Deckung prüfen';
+    warnEl.style.color    = '#e67e22';
+    warnEl.style.display  = '';
+  } else {
+    warnEl.style.display  = 'none';
+  }
+}
+
+// ── AG-SELECT BEFÜLLEN ──
+function refreshAGSelect(selectEl, person) {
+  const current = selectEl.value;
+  while (selectEl.options.length > 1) selectEl.remove(1);
+  document.querySelectorAll(`[data-person="${person}"].ag-item`).forEach(agItem => {
+    const agId = agItem.dataset.agId;
+    const name = document.getElementById(`ag-${agId}-name`)?.value || '(kein Name)';
+    const lohn = parseCHF(document.getElementById(`ag-${agId}-lohn`)?.value);
+    const opt  = document.createElement('option');
+    opt.value  = agId;
+    opt.textContent = name + (lohn ? ` · CHF ${fmtCHF(lohn)}` : '');
+    selectEl.appendChild(opt);
+  });
+  if (current) selectEl.value = current;
+}
+
+function refreshAGSelectsForPerson(person) {
+  [['uvg','uvgId'],['ktg','ktgId'],['uvgz','uvgzId'],['pk','pkId']].forEach(([typ, key]) => {
+    document.querySelectorAll(`[data-person="${person}"].${typ}-item, [data-person="${person}"].${typ}-vertrag-item`).forEach(item => {
+      const id  = item.dataset[key];
+      const sel = document.getElementById(`${typ}-${id}-ag`);
+      if (sel) refreshAGSelect(sel, person);
+    });
+  });
+}
+
+function onAGSelected(typ, id, person) {
+  const agId   = document.getElementById(`${typ}-${id}-ag`)?.value;
+  if (!agId) return;
+  const lohn   = parseCHF(document.getElementById(`ag-${agId}-lohn`)?.value) || 0;
+  const lohnFieldId = typ === 'pk' ? `pk-${id}-verslohn` : `${typ}-${id}-lohn`;
+  const lohnEl = document.getElementById(lohnFieldId);
+  if (lohnEl) {
+    lohnEl.value = lohn > 0 ? fmtCHF(lohn) : '';
+    if (typ === 'uvg')  updateUVGTotal(person);
+    if (typ === 'uvgz') updateUVGZCalc(id);
+    if (typ === 'ktg')  updateKTGCalc(id);
+    if (typ === 'pk')   updatePKVertrag(id, person);
+  }
+}
+
+// ── UVGZ BERECHNUNG ──
+function updateUVGZCalc(id) {
+  const lohn    = parseCHF(document.getElementById(`uvgz-${id}-lohn`)?.value) || 0;
+  const pct     = parseFloat(document.getElementById(`uvgz-${id}-taggeld-pct`)?.value) || 90;
+  const taggeld = Math.round(lohn / 365 * pct / 100);
+  const dispEl  = document.getElementById(`uvgz-${id}-taggeld-display`);
+  if (dispEl) dispEl.textContent = taggeld > 0 ? `CHF ${fmtCHF(taggeld)} / Tag` : 'CHF —';
+}
+
+// ── PRIVATE TOGGLES ──
+function setPrivDeckungsart(id, typ) {
+  document.getElementById(`priv-${id}-ea`)?.classList.toggle('active', typ === 'erwerbsausfall');
+  document.getElementById(`priv-${id}-tod`)?.classList.toggle('active', typ === 'todesfall');
+  const h = document.getElementById(`priv-${id}-deckungsart`);
+  if (h) h.value = typ;
+}
+
+function setPrivLeistungsart(id, typ) {
+  document.getElementById(`priv-${id}-rente`)?.classList.toggle('active', typ === 'rente');
+  document.getElementById(`priv-${id}-kapital`)?.classList.toggle('active', typ === 'kapital');
+  const h = document.getElementById(`priv-${id}-leistungsart`);
+  if (h) h.value = typ;
 }
 
 function updateZivilstand() {
@@ -1871,11 +2059,16 @@ function addPKVertrag(person, data = null) {
     inp.addEventListener('focus', () => { const v = parseCHF(inp.value); if (v !== '') inp.value = v; });
   });
 
+  // AG-Select befüllen
+  const agSel = document.getElementById(`pk-${id}-ag`);
+  if (agSel) refreshAGSelect(agSel, person);
+
   if (data) {
     const s  = (fid, v) => { const f = document.getElementById(fid); if (f && v !== undefined && v !== null) f.value = v; };
     const sN = (fid, v) => { const f = document.getElementById(fid); if (f && v) f.value = fmtCHF(v); };
     s(`pk-${id}-plan`,             data.plan);
     s(`pk-${id}-name`,             data.name);
+    if (data.agId && agSel) agSel.value = data.agId;
     sN(`pk-${id}-verslohn`,        data.versLohn);
     sN(`pk-${id}-koord`,           data.koord);
     sN(`pk-${id}-guthaben`,        data.guthaben);
