@@ -346,7 +346,13 @@ const DataManager = {
       priv1: this._collectTyp('priv', 'p1'),
       priv2: this._collectTyp('priv', 'p2'),
 
-      immobilien: this._collectImmobilien(),
+      immobilien:   this._collectImmobilien(),
+      konten:       this._collectSimpleList('.konto-item',     ['bez','bank','betrag']),
+      wertschriften:this._collectSimpleList('.ws-item',        ['bez','bank','betrag']),
+      s3a:          this._collectSimpleList('#s3a-list .vorsorge-item', ['anbieter','betrag']),
+      s3b:          this._collectSimpleList('#s3b-list .vorsorge-item', ['anbieter','betrag']),
+      fzl:          this._collectSimpleList('#fzl-list .vorsorge-item', ['anbieter','betrag']),
+      uebriges:     this._collectSimpleList('.uebrig-vm-item', ['bez','betrag']),
     };
   },
 
@@ -438,6 +444,20 @@ const DataManager = {
       });
     });
     return contracts;
+  },
+
+  _collectSimpleList(selector, fields) {
+    const list = [];
+    document.querySelectorAll(selector).forEach(el => {
+      const id   = el.id;
+      const item = { id };
+      fields.forEach(f => {
+        const fEl = document.getElementById(`${id}-${f}`);
+        item[f]   = fEl?.value ?? '';
+      });
+      list.push(item);
+    });
+    return list;
   },
 
   _collectImmobilien() {
@@ -601,6 +621,32 @@ const DataManager = {
       const emptyEl = document.getElementById('immo-empty');
       if (emptyEl) emptyEl.style.display = '';
       data.immobilien.forEach(immo => addImmobilie(immo));
+    }
+
+    // Phase 4b restore — Liquide Mittel, Wertschriften, Vorsorge, Übriges
+    const restoreSimpleList = (items, selector, emptyId, addFn) => {
+      if (!items?.length) return;
+      document.querySelectorAll(selector).forEach(el => el.remove());
+      const emptyEl = document.getElementById(emptyId);
+      if (emptyEl) emptyEl.style.display = '';
+      items.forEach(item => addFn(item));
+    };
+    if (typeof addKonto === 'function') {
+      restoreSimpleList(data.konten,        '.konto-item',     'konten-empty',    addKonto);
+      restoreSimpleList(data.wertschriften, '.ws-item',        'ws-empty',        addWertschrift);
+      restoreSimpleList(data.uebriges,      '.uebrig-vm-item', 'uebrig-vm-empty', addUebriges);
+    }
+    if (typeof addVorsorge === 'function') {
+      const restoreVorsorge = (items, typ, selector, emptyId) => {
+        if (!items?.length) return;
+        document.querySelectorAll(selector).forEach(el => el.remove());
+        const emptyEl = document.getElementById(emptyId);
+        if (emptyEl) emptyEl.style.display = '';
+        items.forEach(item => addVorsorge(typ, item));
+      };
+      restoreVorsorge(data.s3a, 's3a', '#s3a-list .vorsorge-item', 's3a-empty');
+      restoreVorsorge(data.s3b, 's3b', '#s3b-list .vorsorge-item', 's3b-empty');
+      restoreVorsorge(data.fzl, 'fzl', '#fzl-list .vorsorge-item', 'fzl-empty');
     }
 
     updateKPIs();

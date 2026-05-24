@@ -931,6 +931,118 @@
     <div class="section-panel" id="panel-vermoegen">
       <div class="page-title"><div class="page-overline">Schritt 3</div><h1 class="page-heading">Eigenheim <em>&amp; Vermögen</em></h1></div>
 
+      <!-- GESAMTVERMÖGEN ÜBERSICHT -->
+      <div class="card" style="margin-bottom:var(--space-lg)">
+        <div class="card-header">
+          <div class="card-title"><span class="card-title-icon">💼</span>Gesamtvermögen</div>
+        </div>
+        <div class="card-body">
+          <div class="kpi-grid" style="grid-template-columns:repeat(3,1fr)">
+            <div class="kpi-tile">
+              <div class="kpi-tile-label">Liquide Mittel</div>
+              <div class="kpi-tile-value" id="kpi-vm-konten">CHF —</div>
+              <div class="kpi-tile-sub">Konten &amp; Bargeld</div>
+            </div>
+            <div class="kpi-tile">
+              <div class="kpi-tile-label">Wertschriften</div>
+              <div class="kpi-tile-value" id="kpi-vm-ws">CHF —</div>
+              <div class="kpi-tile-sub">Depots &amp; Fonds</div>
+            </div>
+            <div class="kpi-tile">
+              <div class="kpi-tile-label">Vorsorgekapital</div>
+              <div class="kpi-tile-value" id="kpi-vm-vorsorge">CHF —</div>
+              <div class="kpi-tile-sub">3a / 3b / Freizügigkeit</div>
+            </div>
+            <div class="kpi-tile">
+              <div class="kpi-tile-label">Immobilien (netto)</div>
+              <div class="kpi-tile-value" id="kpi-vm-immo">CHF —</div>
+              <div class="kpi-tile-sub">Verkehrswert − Hypotheken</div>
+            </div>
+            <div class="kpi-tile">
+              <div class="kpi-tile-label">Übriges Vermögen</div>
+              <div class="kpi-tile-value" id="kpi-vm-uebrig">CHF —</div>
+              <div class="kpi-tile-sub">Schmuck, Fahrzeuge, Kunst …</div>
+            </div>
+            <div class="kpi-tile accent">
+              <div class="kpi-tile-label">Gesamtvermögen</div>
+              <div class="kpi-tile-value" id="kpi-vm-total">CHF —</div>
+              <div class="kpi-tile-sub">Summe aller Kategorien</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- LIQUIDE MITTEL -->
+      <div class="card" style="margin-bottom:var(--space-lg)">
+        <div class="card-header">
+          <div class="card-title"><span class="card-title-icon">🏦</span>Liquide Mittel</div>
+          <span class="badge badge-primary" id="konten-sum-badge">CHF —</span>
+        </div>
+        <div class="card-body">
+          <div class="dynamic-list" id="konten-list">
+            <div class="empty-state" id="konten-empty" style="padding:var(--space-lg)">
+              <div class="empty-state-icon">🏦</div>
+              <p class="empty-state-text">Noch keine Konten erfasst</p>
+            </div>
+          </div>
+          <div style="margin-top:var(--space-md)">
+            <button class="btn-add" onclick="addKonto()">+ Konto hinzufügen</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- WERTSCHRIFTEN -->
+      <div class="card" style="margin-bottom:var(--space-lg)">
+        <div class="card-header">
+          <div class="card-title"><span class="card-title-icon">📈</span>Wertschriften &amp; Depots</div>
+          <span class="badge badge-primary" id="ws-sum-badge">CHF —</span>
+        </div>
+        <div class="card-body">
+          <div class="dynamic-list" id="ws-list">
+            <div class="empty-state" id="ws-empty" style="padding:var(--space-lg)">
+              <div class="empty-state-icon">📈</div>
+              <p class="empty-state-text">Noch keine Wertschriften erfasst</p>
+            </div>
+          </div>
+          <div style="margin-top:var(--space-md)">
+            <button class="btn-add" onclick="addWertschrift()">+ Depot / Wertschriften hinzufügen</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- VORSORGEKAPITAL -->
+      <div class="card" style="margin-bottom:var(--space-lg)">
+        <div class="card-header">
+          <div class="card-title"><span class="card-title-icon">🔐</span>Gebundenes Vorsorgekapital</div>
+          <span class="badge badge-primary" id="vorsorge-sum-badge">CHF —</span>
+        </div>
+        <div class="card-body">
+          <div class="section-divider"><span class="section-divider-label">Säule 3a</span><div class="section-divider-line"></div></div>
+          <div class="dynamic-list" id="s3a-list">
+            <div class="empty-state" id="s3a-empty" style="padding:var(--space-sm) 0">
+              <p class="empty-state-text" style="font-size:12px">Noch keine 3a-Konten erfasst</p>
+            </div>
+          </div>
+          <button class="btn-add" style="margin-top:var(--space-sm)" onclick="addVorsorge('s3a')">+ Säule 3a hinzufügen</button>
+
+          <div class="section-divider" style="margin-top:var(--space-lg)"><span class="section-divider-label">Säule 3b / Lebensversicherung</span><div class="section-divider-line"></div></div>
+          <div class="dynamic-list" id="s3b-list">
+            <div class="empty-state" id="s3b-empty" style="padding:var(--space-sm) 0">
+              <p class="empty-state-text" style="font-size:12px">Noch keine 3b-Verträge erfasst</p>
+            </div>
+          </div>
+          <button class="btn-add" style="margin-top:var(--space-sm)" onclick="addVorsorge('s3b')">+ Säule 3b hinzufügen</button>
+
+          <div class="section-divider" style="margin-top:var(--space-lg)"><span class="section-divider-label">Freizügigkeitskonto (FZL)</span><div class="section-divider-line"></div></div>
+          <div class="dynamic-list" id="fzl-list">
+            <div class="empty-state" id="fzl-empty" style="padding:var(--space-sm) 0">
+              <p class="empty-state-text" style="font-size:12px">Noch keine Freizügigkeitskonten erfasst</p>
+            </div>
+          </div>
+          <button class="btn-add" style="margin-top:var(--space-sm)" onclick="addVorsorge('fzl')">+ Freizügigkeitskonto hinzufügen</button>
+        </div>
+      </div>
+
       <!-- PORTFOLIO ÜBERSICHT -->
       <div class="card" style="margin-bottom:var(--space-lg)">
         <div class="card-header">
@@ -991,6 +1103,26 @@
           </div>
           <div style="margin-top:var(--space-md)">
             <button class="btn-add" onclick="addImmobilie()">+ Immobilie hinzufügen</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- ÜBRIGES VERMÖGEN -->
+      <div class="card" style="margin-bottom:var(--space-lg)">
+        <div class="card-header">
+          <div class="card-title"><span class="card-title-icon">💎</span>Übriges Vermögen</div>
+          <span class="badge badge-primary" id="uebrig-vm-sum-badge">CHF —</span>
+        </div>
+        <div class="card-body">
+          <p style="font-size:12px;color:var(--gray-mid);margin-bottom:var(--space-md)">Schmuck, Kunstgegenstände, Fahrzeuge, Unternehmensbeteiligungen, Darlehen gegeben …</p>
+          <div class="dynamic-list" id="uebrig-vm-list">
+            <div class="empty-state" id="uebrig-vm-empty">
+              <div class="empty-state-icon">💎</div>
+              <p class="empty-state-text">Noch keine weiteren Vermögenswerte erfasst</p>
+            </div>
+          </div>
+          <div style="margin-top:var(--space-md)">
+            <button class="btn-add" onclick="addUebriges()">+ Vermögenswert hinzufügen</button>
           </div>
         </div>
       </div>
@@ -1846,6 +1978,111 @@
 </template>
 
 <!-- ══ HYPOTHEK TEMPLATE ══ -->
+<!-- ══ VERMÖGEN TEMPLATES ══ -->
+
+<!-- KONTO Template -->
+<template id="konto-template">
+  <div class="list-item-card konto-item" id="konto-{ID}">
+    <div class="list-item-header">
+      <span class="list-item-title" id="konto-{ID}-title">Konto</span>
+      <button class="btn btn-danger btn-sm" onclick="removeKonto('konto-{ID}')">✕</button>
+    </div>
+    <div class="list-item-body">
+      <div class="grid-3">
+        <div class="form-group">
+          <label class="form-label">Bezeichnung</label>
+          <input type="text" id="konto-{ID}-bez" class="form-input" placeholder="Lohnkonto, Sparkonto …"
+            oninput="document.getElementById('konto-{ID}-title').textContent=this.value||'Konto';updateVermoegenTotal()">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Bank / IBAN</label>
+          <input type="text" id="konto-{ID}-bank" class="form-input" placeholder="LUKB CH56 …">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Betrag (CHF)</label>
+          <input type="number" id="konto-{ID}-betrag" class="form-input" style="text-align:right"
+            placeholder="0" min="0" step="100" oninput="updateVermoegenTotal()">
+        </div>
+      </div>
+    </div>
+  </div>
+</template>
+
+<!-- WERTSCHRIFT Template -->
+<template id="ws-template">
+  <div class="list-item-card ws-item" id="ws-{ID}">
+    <div class="list-item-header">
+      <span class="list-item-title" id="ws-{ID}-title">Depot / Wertschriften</span>
+      <button class="btn btn-danger btn-sm" onclick="removeWertschrift('ws-{ID}')">✕</button>
+    </div>
+    <div class="list-item-body">
+      <div class="grid-3">
+        <div class="form-group">
+          <label class="form-label">Bezeichnung</label>
+          <input type="text" id="ws-{ID}-bez" class="form-input" placeholder="ETF-Portfolio, Aktien …"
+            oninput="document.getElementById('ws-{ID}-title').textContent=this.value||'Depot / Wertschriften';updateVermoegenTotal()">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Depotbank / Broker</label>
+          <input type="text" id="ws-{ID}-bank" class="form-input" placeholder="LUKB, Swissquote …">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Marktwert (CHF)</label>
+          <input type="number" id="ws-{ID}-betrag" class="form-input" style="text-align:right"
+            placeholder="0" min="0" step="100" oninput="updateVermoegenTotal()">
+        </div>
+      </div>
+    </div>
+  </div>
+</template>
+
+<!-- VORSORGE Template (3a / 3b / FZL) -->
+<template id="vorsorge-item-template">
+  <div class="list-item-card vorsorge-item" id="vorsorge-{ID}" data-typ="{TYP}">
+    <div class="list-item-body">
+      <div class="grid-3">
+        <div class="form-group" style="grid-column:1/3">
+          <label class="form-label" id="vorsorge-{ID}-lbl">Anbieter</label>
+          <input type="text" id="vorsorge-{ID}-anbieter" class="form-input" placeholder="Anbieter / Stiftung">
+        </div>
+        <div class="form-group" style="display:flex;align-items:flex-end;gap:6px">
+          <div style="flex:1">
+            <label class="form-label">Betrag (CHF)</label>
+            <input type="number" id="vorsorge-{ID}-betrag" class="form-input" style="text-align:right"
+              placeholder="0" min="0" step="100" oninput="updateVermoegenTotal()">
+          </div>
+          <button class="btn btn-danger btn-sm" style="margin-bottom:1px"
+            onclick="removeVorsorge('vorsorge-{ID}','{TYP}')">✕</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</template>
+
+<!-- ÜBRIGES VERMÖGEN Template -->
+<template id="uebrig-vm-template">
+  <div class="list-item-card uebrig-vm-item" id="uebrig-vm-{ID}">
+    <div class="list-item-body">
+      <div class="grid-3">
+        <div class="form-group" style="grid-column:1/3">
+          <label class="form-label">Bezeichnung</label>
+          <input type="text" id="uebrig-vm-{ID}-bez" class="form-input"
+            placeholder="Schmuck, Fahrzeug, Beteiligung …">
+        </div>
+        <div class="form-group" style="display:flex;align-items:flex-end;gap:6px">
+          <div style="flex:1">
+            <label class="form-label">Schätzwert (CHF)</label>
+            <input type="number" id="uebrig-vm-{ID}-betrag" class="form-input" style="text-align:right"
+              placeholder="0" min="0" step="100" oninput="updateVermoegenTotal()">
+          </div>
+          <button class="btn btn-danger btn-sm" style="margin-bottom:1px"
+            onclick="removeUebriges('uebrig-vm-{ID}')">✕</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</template>
+
 <template id="hypo-template">
   <div class="list-item-card hypo-item" data-hypo-id="{ID}" data-immo="{IMMO}"
        style="background:var(--white-pure)">
@@ -2981,6 +3218,171 @@ function updatePortfolioKPIs() {
       if (cfTile) cfTile.classList.remove('ok','danger');
     }
   }
+
+  // Gesamtvermögen synchronisieren
+  if (typeof updateVermoegenTotal === 'function') updateVermoegenTotal();
+}
+
+// ══════════════════════════════════════════════
+// VERMÖGEN — Liquide Mittel, Wertschriften,
+// Vorsorgekapital (3a/3b/FZL), Übriges
+// ══════════════════════════════════════════════
+
+const VORSORGE_META = {
+  s3a: { lbl: 'Bank / Versicherung',      ph: 'LUKB, PostFinance, Swiss Life …' },
+  s3b: { lbl: 'Anbieter / Versicherung',  ph: 'Swiss Life, Helvetia, Zurich …' },
+  fzl: { lbl: 'Freizügigkeitsstiftung',   ph: 'Auffangeinrichtung, LUKB …' },
+};
+
+// ── Konten ──
+function addKonto(data = null) {
+  // Beim Laden: data.id = 'konto-k_...' → Prefix strippen für Template-Variable
+  const id  = data?.id ? String(data.id).replace(/^konto-/, '') : `k_${Date.now()}`;
+  const html = document.getElementById('konto-template').innerHTML.replace(/{ID}/g, id);
+  const wrap = document.createElement('div'); wrap.innerHTML = html;
+  const item = wrap.firstElementChild;
+  document.getElementById('konten-list').appendChild(item);
+  document.getElementById('konten-empty').style.display = 'none';
+  if (data) {
+    const s = (fid, v) => { const el = document.getElementById(fid); if (el && v != null) el.value = v; };
+    s(`konto-${id}-bez`,    data.bez);
+    s(`konto-${id}-bank`,   data.bank);
+    s(`konto-${id}-betrag`, data.betrag);
+    const titleEl = document.getElementById(`konto-${id}-title`);
+    if (titleEl && data.bez) titleEl.textContent = data.bez;
+  }
+  updateVermoegenTotal();
+}
+function removeKonto(id) {
+  document.getElementById(id)?.remove();
+  if (!document.querySelector('#konten-list .konto-item'))
+    document.getElementById('konten-empty').style.display = '';
+  updateVermoegenTotal();
+}
+
+// ── Wertschriften ──
+function addWertschrift(data = null) {
+  const id  = data?.id ? String(data.id).replace(/^ws-/, '') : `ws_${Date.now()}`;
+  const html = document.getElementById('ws-template').innerHTML.replace(/{ID}/g, id);
+  const wrap = document.createElement('div'); wrap.innerHTML = html;
+  const item = wrap.firstElementChild;
+  document.getElementById('ws-list').appendChild(item);
+  document.getElementById('ws-empty').style.display = 'none';
+  if (data) {
+    const s = (fid, v) => { const el = document.getElementById(fid); if (el && v != null) el.value = v; };
+    s(`ws-${id}-bez`,    data.bez);
+    s(`ws-${id}-bank`,   data.bank);
+    s(`ws-${id}-betrag`, data.betrag);
+    const titleEl = document.getElementById(`ws-${id}-title`);
+    if (titleEl && data.bez) titleEl.textContent = data.bez;
+  }
+  updateVermoegenTotal();
+}
+function removeWertschrift(id) {
+  document.getElementById(id)?.remove();
+  if (!document.querySelector('#ws-list .ws-item'))
+    document.getElementById('ws-empty').style.display = '';
+  updateVermoegenTotal();
+}
+
+// ── Vorsorge (3a / 3b / FZL) ──
+function addVorsorge(typ, data = null) {
+  const id  = data?.id ? String(data.id).replace(/^vorsorge-/, '') : `vs_${Date.now()}`;
+  const html = document.getElementById('vorsorge-item-template').innerHTML
+    .replace(/{ID}/g, id).replace(/{TYP}/g, typ);
+  const wrap = document.createElement('div'); wrap.innerHTML = html;
+  const item = wrap.firstElementChild;
+  const meta = VORSORGE_META[typ] || { lbl: 'Anbieter', ph: '' };
+  const lbl  = item.querySelector(`#vorsorge-${id}-lbl`);
+  const inp  = item.querySelector(`#vorsorge-${id}-anbieter`);
+  if (lbl) lbl.textContent = meta.lbl;
+  if (inp) inp.placeholder = meta.ph;
+  document.getElementById(`${typ}-list`).appendChild(item);
+  document.getElementById(`${typ}-empty`).style.display = 'none';
+  if (data) {
+    const s = (fid, v) => { const el = document.getElementById(fid); if (el && v != null) el.value = v; };
+    s(`vorsorge-${id}-anbieter`, data.anbieter);
+    s(`vorsorge-${id}-betrag`,   data.betrag);
+  }
+  updateVermoegenTotal();
+}
+function removeVorsorge(id, typ) {
+  document.getElementById(id)?.remove();
+  if (!document.querySelector(`#${typ}-list .vorsorge-item`))
+    document.getElementById(`${typ}-empty`).style.display = '';
+  updateVermoegenTotal();
+}
+
+// ── Übriges Vermögen ──
+function addUebriges(data = null) {
+  const id  = data?.id ? String(data.id).replace(/^uebrig-vm-/, '') : `uv_${Date.now()}`;
+  const html = document.getElementById('uebrig-vm-template').innerHTML.replace(/{ID}/g, id);
+  const wrap = document.createElement('div'); wrap.innerHTML = html;
+  const item = wrap.firstElementChild;
+  document.getElementById('uebrig-vm-list').appendChild(item);
+  document.getElementById('uebrig-vm-empty').style.display = 'none';
+  if (data) {
+    const s = (fid, v) => { const el = document.getElementById(fid); if (el && v != null) el.value = v; };
+    s(`uebrig-vm-${id}-bez`,    data.bez);
+    s(`uebrig-vm-${id}-betrag`, data.betrag);
+  }
+  updateVermoegenTotal();
+}
+function removeUebriges(id) {
+  document.getElementById(id)?.remove();
+  if (!document.querySelector('#uebrig-vm-list .uebrig-vm-item'))
+    document.getElementById('uebrig-vm-empty').style.display = '';
+  updateVermoegenTotal();
+}
+
+// ── Gesamtvermögen KPI ──
+function updateVermoegenTotal() {
+  const sumList = (selector, field) =>
+    [...document.querySelectorAll(selector)].reduce(
+      (s, el) => s + (parseCHF(document.getElementById(el.id + field)?.value) || 0), 0
+    );
+
+  const kontenTotal   = sumList('.konto-item',              '-betrag');
+  const wsTotal       = sumList('.ws-item',                 '-betrag');
+  const s3aTotal      = sumList('#s3a-list .vorsorge-item', '-betrag');
+  const s3bTotal      = sumList('#s3b-list .vorsorge-item', '-betrag');
+  const fzlTotal      = sumList('#fzl-list .vorsorge-item', '-betrag');
+  const vorsorgeTotal = s3aTotal + s3bTotal + fzlTotal;
+  const uebrigTotal   = sumList('.uebrig-vm-item',          '-betrag');
+
+  // Immobilien: Netto = Verkehrswert − Hypotheken (direkt aus DOM)
+  let immoNetto = 0;
+  document.querySelectorAll('.immo-item').forEach(el => {
+    const id = el.dataset.immoId;
+    const vw  = parseCHF(document.getElementById(`immo-${id}-verkehrswert`)?.value) || 0;
+    let hypo  = 0;
+    document.querySelectorAll(`[data-immo="${id}"].hypo-item`).forEach(h => {
+      hypo += parseCHF(document.getElementById(`hypo-${h.dataset.hypoId}-betrag`)?.value) || 0;
+    });
+    immoNetto += vw - hypo;
+  });
+
+  const total = kontenTotal + wsTotal + vorsorgeTotal + immoNetto + uebrigTotal;
+  const fmtV  = v => v > 0 ? `CHF ${fmtCHF(v)}` : 'CHF —';
+  const setV  = (id, t) => { const el = document.getElementById(id); if (el) el.textContent = t; };
+
+  setV('kpi-vm-konten',   fmtV(kontenTotal));
+  setV('kpi-vm-ws',       fmtV(wsTotal));
+  setV('kpi-vm-vorsorge', fmtV(vorsorgeTotal));
+  setV('kpi-vm-immo',     fmtV(immoNetto));
+  setV('kpi-vm-uebrig',   fmtV(uebrigTotal));
+  setV('kpi-vm-total',    total > 0 ? `CHF ${fmtCHF(total)}` : 'CHF —');
+
+  // Accent-Farbe auf Gesamt-Kachel (immer accent, aber nur sichtbar wenn > 0)
+  const totalTile = document.getElementById('kpi-vm-total')?.closest('.kpi-tile');
+  if (totalTile) totalTile.className = `kpi-tile${total > 0 ? ' accent' : ''}`;
+
+  // Badges in Karten-Header
+  const setB = (id, v) => { const el = document.getElementById(id); if (el) el.textContent = fmtV(v); };
+  setB('konten-sum-badge',    kontenTotal);
+  setB('ws-sum-badge',        wsTotal);
+  setB('vorsorge-sum-badge',  vorsorgeTotal);
+  setB('uebrig-vm-sum-badge', uebrigTotal);
 }
 
 // Modals schliessen bei Klick auf Overlay
