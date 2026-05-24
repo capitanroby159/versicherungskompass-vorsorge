@@ -347,12 +347,22 @@ const DataManager = {
       priv2: this._collectTyp('priv', 'p2'),
 
       immobilien:   this._collectImmobilien(),
-      konten:       this._collectSimpleList('.konto-item',     ['bez','bank','betrag']),
-      wertschriften:this._collectSimpleList('.ws-item',        ['bez','bank','betrag']),
-      s3a:          this._collectSimpleList('#s3a-list .vorsorge-item', ['anbieter','betrag']),
-      s3b:          this._collectSimpleList('#s3b-list .vorsorge-item', ['anbieter','betrag']),
-      fzl:          this._collectSimpleList('#fzl-list .vorsorge-item', ['anbieter','betrag']),
-      uebriges:     this._collectSimpleList('.uebrig-vm-item', ['bez','betrag']),
+      konten:       this._collectSimpleList('.konto-item',     ['bez','bank','betrag','zins','person']),
+      wertschriften:this._collectSimpleList('.ws-item',        ['bez','bank','betrag','person']),
+      s3a:          this._collectSimpleList('#s3a-list .vorsorge-item', ['anbieter','betrag','person','art','zins']),
+      s3b:          this._collectSimpleList('#s3b-list .vorsorge-item', ['anbieter','betrag','person','art','zins']),
+      fzl:          this._collectSimpleList('#fzl-list .vorsorge-item', ['anbieter','betrag','person','art','zins']),
+      uebriges:     this._collectSimpleList('.uebrig-vm-item', ['bez','betrag','person']),
+      wsStrategyP1: {
+        preset: document.getElementById('ws-strat-p1-preset')?.value || 'ausgewogen',
+        kurs:   parseFloat(document.getElementById('ws-strat-p1-kurs')?.value) || 3,
+        div:    parseFloat(document.getElementById('ws-strat-p1-div')?.value)  || 2,
+      },
+      wsStrategyP2: {
+        preset: document.getElementById('ws-strat-p2-preset')?.value || 'ausgewogen',
+        kurs:   parseFloat(document.getElementById('ws-strat-p2-kurs')?.value) || 3,
+        div:    parseFloat(document.getElementById('ws-strat-p2-div')?.value)  || 2,
+      },
     };
   },
 
@@ -453,7 +463,7 @@ const DataManager = {
       const item = { id };
       fields.forEach(f => {
         const fEl = document.getElementById(`${id}-${f}`);
-        item[f]   = fEl?.value ?? '';
+        item[f]   = f === 'betrag' ? (parseCHF(fEl?.value) || '') : (fEl?.value ?? '');
       });
       list.push(item);
     });
@@ -481,6 +491,7 @@ const DataManager = {
 
       list.push({
         id,
+        person:        get(`immo-${id}-person`) || 'beide',
         bezeichnung:   get(`immo-${id}-bezeichnung`),
         typ:           get(`immo-${id}-typ`),
         adresse:       get(`immo-${id}-adresse`),
@@ -649,6 +660,18 @@ const DataManager = {
       restoreVorsorge(data.fzl, 'fzl', '#fzl-list .vorsorge-item', 'fzl-empty');
     }
 
+    // WS-Strategien restaurieren
+    const restoreWSStrategy = (person, s) => {
+      if (!s) return;
+      const set = (id, v) => { const el = document.getElementById(id); if (el && v != null) el.value = v; };
+      set(`ws-strat-${person}-preset`, s.preset);
+      set(`ws-strat-${person}-kurs`,   s.kurs);
+      set(`ws-strat-${person}-div`,    s.div);
+      if (typeof updateWSStrategieTotal === 'function') updateWSStrategieTotal(person);
+    };
+    restoreWSStrategy('p1', data.wsStrategyP1);
+    restoreWSStrategy('p2', data.wsStrategyP2);
+
     updateKPIs();
   },
 
@@ -707,7 +730,7 @@ const Toast = {
 // ── FORMAT HELPERS ──
 function fmtCHF(n) {
   if (!n && n !== 0) return '';
-  return new Intl.NumberFormat('de-CH', { maximumFractionDigits: 0 }).format(n);
+  return new Intl.NumberFormat('de-CH', { maximumFractionDigits: 2 }).format(n);
 }
 
 function parseCHF(s) {
@@ -807,10 +830,18 @@ const App = {
   },
 };
 
-document.addEventListener('DOMContentLoaded', () => {
-  App.init();
-  document.querySelectorAll('.money-input').forEach(el => {
-    el.addEventListener('blur', () => { const v=parseCHF(el.value); if(v!=='') el.value=fmtCHF(v); });
-    el.addEventListener('focus', () => { const v=parseCHF(el.value); if(v!=='') el.value=v; });
-  });
-});
+document.addEventListener('DOMContentLoaded', () => { App.init(); });
+
+// Format money-inputs on blur/focus — delegated so dynamic elements are covered too
+document.addEventListener('blur', e => {
+  if (e.target.classList?.contains('money-input')) {
+    const v = parseCHF(e.target.value);
+    if (v !== '') e.target.value = fmtCHF(v);
+  }
+}, true);
+document.addEventListener('focus', e => {
+  if (e.target.classList?.contains('money-input')) {
+    const v = parseCHF(e.target.value);
+    if (v !== '') e.target.value = v;
+  }
+}, true);

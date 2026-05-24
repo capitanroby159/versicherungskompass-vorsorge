@@ -190,6 +190,45 @@
       color: var(--gray-mid); transition: all var(--transition);
     }
     .lfz-tab.active { background: var(--primary); color: white; border-color: var(--primary); }
+
+    /* ── PERSON TOGGLE KLEIN (in Listenpositionen) ── */
+    .person-toggle-sm .person-toggle-btn { padding: 3px 8px; font-size: 11px; }
+
+    /* ── YIELD BADGE ── */
+    .yield-badge {
+      display: inline-flex; align-items: center;
+      font-size: 11px; font-weight: 500;
+      padding: 2px 7px; border-radius: var(--radius-sm);
+      background: var(--ok-bg); color: var(--ok);
+    }
+
+    /* ── WS STRATEGIE BLOCK ── */
+    .ws-strategie-block {
+      display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-md);
+      margin-bottom: var(--space-lg);
+      padding: var(--space-md);
+      background: var(--primary-light);
+      border-radius: var(--radius-md);
+      border: 1px solid var(--primary-light);
+    }
+    .ws-strat-card {
+      padding: var(--space-md);
+      background: var(--white-pure);
+      border-radius: var(--radius-md);
+      border: 1px solid var(--gray-light);
+    }
+    .ws-strat-head {
+      font-size: 11px; font-weight: 600; color: var(--primary);
+      text-transform: uppercase; letter-spacing: .05em;
+      margin-bottom: var(--space-sm);
+      display: flex; align-items: center; gap: var(--space-sm);
+    }
+    .ws-strat-total {
+      margin-top: var(--space-sm); font-size: 12px; color: var(--gray-mid);
+    }
+    @media (max-width: 680px) {
+      .ws-strategie-block { grid-template-columns: 1fr; }
+    }
   </style>
 </head>
 <body>
@@ -969,6 +1008,38 @@
               <div class="kpi-tile-sub">Summe aller Kategorien</div>
             </div>
           </div>
+          <div style="margin:var(--space-md) 0 var(--space-sm);display:flex;align-items:center;gap:var(--space-sm)">
+            <div style="flex:1;height:1px;background:var(--gray-light)"></div>
+            <span style="font-size:11px;font-weight:600;color:var(--gray-mid);text-transform:uppercase;letter-spacing:.05em;white-space:nowrap">Erwarteter Jahresertrag</span>
+            <div style="flex:1;height:1px;background:var(--gray-light)"></div>
+          </div>
+          <div class="kpi-grid" style="grid-template-columns:repeat(5,1fr)">
+            <div class="kpi-tile">
+              <div class="kpi-tile-label">Zins / Jahr</div>
+              <div class="kpi-tile-value" id="kpi-yield-zins-chf">CHF —</div>
+              <div class="kpi-tile-sub" id="kpi-yield-zins-pct">— % Ø Konten/Vorsorge</div>
+            </div>
+            <div class="kpi-tile">
+              <div class="kpi-tile-label">Dividenden / Jahr</div>
+              <div class="kpi-tile-value" id="kpi-yield-div-chf">CHF —</div>
+              <div class="kpi-tile-sub" id="kpi-yield-div-pct">— % auf WS-Portfolio</div>
+            </div>
+            <div class="kpi-tile">
+              <div class="kpi-tile-label">Kursgewinne / Jahr</div>
+              <div class="kpi-tile-value" id="kpi-yield-kurs-chf">CHF —</div>
+              <div class="kpi-tile-sub" id="kpi-yield-kurs-pct">— % auf WS-Portfolio</div>
+            </div>
+            <div class="kpi-tile">
+              <div class="kpi-tile-label">Mietertrag / Jahr</div>
+              <div class="kpi-tile-value" id="kpi-yield-miete-chf">CHF —</div>
+              <div class="kpi-tile-sub" id="kpi-yield-miete-pct">— % Bruttomietrendite</div>
+            </div>
+            <div class="kpi-tile">
+              <div class="kpi-tile-label">Gesamt Jahresertrag</div>
+              <div class="kpi-tile-value" id="kpi-yield-total-chf">CHF —</div>
+              <div class="kpi-tile-sub" id="kpi-yield-total-pct">— % auf Gesamtvermögen</div>
+            </div>
+          </div>
         </div>
       </div>
 
@@ -976,7 +1047,10 @@
       <div class="card" style="margin-bottom:var(--space-lg)">
         <div class="card-header">
           <div class="card-title"><span class="card-title-icon">🏦</span>Liquide Mittel</div>
-          <span class="badge badge-primary" id="konten-sum-badge">CHF —</span>
+          <div style="display:flex;align-items:center;gap:var(--space-sm)">
+            <span class="badge badge-primary" id="konten-sum-badge">CHF —</span>
+            <span class="badge badge-primary" id="konten-zins-badge" style="background:var(--ok-bg);color:var(--ok);border:1px solid var(--ok)"></span>
+          </div>
         </div>
         <div class="card-body">
           <div class="dynamic-list" id="konten-list">
@@ -995,9 +1069,88 @@
       <div class="card" style="margin-bottom:var(--space-lg)">
         <div class="card-header">
           <div class="card-title"><span class="card-title-icon">📈</span>Wertschriften &amp; Depots</div>
-          <span class="badge badge-primary" id="ws-sum-badge">CHF —</span>
+          <div style="display:flex;align-items:center;gap:var(--space-sm)">
+            <span class="badge badge-primary" id="ws-sum-badge">CHF —</span>
+            <span class="badge badge-primary" id="ws-ertrag-badge" style="background:var(--ok-bg);color:var(--ok);border:1px solid var(--ok)"></span>
+          </div>
         </div>
         <div class="card-body">
+          <!-- ── WS STRATEGIE ── -->
+          <div class="ws-strategie-block">
+            <!-- P1 Strategie -->
+            <div class="ws-strat-card">
+              <div class="ws-strat-head">
+                <span class="person-badge person-1">Person 1</span> Anlagestrategie
+              </div>
+              <div class="grid-3" style="gap:var(--space-sm)">
+                <div class="form-group">
+                  <label class="form-label">Preset</label>
+                  <select id="ws-strat-p1-preset" class="form-input" onchange="setWSStrategie('p1',this.value)">
+                    <option value="defensiv">Defensiv</option>
+                    <option value="ausgewogen" selected>Ausgewogen</option>
+                    <option value="wachstum">Wachstum</option>
+                    <option value="individuell">Individuell</option>
+                  </select>
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Kursgewinne %</label>
+                  <div class="form-input-suffix">
+                    <input type="number" id="ws-strat-p1-kurs" class="form-input" style="text-align:right"
+                      value="3.0" min="0" max="30" step="0.1"
+                      oninput="document.getElementById('ws-strat-p1-preset').value='individuell';updateWSStrategieTotal('p1');updateVermoegenTotal()">
+                    <span class="suffix">%</span>
+                  </div>
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Dividenden %</label>
+                  <div class="form-input-suffix">
+                    <input type="number" id="ws-strat-p1-div" class="form-input" style="text-align:right"
+                      value="2.0" min="0" max="20" step="0.1"
+                      oninput="document.getElementById('ws-strat-p1-preset').value='individuell';updateWSStrategieTotal('p1');updateVermoegenTotal()">
+                    <span class="suffix">%</span>
+                  </div>
+                </div>
+              </div>
+              <div class="ws-strat-total">Erw. Gesamtrendite: <strong id="ws-strat-p1-total">5.0 % p.a.</strong></div>
+            </div>
+            <!-- P2 Strategie -->
+            <div class="ws-strat-card kpi-p2-tile">
+              <div class="ws-strat-head">
+                <span class="person-badge person-2">Person 2</span> Anlagestrategie
+              </div>
+              <div class="grid-3" style="gap:var(--space-sm)">
+                <div class="form-group">
+                  <label class="form-label">Preset</label>
+                  <select id="ws-strat-p2-preset" class="form-input" onchange="setWSStrategie('p2',this.value)">
+                    <option value="defensiv">Defensiv</option>
+                    <option value="ausgewogen" selected>Ausgewogen</option>
+                    <option value="wachstum">Wachstum</option>
+                    <option value="individuell">Individuell</option>
+                  </select>
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Kursgewinne %</label>
+                  <div class="form-input-suffix">
+                    <input type="number" id="ws-strat-p2-kurs" class="form-input" style="text-align:right"
+                      value="3.0" min="0" max="30" step="0.1"
+                      oninput="document.getElementById('ws-strat-p2-preset').value='individuell';updateWSStrategieTotal('p2');updateVermoegenTotal()">
+                    <span class="suffix">%</span>
+                  </div>
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Dividenden %</label>
+                  <div class="form-input-suffix">
+                    <input type="number" id="ws-strat-p2-div" class="form-input" style="text-align:right"
+                      value="2.0" min="0" max="20" step="0.1"
+                      oninput="document.getElementById('ws-strat-p2-preset').value='individuell';updateWSStrategieTotal('p2');updateVermoegenTotal()">
+                    <span class="suffix">%</span>
+                  </div>
+                </div>
+              </div>
+              <div class="ws-strat-total">Erw. Gesamtrendite: <strong id="ws-strat-p2-total">5.0 % p.a.</strong></div>
+            </div>
+          </div>
+
           <div class="dynamic-list" id="ws-list">
             <div class="empty-state" id="ws-empty" style="padding:var(--space-lg)">
               <div class="empty-state-icon">📈</div>
@@ -1014,7 +1167,10 @@
       <div class="card" style="margin-bottom:var(--space-lg)">
         <div class="card-header">
           <div class="card-title"><span class="card-title-icon">🔐</span>Gebundenes Vorsorgekapital</div>
-          <span class="badge badge-primary" id="vorsorge-sum-badge">CHF —</span>
+          <div style="display:flex;align-items:center;gap:var(--space-sm)">
+            <span class="badge badge-primary" id="vorsorge-sum-badge">CHF —</span>
+            <span class="badge badge-primary" id="vorsorge-ertrag-badge" style="background:var(--ok-bg);color:var(--ok);border:1px solid var(--ok)"></span>
+          </div>
         </div>
         <div class="card-body">
           <div class="section-divider"><span class="section-divider-label">Säule 3a</span><div class="section-divider-line"></div></div>
@@ -1795,7 +1951,19 @@
         <!-- Basisdaten -->
         <div>
           <div class="immo-section-label">Basisdaten</div>
-          <div class="grid-3" style="gap:var(--space-md)">
+          <div class="grid-4" style="gap:var(--space-md)">
+            <div class="form-group">
+              <label class="form-label">Person</label>
+              <div class="person-toggle person-toggle-sm" style="width:100%">
+                <button type="button" class="person-toggle-btn active" id="immo-{ID}-btn-p1"
+                  onclick="setItemPerson('immo','{ID}','p1',this)" style="flex:1">P1</button>
+                <button type="button" class="person-toggle-btn kpi-p2-tile" id="immo-{ID}-btn-p2"
+                  onclick="setItemPerson('immo','{ID}','p2',this)" style="flex:1">P2</button>
+                <button type="button" class="person-toggle-btn" id="immo-{ID}-btn-beide"
+                  onclick="setItemPerson('immo','{ID}','beide',this)" style="flex:1">Beide</button>
+              </div>
+              <input type="hidden" id="immo-{ID}-person" value="beide">
+            </div>
             <div class="form-group">
               <label class="form-label">Bezeichnung</label>
               <input type="text" class="form-input" id="immo-{ID}-bezeichnung"
@@ -1985,10 +2153,18 @@
   <div class="list-item-card konto-item" id="konto-{ID}">
     <div class="list-item-header">
       <span class="list-item-title" id="konto-{ID}-title">Konto</span>
-      <button class="btn btn-danger btn-sm" onclick="removeKonto('konto-{ID}')">✕</button>
+      <div style="display:flex;align-items:center;gap:var(--space-sm)">
+        <div class="person-toggle person-toggle-sm">
+          <button type="button" class="person-toggle-btn active" id="konto-{ID}-btn-p1" onclick="setItemPerson('konto','{ID}','p1',this)">P1</button>
+          <button type="button" class="person-toggle-btn kpi-p2-tile" id="konto-{ID}-btn-p2" onclick="setItemPerson('konto','{ID}','p2',this)">P2</button>
+          <button type="button" class="person-toggle-btn" id="konto-{ID}-btn-beide" onclick="setItemPerson('konto','{ID}','beide',this)">Beide</button>
+        </div>
+        <input type="hidden" id="konto-{ID}-person" value="p1">
+        <button class="btn btn-danger btn-sm" onclick="removeKonto('konto-{ID}')">✕</button>
+      </div>
     </div>
     <div class="list-item-body">
-      <div class="grid-3">
+      <div class="grid-4" style="gap:var(--space-md)">
         <div class="form-group">
           <label class="form-label">Bezeichnung</label>
           <input type="text" id="konto-{ID}-bez" class="form-input" placeholder="Lohnkonto, Sparkonto …"
@@ -2000,9 +2176,21 @@
         </div>
         <div class="form-group">
           <label class="form-label">Betrag (CHF)</label>
-          <input type="number" id="konto-{ID}-betrag" class="form-input" style="text-align:right"
-            placeholder="0" min="0" step="100" oninput="updateVermoegenTotal()">
+          <input type="text" id="konto-{ID}-betrag" class="form-input money-input" style="text-align:right"
+            placeholder="0" oninput="updateVermoegenTotal()">
         </div>
+        <div class="form-group">
+          <label class="form-label">Zinssatz % p.a.</label>
+          <div class="form-input-suffix">
+            <input type="number" id="konto-{ID}-zins" class="form-input" style="text-align:right"
+              placeholder="0.50" min="0" max="20" step="0.05" oninput="updateVermoegenTotal()">
+            <span class="suffix">%</span>
+          </div>
+        </div>
+      </div>
+      <div style="margin-top:var(--space-sm)">
+        <span style="font-size:12px;color:var(--gray-mid)">Jahreszins: </span>
+        <span class="yield-badge" id="konto-{ID}-jahreszins">CHF —</span>
       </div>
     </div>
   </div>
@@ -2013,10 +2201,18 @@
   <div class="list-item-card ws-item" id="ws-{ID}">
     <div class="list-item-header">
       <span class="list-item-title" id="ws-{ID}-title">Depot / Wertschriften</span>
-      <button class="btn btn-danger btn-sm" onclick="removeWertschrift('ws-{ID}')">✕</button>
+      <div style="display:flex;align-items:center;gap:var(--space-sm)">
+        <div class="person-toggle person-toggle-sm">
+          <button type="button" class="person-toggle-btn active" id="ws-{ID}-btn-p1" onclick="setItemPerson('ws','{ID}','p1',this)">P1</button>
+          <button type="button" class="person-toggle-btn kpi-p2-tile" id="ws-{ID}-btn-p2" onclick="setItemPerson('ws','{ID}','p2',this)">P2</button>
+          <button type="button" class="person-toggle-btn" id="ws-{ID}-btn-beide" onclick="setItemPerson('ws','{ID}','beide',this)">Beide</button>
+        </div>
+        <input type="hidden" id="ws-{ID}-person" value="p1">
+        <button class="btn btn-danger btn-sm" onclick="removeWertschrift('ws-{ID}')">✕</button>
+      </div>
     </div>
     <div class="list-item-body">
-      <div class="grid-3">
+      <div class="grid-3" style="gap:var(--space-md)">
         <div class="form-group">
           <label class="form-label">Bezeichnung</label>
           <input type="text" id="ws-{ID}-bez" class="form-input" placeholder="ETF-Portfolio, Aktien …"
@@ -2028,9 +2224,13 @@
         </div>
         <div class="form-group">
           <label class="form-label">Marktwert (CHF)</label>
-          <input type="number" id="ws-{ID}-betrag" class="form-input" style="text-align:right"
-            placeholder="0" min="0" step="100" oninput="updateVermoegenTotal()">
+          <input type="text" id="ws-{ID}-betrag" class="form-input money-input" style="text-align:right"
+            placeholder="0" oninput="updateVermoegenTotal()">
         </div>
+      </div>
+      <div style="margin-top:var(--space-sm);display:flex;gap:var(--space-lg);flex-wrap:wrap">
+        <span style="font-size:12px;color:var(--gray-mid)">Strategie: <strong id="ws-{ID}-strat-info" style="color:var(--primary)">—</strong></span>
+        <span style="font-size:12px;color:var(--gray-mid)">Erw. Ertrag/Jahr: <span class="yield-badge" id="ws-{ID}-ertrag">CHF —</span></span>
       </div>
     </div>
   </div>
@@ -2040,20 +2240,58 @@
 <template id="vorsorge-item-template">
   <div class="list-item-card vorsorge-item" id="vorsorge-{ID}" data-typ="{TYP}">
     <div class="list-item-body">
-      <div class="grid-3">
-        <div class="form-group" style="grid-column:1/3">
+      <!-- Zeile 1: Person + Anbieter + Betrag + Löschen -->
+      <div class="grid-4" style="gap:var(--space-md);align-items:end">
+        <div class="form-group">
+          <label class="form-label">Person</label>
+          <div class="person-toggle person-toggle-sm" style="width:100%">
+            <button type="button" class="person-toggle-btn active" id="vorsorge-{ID}-btn-p1"
+              onclick="setItemPerson('vorsorge','{ID}','p1',this)" style="flex:1">P1</button>
+            <button type="button" class="person-toggle-btn kpi-p2-tile" id="vorsorge-{ID}-btn-p2"
+              onclick="setItemPerson('vorsorge','{ID}','p2',this)" style="flex:1">P2</button>
+            <button type="button" class="person-toggle-btn" id="vorsorge-{ID}-btn-beide"
+              onclick="setItemPerson('vorsorge','{ID}','beide',this)" style="flex:1">Beide</button>
+          </div>
+          <input type="hidden" id="vorsorge-{ID}-person" value="p1">
+        </div>
+        <div class="form-group">
           <label class="form-label" id="vorsorge-{ID}-lbl">Anbieter</label>
           <input type="text" id="vorsorge-{ID}-anbieter" class="form-input" placeholder="Anbieter / Stiftung">
         </div>
-        <div class="form-group" style="display:flex;align-items:flex-end;gap:6px">
-          <div style="flex:1">
-            <label class="form-label">Betrag (CHF)</label>
-            <input type="number" id="vorsorge-{ID}-betrag" class="form-input" style="text-align:right"
-              placeholder="0" min="0" step="100" oninput="updateVermoegenTotal()">
-          </div>
-          <button class="btn btn-danger btn-sm" style="margin-bottom:1px"
-            onclick="removeVorsorge('vorsorge-{ID}','{TYP}')">✕</button>
+        <div class="form-group">
+          <label class="form-label">Betrag (CHF)</label>
+          <input type="text" id="vorsorge-{ID}-betrag" class="form-input money-input" style="text-align:right"
+            placeholder="0" oninput="updateVermoegenTotal()">
         </div>
+        <div class="form-group" style="display:flex;align-items:flex-end">
+          <button class="btn btn-danger btn-sm" style="width:100%;justify-content:center"
+            onclick="removeVorsorge('vorsorge-{ID}','{TYP}')">✕ Entfernen</button>
+        </div>
+      </div>
+      <!-- Zeile 2: Art + Zinssatz/Strategie + Erwarteter Ertrag -->
+      <div style="display:flex;gap:var(--space-lg);align-items:center;flex-wrap:wrap;margin-top:var(--space-sm)">
+        <div style="display:flex;align-items:center;gap:var(--space-sm)">
+          <span style="font-size:12px;color:var(--gray-mid);white-space:nowrap">Art:</span>
+          <div class="person-toggle person-toggle-sm">
+            <button type="button" class="person-toggle-btn active" id="vorsorge-{ID}-btn-konto"
+              onclick="setVorsorgeArt('{ID}','konto',this)">Konto</button>
+            <button type="button" class="person-toggle-btn" id="vorsorge-{ID}-btn-ws"
+              onclick="setVorsorgeArt('{ID}','ws',this)">Wertschriften</button>
+          </div>
+          <input type="hidden" id="vorsorge-{ID}-art" value="konto">
+        </div>
+        <div id="vorsorge-{ID}-konto-row" style="display:flex;align-items:center;gap:6px">
+          <span style="font-size:12px;color:var(--gray-mid);white-space:nowrap">Zinssatz:</span>
+          <input type="number" id="vorsorge-{ID}-zins" class="form-input"
+            style="width:72px;text-align:right;padding:4px 8px;font-size:12px"
+            placeholder="0.50" min="0" max="20" step="0.05"
+            oninput="updateVermoegenTotal()">
+          <span style="font-size:12px;color:var(--gray-mid)">% p.a.</span>
+        </div>
+        <div id="vorsorge-{ID}-ws-row" style="display:none;font-size:12px;color:var(--gray-mid)">
+          Strategie: <strong id="vorsorge-{ID}-strat-info" style="color:var(--primary)">—</strong>
+        </div>
+        <span style="font-size:12px;color:var(--gray-mid)">Erw. Ertrag/Jahr: <span class="yield-badge" id="vorsorge-{ID}-ertrag">CHF —</span></span>
       </div>
     </div>
   </div>
@@ -2063,8 +2301,20 @@
 <template id="uebrig-vm-template">
   <div class="list-item-card uebrig-vm-item" id="uebrig-vm-{ID}">
     <div class="list-item-body">
-      <div class="grid-3">
-        <div class="form-group" style="grid-column:1/3">
+      <div class="grid-4" style="gap:var(--space-md);align-items:end">
+        <div class="form-group">
+          <label class="form-label">Person</label>
+          <div class="person-toggle person-toggle-sm" style="width:100%">
+            <button type="button" class="person-toggle-btn active" id="uebrig-vm-{ID}-btn-p1"
+              onclick="setItemPerson('uebrig-vm','{ID}','p1',this)" style="flex:1">P1</button>
+            <button type="button" class="person-toggle-btn kpi-p2-tile" id="uebrig-vm-{ID}-btn-p2"
+              onclick="setItemPerson('uebrig-vm','{ID}','p2',this)" style="flex:1">P2</button>
+            <button type="button" class="person-toggle-btn" id="uebrig-vm-{ID}-btn-beide"
+              onclick="setItemPerson('uebrig-vm','{ID}','beide',this)" style="flex:1">Beide</button>
+          </div>
+          <input type="hidden" id="uebrig-vm-{ID}-person" value="p1">
+        </div>
+        <div class="form-group" style="grid-column:span 2">
           <label class="form-label">Bezeichnung</label>
           <input type="text" id="uebrig-vm-{ID}-bez" class="form-input"
             placeholder="Schmuck, Fahrzeug, Beteiligung …">
@@ -2072,8 +2322,8 @@
         <div class="form-group" style="display:flex;align-items:flex-end;gap:6px">
           <div style="flex:1">
             <label class="form-label">Schätzwert (CHF)</label>
-            <input type="number" id="uebrig-vm-{ID}-betrag" class="form-input" style="text-align:right"
-              placeholder="0" min="0" step="100" oninput="updateVermoegenTotal()">
+            <input type="text" id="uebrig-vm-{ID}-betrag" class="form-input money-input" style="text-align:right"
+              placeholder="0" oninput="updateVermoegenTotal()">
           </div>
           <button class="btn btn-danger btn-sm" style="margin-bottom:1px"
             onclick="removeUebriges('uebrig-vm-{ID}')">✕</button>
@@ -2898,6 +3148,7 @@ function addImmobilie(data = null) {
     sN(`immo-${id}-gv-wert`,      data.gvWert);
     sN(`immo-${id}-gv-praemie`,   data.gvPraemie);
     if (data.hypotheken?.length) data.hypotheken.forEach(h => addHypoTranche(id, h));
+    restoreItemPerson('immo', id, data.person || 'beide');
     updateImmoTitle(id);
     updateImmobilieCalc(id);
   } else {
@@ -3234,6 +3485,150 @@ const VORSORGE_META = {
   fzl: { lbl: 'Freizügigkeitsstiftung',   ph: 'Auffangeinrichtung, LUKB …' },
 };
 
+// ── WS STRATEGIE PRESETS ──
+const WS_STRATEGIEN = {
+  defensiv:   { kurs: 1.5, div: 2.0 },
+  ausgewogen: { kurs: 3.0, div: 2.0 },
+  wachstum:   { kurs: 5.0, div: 1.5 },
+  individuell: null,
+};
+
+function setWSStrategie(person, preset) {
+  const s = WS_STRATEGIEN[preset];
+  if (s) {
+    const kursEl = document.getElementById(`ws-strat-${person}-kurs`);
+    const divEl  = document.getElementById(`ws-strat-${person}-div`);
+    if (kursEl) kursEl.value = s.kurs;
+    if (divEl)  divEl.value  = s.div;
+  }
+  updateWSStrategieTotal(person);
+  updateVermoegenTotal();
+}
+
+function updateWSStrategieTotal(person) {
+  const kurs = parseFloat(document.getElementById(`ws-strat-${person}-kurs`)?.value) || 0;
+  const div  = parseFloat(document.getElementById(`ws-strat-${person}-div`)?.value)  || 0;
+  const el   = document.getElementById(`ws-strat-${person}-total`);
+  if (el) el.textContent = (kurs + div).toFixed(1) + ' % p.a.';
+}
+
+function getWSStrategyPct(person) {
+  const kurs = parseFloat(document.getElementById(`ws-strat-${person}-kurs`)?.value) || 0;
+  const div  = parseFloat(document.getElementById(`ws-strat-${person}-div`)?.value)  || 0;
+  return kurs + div;
+}
+function getWSStrategyKursPct(person) {
+  return parseFloat(document.getElementById(`ws-strat-${person}-kurs`)?.value) || 0;
+}
+function getWSStrategyDivPct(person) {
+  return parseFloat(document.getElementById(`ws-strat-${person}-div`)?.value) || 0;
+}
+
+function getWSStrategyLabel(person) {
+  const preset = document.getElementById(`ws-strat-${person}-preset`)?.value || 'ausgewogen';
+  const pct    = getWSStrategyPct(person);
+  const labels = { defensiv:'Defensiv', ausgewogen:'Ausgewogen', wachstum:'Wachstum', individuell:'Individuell' };
+  return `${labels[preset] || 'Individuell'} (${pct.toFixed(1)} %)`;
+}
+
+// ── ITEM PERSON TOGGLE ──
+function setItemPerson(typ, id, person, btn) {
+  const hiddenEl = document.getElementById(`${typ}-${id}-person`);
+  if (hiddenEl) hiddenEl.value = person;
+  btn.closest('.person-toggle').querySelectorAll('.person-toggle-btn')
+    .forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  updateVermoegenTotal();
+}
+
+function restoreItemPerson(prefix, id, person) {
+  const val = person || 'p1';
+  const h = document.getElementById(`${prefix}-${id}-person`);
+  if (h) h.value = val;
+  ['p1','p2','beide'].forEach(p => {
+    const b = document.getElementById(`${prefix}-${id}-btn-${p}`);
+    if (b) b.classList.toggle('active', p === val);
+  });
+}
+
+// ── VORSORGE ART TOGGLE ──
+function setVorsorgeArt(id, art, btn) {
+  const hiddenEl = document.getElementById(`vorsorge-${id}-art`);
+  if (hiddenEl) hiddenEl.value = art;
+  btn.closest('.person-toggle').querySelectorAll('.person-toggle-btn')
+    .forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById(`vorsorge-${id}-konto-row`).style.display = art === 'konto' ? '' : 'none';
+  document.getElementById(`vorsorge-${id}-ws-row`).style.display    = art === 'ws'    ? '' : 'none';
+  updateVermoegenTotal();
+}
+
+function restoreVorsorgeArt(id, art) {
+  const val = art || 'konto';
+  const h   = document.getElementById(`vorsorge-${id}-art`);
+  if (h) h.value = val;
+  ['konto','ws'].forEach(a => {
+    const b = document.getElementById(`vorsorge-${id}-btn-${a}`);
+    if (b) b.classList.toggle('active', a === val);
+  });
+  const kontoRow = document.getElementById(`vorsorge-${id}-konto-row`);
+  const wsRow    = document.getElementById(`vorsorge-${id}-ws-row`);
+  if (kontoRow) kontoRow.style.display = val === 'konto' ? '' : 'none';
+  if (wsRow)    wsRow.style.display    = val === 'ws'    ? '' : 'none';
+}
+
+// ── RENDITE-HILFSFUNKTIONEN ──
+function _computeWSItemErtrag(rawId) {
+  const betrag  = parseCHF(document.getElementById(`ws-${rawId}-betrag`)?.value) || 0;
+  const person  = document.getElementById(`ws-${rawId}-person`)?.value || 'p1';
+  const kursPct = person === 'beide'
+    ? (getWSStrategyKursPct('p1') + getWSStrategyKursPct('p2')) / 2
+    : getWSStrategyKursPct(person);
+  const divPct  = person === 'beide'
+    ? (getWSStrategyDivPct('p1') + getWSStrategyDivPct('p2')) / 2
+    : getWSStrategyDivPct(person);
+  const pct     = kursPct + divPct;
+  const kursVal = betrag * kursPct / 100;
+  const divVal  = betrag * divPct  / 100;
+  const total   = kursVal + divVal;
+  const infoEl  = document.getElementById(`ws-${rawId}-strat-info`);
+  const ertragEl = document.getElementById(`ws-${rawId}-ertrag`);
+  if (infoEl) infoEl.textContent = person === 'beide'
+    ? `Ø P1+P2 (${pct.toFixed(1)} %)`
+    : getWSStrategyLabel(person);
+  if (ertragEl) ertragEl.textContent = betrag > 0 ? `CHF ${fmtCHF(total)}` : 'CHF —';
+  return { total, kurs: kursVal, div: divVal };
+}
+
+function _computeVorsorgeItemErtrag(rawId) {
+  const betrag = parseCHF(document.getElementById(`vorsorge-${rawId}-betrag`)?.value) || 0;
+  const art    = document.getElementById(`vorsorge-${rawId}-art`)?.value || 'konto';
+  const person = document.getElementById(`vorsorge-${rawId}-person`)?.value || 'p1';
+  let zinsVal = 0, kursVal = 0, divVal = 0;
+  if (art === 'konto') {
+    const pct = parseFloat(document.getElementById(`vorsorge-${rawId}-zins`)?.value) || 0;
+    zinsVal   = betrag * pct / 100;
+  } else {
+    const kursPct = person === 'beide'
+      ? (getWSStrategyKursPct('p1') + getWSStrategyKursPct('p2')) / 2
+      : getWSStrategyKursPct(person);
+    const divPct  = person === 'beide'
+      ? (getWSStrategyDivPct('p1') + getWSStrategyDivPct('p2')) / 2
+      : getWSStrategyDivPct(person);
+    const pct     = kursPct + divPct;
+    kursVal = betrag * kursPct / 100;
+    divVal  = betrag * divPct  / 100;
+    const infoEl = document.getElementById(`vorsorge-${rawId}-strat-info`);
+    if (infoEl) infoEl.textContent = person === 'beide'
+      ? `Ø P1+P2 (${pct.toFixed(1)} %)`
+      : getWSStrategyLabel(person);
+  }
+  const total    = zinsVal + kursVal + divVal;
+  const ertragEl = document.getElementById(`vorsorge-${rawId}-ertrag`);
+  if (ertragEl) ertragEl.textContent = betrag > 0 && total > 0 ? `CHF ${fmtCHF(total)}` : 'CHF —';
+  return { total, zins: zinsVal, kurs: kursVal, div: divVal };
+}
+
 // ── Konten ──
 function addKonto(data = null) {
   // Beim Laden: data.id = 'konto-k_...' → Prefix strippen für Template-Variable
@@ -3248,6 +3643,8 @@ function addKonto(data = null) {
     s(`konto-${id}-bez`,    data.bez);
     s(`konto-${id}-bank`,   data.bank);
     s(`konto-${id}-betrag`, data.betrag);
+    s(`konto-${id}-zins`,   data.zins);
+    restoreItemPerson('konto', id, data.person);
     const titleEl = document.getElementById(`konto-${id}-title`);
     if (titleEl && data.bez) titleEl.textContent = data.bez;
   }
@@ -3273,6 +3670,7 @@ function addWertschrift(data = null) {
     s(`ws-${id}-bez`,    data.bez);
     s(`ws-${id}-bank`,   data.bank);
     s(`ws-${id}-betrag`, data.betrag);
+    restoreItemPerson('ws', id, data.person);
     const titleEl = document.getElementById(`ws-${id}-title`);
     if (titleEl && data.bez) titleEl.textContent = data.bez;
   }
@@ -3303,6 +3701,9 @@ function addVorsorge(typ, data = null) {
     const s = (fid, v) => { const el = document.getElementById(fid); if (el && v != null) el.value = v; };
     s(`vorsorge-${id}-anbieter`, data.anbieter);
     s(`vorsorge-${id}-betrag`,   data.betrag);
+    s(`vorsorge-${id}-zins`,     data.zins);
+    restoreItemPerson('vorsorge', id, data.person);
+    if (data.art) restoreVorsorgeArt(id, data.art);
   }
   updateVermoegenTotal();
 }
@@ -3325,6 +3726,7 @@ function addUebriges(data = null) {
     const s = (fid, v) => { const el = document.getElementById(fid); if (el && v != null) el.value = v; };
     s(`uebrig-vm-${id}-bez`,    data.bez);
     s(`uebrig-vm-${id}-betrag`, data.betrag);
+    restoreItemPerson('uebrig-vm', id, data.person);
   }
   updateVermoegenTotal();
 }
@@ -3337,29 +3739,69 @@ function removeUebriges(id) {
 
 // ── Gesamtvermögen KPI ──
 function updateVermoegenTotal() {
-  const sumList = (selector, field) =>
+  // ── Konten + Jahreszins ──
+  let kontenTotal = 0, kontenZins = 0;
+  document.querySelectorAll('.konto-item').forEach(el => {
+    const raw    = el.id.replace('konto-', '');
+    const betrag = parseCHF(document.getElementById(`konto-${raw}-betrag`)?.value) || 0;
+    const zins   = parseFloat(document.getElementById(`konto-${raw}-zins`)?.value)  || 0;
+    kontenTotal += betrag;
+    const j = betrag * zins / 100;
+    kontenZins += j;
+    const jEl = document.getElementById(`konto-${raw}-jahreszins`);
+    if (jEl) jEl.textContent = betrag > 0 && zins > 0 ? `CHF ${fmtCHF(j)}` : 'CHF —';
+  });
+
+  // ── Wertschriften + Erw. Ertrag (kurs + div getrennt) ──
+  let wsTotal = 0, wsErtrag = 0, wsKurs = 0, wsDiv = 0;
+  document.querySelectorAll('.ws-item').forEach(item => {
+    const raw    = item.id.replace('ws-', '');
+    const betrag = parseCHF(document.getElementById(`ws-${raw}-betrag`)?.value) || 0;
+    wsTotal += betrag;
+    const r  = _computeWSItemErtrag(raw);
+    wsErtrag += r.total; wsKurs += r.kurs; wsDiv += r.div;
+  });
+
+  // ── Vorsorge + Erw. Ertrag (zins / kurs / div getrennt) ──
+  const sumVS = selector =>
     [...document.querySelectorAll(selector)].reduce(
-      (s, el) => s + (parseCHF(document.getElementById(el.id + field)?.value) || 0), 0
+      (s, el) => s + (parseCHF(document.getElementById(el.id + '-betrag')?.value) || 0), 0
     );
-
-  const kontenTotal   = sumList('.konto-item',              '-betrag');
-  const wsTotal       = sumList('.ws-item',                 '-betrag');
-  const s3aTotal      = sumList('#s3a-list .vorsorge-item', '-betrag');
-  const s3bTotal      = sumList('#s3b-list .vorsorge-item', '-betrag');
-  const fzlTotal      = sumList('#fzl-list .vorsorge-item', '-betrag');
+  const s3aTotal      = sumVS('#s3a-list .vorsorge-item');
+  const s3bTotal      = sumVS('#s3b-list .vorsorge-item');
+  const fzlTotal      = sumVS('#fzl-list .vorsorge-item');
   const vorsorgeTotal = s3aTotal + s3bTotal + fzlTotal;
-  const uebrigTotal   = sumList('.uebrig-vm-item',          '-betrag');
+  let vorsorgeErtrag = 0, vorsorgeZins = 0, vorsorgeKurs = 0, vorsorgeDiv = 0;
+  let vorsorgeKontoTotal = 0, vorsorgeWSTotal = 0;
+  document.querySelectorAll('.vorsorge-item').forEach(el => {
+    const raw    = el.id.replace('vorsorge-', '');
+    const r      = _computeVorsorgeItemErtrag(raw);
+    vorsorgeErtrag += r.total; vorsorgeZins += r.zins;
+    vorsorgeKurs   += r.kurs;  vorsorgeDiv  += r.div;
+    const art    = document.getElementById(`vorsorge-${raw}-art`)?.value || 'konto';
+    const betrag = parseCHF(document.getElementById(`vorsorge-${raw}-betrag`)?.value) || 0;
+    if (art === 'konto') vorsorgeKontoTotal += betrag; else vorsorgeWSTotal += betrag;
+  });
 
-  // Immobilien: Netto = Verkehrswert − Hypotheken (direkt aus DOM)
-  let immoNetto = 0;
+  // ── Übriges ──
+  const uebrigTotal = [...document.querySelectorAll('.uebrig-vm-item')].reduce(
+    (s, el) => s + (parseCHF(document.getElementById(el.id + '-betrag')?.value) || 0), 0
+  );
+
+  // ── Immobilien: Netto = Verkehrswert − Hypotheken + Mietertrag ──
+  let immoNetto = 0, immoMiete = 0, immoVerkehrswert = 0;
   document.querySelectorAll('.immo-item').forEach(el => {
     const id = el.dataset.immoId;
     const vw  = parseCHF(document.getElementById(`immo-${id}-verkehrswert`)?.value) || 0;
+    immoVerkehrswert += vw;
     let hypo  = 0;
     document.querySelectorAll(`[data-immo="${id}"].hypo-item`).forEach(h => {
       hypo += parseCHF(document.getElementById(`hypo-${h.dataset.hypoId}-betrag`)?.value) || 0;
     });
     immoNetto += vw - hypo;
+    if (document.getElementById(`immo-${id}-vermietet-ja`)?.classList.contains('active')) {
+      immoMiete += parseCHF(document.getElementById(`immo-${id}-miete-brutto`)?.value) || 0;
+    }
   });
 
   const total = kontenTotal + wsTotal + vorsorgeTotal + immoNetto + uebrigTotal;
@@ -3373,16 +3815,52 @@ function updateVermoegenTotal() {
   setV('kpi-vm-uebrig',   fmtV(uebrigTotal));
   setV('kpi-vm-total',    total > 0 ? `CHF ${fmtCHF(total)}` : 'CHF —');
 
-  // Accent-Farbe auf Gesamt-Kachel (immer accent, aber nur sichtbar wenn > 0)
   const totalTile = document.getElementById('kpi-vm-total')?.closest('.kpi-tile');
   if (totalTile) totalTile.className = `kpi-tile${total > 0 ? ' accent' : ''}`;
 
-  // Badges in Karten-Header
+  // ── Badges Karten-Header ──
   const setB = (id, v) => { const el = document.getElementById(id); if (el) el.textContent = fmtV(v); };
   setB('konten-sum-badge',    kontenTotal);
   setB('ws-sum-badge',        wsTotal);
   setB('vorsorge-sum-badge',  vorsorgeTotal);
   setB('uebrig-vm-sum-badge', uebrigTotal);
+
+  // ── Yield-Badges Karten-Header ──
+  const zinsBadge = document.getElementById('konten-zins-badge');
+  if (zinsBadge) zinsBadge.textContent = kontenZins > 0 ? `Zins: CHF ${fmtCHF(kontenZins)}/Jahr` : '';
+  const wsErtragBadge = document.getElementById('ws-ertrag-badge');
+  if (wsErtragBadge) wsErtragBadge.textContent = wsErtrag > 0 ? `Ertrag: CHF ${fmtCHF(wsErtrag)}/Jahr` : '';
+  const vsErtragBadge = document.getElementById('vorsorge-ertrag-badge');
+  if (vsErtragBadge) vsErtragBadge.textContent = vorsorgeErtrag > 0 ? `Ertrag: CHF ${fmtCHF(vorsorgeErtrag)}/Jahr` : '';
+
+  // ── Jahresertrag KPI-Tiles ──
+  const zinsTotal    = kontenZins + vorsorgeZins;
+  const divTotal     = wsDiv + vorsorgeDiv;
+  const kursTotal    = wsKurs + vorsorgeKurs;
+  const ertragGesamt = zinsTotal + divTotal + kursTotal + immoMiete;
+
+  const zinsBase  = kontenTotal + vorsorgeKontoTotal;
+  const wsBase    = wsTotal + vorsorgeWSTotal;
+  const zinsPct   = zinsBase  > 0 ? zinsTotal  / zinsBase  * 100 : 0;
+  const divPct    = wsBase    > 0 ? divTotal   / wsBase    * 100 : 0;
+  const kursPct2  = wsBase    > 0 ? kursTotal  / wsBase    * 100 : 0;
+  const mietePct  = immoVerkehrswert > 0 ? immoMiete / immoVerkehrswert * 100 : 0;
+  const gesamtPct = total     > 0 ? ertragGesamt / total   * 100 : 0;
+
+  const fmtPct = (p, label) => p > 0 ? `${p.toFixed(1)} % ${label}` : `— % ${label}`;
+  setV('kpi-yield-zins-chf',  fmtV(zinsTotal));
+  setV('kpi-yield-zins-pct',  fmtPct(zinsPct,  'Ø Konten/Vorsorge'));
+  setV('kpi-yield-div-chf',   fmtV(divTotal));
+  setV('kpi-yield-div-pct',   fmtPct(divPct,   'auf WS-Portfolio'));
+  setV('kpi-yield-kurs-chf',  fmtV(kursTotal));
+  setV('kpi-yield-kurs-pct',  fmtPct(kursPct2, 'auf WS-Portfolio'));
+  setV('kpi-yield-miete-chf', fmtV(immoMiete));
+  setV('kpi-yield-miete-pct', fmtPct(mietePct, 'Bruttomietrendite'));
+  setV('kpi-yield-total-chf', fmtV(ertragGesamt));
+  setV('kpi-yield-total-pct', fmtPct(gesamtPct,'auf Gesamtvermögen'));
+
+  const yTotalTile = document.getElementById('kpi-yield-total-chf')?.closest('.kpi-tile');
+  if (yTotalTile) yTotalTile.className = `kpi-tile${ertragGesamt > 0 ? ' accent' : ''}`;
 }
 
 // Modals schliessen bei Klick auf Overlay
