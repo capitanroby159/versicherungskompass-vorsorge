@@ -1,0 +1,992 @@
+<!DOCTYPE html>
+<html lang="de-CH">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Versicherungskompass — Haushaltsbudget</title>
+  <!-- Für Repo-Betrieb: styles.css aus gleichem Ordner -->
+  <!-- Für Homepage-Hosting: href durch "css/budget-standalone.css" ersetzen -->
+  <link rel="stylesheet" href="css/styles.css">
+  <style>
+    /* ══════════════════════════════════════════════
+       BUDGET-SPEZIFISCHE STYLES
+       Enthalten in css/budget-standalone.css für
+       externen Einsatz ohne styles.css-Abhängigkeit
+    ══════════════════════════════════════════════ */
+
+    /* ── BUDGET TABLE ── */
+    .budget-table { width: 100%; }
+
+    .budget-col-header,
+    .budget-row,
+    .budget-subtotal-row,
+    .budget-grand-total {
+      display: grid;
+      grid-template-columns: 1fr 185px 120px 120px;
+      gap: 8px;
+      align-items: center;
+    }
+
+    .budget-col-header {
+      padding: 10px 20px;
+      background: var(--primary);
+      font-size: 10px;
+      font-weight: 500;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--white-pure);
+    }
+
+    .budget-section-head {
+      padding: 9px 20px;
+      background: var(--primary-light);
+      border-left: 3px solid var(--primary);
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--primary);
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      margin-top: 2px;
+    }
+
+    .budget-row {
+      padding: 7px 20px;
+      border-bottom: 1px solid var(--gray-lighter);
+      transition: background var(--transition);
+    }
+    .budget-row:hover { background: var(--white-warm); }
+    .budget-row:last-of-type { border-bottom: none; }
+
+    .budget-label {
+      font-size: 13px;
+      color: var(--black);
+      font-weight: 300;
+    }
+
+    .budget-hint {
+      font-size: 11px;
+      color: var(--gray-mid);
+      font-style: italic;
+      text-align: right;
+      padding-right: 6px;
+    }
+
+    .budget-input {
+      width: 100%;
+      padding: 6px 10px;
+      border: 1px solid var(--gray-light);
+      border-radius: var(--radius-md);
+      font-family: var(--font-body);
+      font-size: 13px;
+      font-weight: 400;
+      color: var(--black);
+      background: var(--white-pure);
+      text-align: right;
+      outline: none;
+      transition: border-color var(--transition), box-shadow var(--transition);
+    }
+    .budget-input:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px var(--accent-light);
+    }
+    .budget-input::placeholder { color: var(--gray-lighter); }
+    .budget-input::-webkit-inner-spin-button,
+    .budget-input::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
+    .budget-input { -moz-appearance: textfield; }
+
+    .budget-jahr {
+      font-size: 12px;
+      color: var(--gray-mid);
+      text-align: right;
+      font-weight: 300;
+    }
+
+    .budget-subtotal-row {
+      padding: 8px 20px;
+      background: var(--gray-lighter);
+      border-top: 1px solid var(--gray-light);
+      border-bottom: 2px solid var(--gray-light);
+      margin-bottom: 2px;
+    }
+    .budget-subtotal-row .budget-label {
+      font-size: 11px;
+      font-weight: 500;
+      color: var(--primary);
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+    }
+
+    .budget-subtotal-val {
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--primary);
+      text-align: right;
+    }
+
+    .budget-grand-total {
+      padding: 13px 20px;
+      background: var(--primary);
+      border-top: 2px solid var(--primary-dark);
+    }
+    .budget-grand-total .budget-label {
+      font-family: var(--font-display);
+      font-size: 15px;
+      font-weight: 500;
+      color: var(--white-pure);
+    }
+    .budget-grand-total .budget-hint { color: transparent; }
+    .budget-grand-total .budget-subtotal-val {
+      font-family: var(--font-display);
+      font-size: 16px;
+      color: var(--white-pure);
+      font-weight: 500;
+    }
+
+    /* ── SEND STEPS ── */
+    .send-steps {
+      display: flex;
+      gap: var(--space-lg);
+    }
+    .send-step {
+      flex: 1;
+      display: flex;
+      gap: var(--space-md);
+      padding: var(--space-lg);
+      background: var(--white-warm);
+      border-radius: var(--radius-lg);
+      border: 1px solid var(--gray-light);
+    }
+    .send-step-num {
+      width: 38px;
+      height: 38px;
+      border-radius: 50%;
+      background: var(--primary);
+      color: var(--white-pure);
+      font-size: 18px;
+      font-weight: 500;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+    .send-step-body { flex: 1; }
+    .send-step-title {
+      font-family: var(--font-display);
+      font-size: 15px;
+      font-weight: 500;
+      color: var(--primary);
+      margin-bottom: 4px;
+    }
+    .send-step-desc {
+      font-size: 12px;
+      color: var(--gray-dark);
+      font-weight: 300;
+      line-height: 1.6;
+    }
+
+    /* ── RESPONSIVE ── */
+    @media (max-width: 900px) {
+      .budget-col-header,
+      .budget-row,
+      .budget-subtotal-row,
+      .budget-grand-total { grid-template-columns: 1fr 120px 110px; }
+      .budget-hint     { display: none; }
+      .budget-hint-col { display: none; }
+      .send-steps      { flex-direction: column; }
+    }
+    @media (max-width: 560px) {
+      .budget-col-header,
+      .budget-row,
+      .budget-subtotal-row,
+      .budget-grand-total { grid-template-columns: 1fr 105px; }
+      .budget-jahr   { display: none; }
+      .budget-j-col  { display: none; }
+    }
+  </style>
+</head>
+<body>
+<div class="app-wrapper">
+
+  <!-- ══ HEADER ══ -->
+  <header class="app-header">
+    <div class="app-header-inner">
+      <div class="app-logo">Versicherungskompass <span>Vorsorge</span></div>
+      <div class="header-actions">
+        <button class="btn btn-ghost btn-sm" onclick="loadBudget()">📂 Laden</button>
+        <button class="btn btn-accent btn-sm" onclick="saveBudget()">💾 Speichern</button>
+      </div>
+    </div>
+  </header>
+
+  <!-- ══ MAIN ══ -->
+  <main class="main-content" style="max-width: 900px;">
+
+    <!-- Page Title -->
+    <div class="page-title">
+      <div class="page-overline">Versicherungskompass — Vorsorge</div>
+      <h1 class="page-heading">Haushalts<em>budget</em></h1>
+      <p class="page-description">
+        Erfassen Sie Ihre monatlichen Einnahmen und Ausgaben. Speichern Sie das Budget als Datei
+        und senden Sie es Ihrem Berater — alle Angaben bleiben auf Ihrem Gerät.
+      </p>
+    </div>
+
+    <!-- Privacy Notice -->
+    <div class="info-box info" style="margin-bottom: var(--space-lg);">
+      <span class="info-box-icon">🔒</span>
+      <div>
+        <strong>Ihre Daten sind geschützt.</strong>
+        Dieses Formular speichert <strong>keine</strong> Daten auf einem Server.
+        Alle Angaben verbleiben ausschliesslich auf Ihrem Gerät und werden erst
+        beim Versand als Datei an Ihren Berater übermittelt.
+      </div>
+    </div>
+
+    <!-- ── KUNDENDATEN ── -->
+    <div class="card" style="margin-bottom: var(--space-lg);">
+      <div class="card-header">
+        <div class="card-title">
+          <span class="card-title-icon">👤</span>
+          Angaben zur Person
+        </div>
+      </div>
+      <div class="card-body">
+        <div class="grid-3" style="margin-bottom: var(--space-md);">
+          <div class="form-group">
+            <label class="form-label" for="bg-name">Name / Vorname</label>
+            <input type="text" id="bg-name" class="form-input" placeholder="Muster Hans">
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="bg-adresse">Adresse</label>
+            <input type="text" id="bg-adresse" class="form-input" placeholder="Musterstrasse 1, 6000 Luzern">
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="bg-datum">Datum</label>
+            <input type="text" id="bg-datum" class="form-input" placeholder="TT.MM.JJJJ">
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="bg-bemerkungen">Bemerkungen / Besondere Ausgaben</label>
+          <textarea id="bg-bemerkungen" class="form-input" rows="2"
+            placeholder="z. B. Umbau geplant 2026, Hypothek läuft aus 2027 …"
+            style="resize: vertical;"></textarea>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── EINNAHMEN ── -->
+    <div class="card" style="margin-bottom: var(--space-lg);">
+      <div class="card-header">
+        <div class="card-title">
+          <span class="card-title-icon">💰</span>
+          Einnahmen
+        </div>
+      </div>
+      <div class="card-body" style="padding: 0;">
+        <div class="budget-table">
+
+          <!-- Column headers -->
+          <div class="budget-col-header">
+            <div class="budget-label-col">Position</div>
+            <div class="budget-hint-col">Richtwert / Mt.</div>
+            <div class="budget-mt-col" style="text-align:right;">CHF / Mt.</div>
+            <div class="budget-j-col"  style="text-align:right;">CHF / Jahr</div>
+          </div>
+
+          <div class="budget-row">
+            <div class="budget-label">Lohn / Rente Person 1 <span style="color:var(--gray-mid);font-size:11px;">(netto)</span></div>
+            <div class="budget-hint">—</div>
+            <div><input type="number" id="bg-lohnP1" class="budget-input" placeholder="0" min="0" step="100" oninput="calcBudget()"></div>
+            <div class="budget-jahr" id="bg-lohnP1-j">—</div>
+          </div>
+          <div class="budget-row">
+            <div class="budget-label">Lohn / Rente Person 2 <span style="color:var(--gray-mid);font-size:11px;">(netto)</span></div>
+            <div class="budget-hint">—</div>
+            <div><input type="number" id="bg-lohnP2" class="budget-input" placeholder="0" min="0" step="100" oninput="calcBudget()"></div>
+            <div class="budget-jahr" id="bg-lohnP2-j">—</div>
+          </div>
+          <div class="budget-row">
+            <div class="budget-label">Kinderzulagen</div>
+            <div class="budget-hint">CHF 200–250 / Kind</div>
+            <div><input type="number" id="bg-kinderzulagen" class="budget-input" placeholder="0" min="0" step="50" oninput="calcBudget()"></div>
+            <div class="budget-jahr" id="bg-kinderzulagen-j">—</div>
+          </div>
+          <div class="budget-row">
+            <div class="budget-label">Übrige Einnahmen <span style="color:var(--gray-mid);font-size:11px;">(Miete, Dividenden …)</span></div>
+            <div class="budget-hint">—</div>
+            <div><input type="number" id="bg-einnahmen-uebrig" class="budget-input" placeholder="0" min="0" step="100" oninput="calcBudget()"></div>
+            <div class="budget-jahr" id="bg-einnahmen-uebrig-j">—</div>
+          </div>
+
+          <!-- Total Einnahmen -->
+          <div class="budget-grand-total">
+            <div class="budget-label">Total Einnahmen</div>
+            <div class="budget-hint"></div>
+            <div class="budget-subtotal-val" id="bg-total-einnahmen-mt">CHF 0</div>
+            <div class="budget-subtotal-val" id="bg-total-einnahmen-j">CHF 0</div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <!-- ── AUSGABEN ── -->
+    <div class="card" style="margin-bottom: var(--space-lg);">
+      <div class="card-header">
+        <div class="card-title">
+          <span class="card-title-icon">🧾</span>
+          Ausgaben
+        </div>
+      </div>
+      <div class="card-body" style="padding: 0;">
+        <div class="budget-table">
+
+          <!-- Column headers -->
+          <div class="budget-col-header">
+            <div class="budget-label-col">Position</div>
+            <div class="budget-hint-col">Richtwert / Mt.</div>
+            <div class="budget-mt-col" style="text-align:right;">CHF / Mt.</div>
+            <div class="budget-j-col"  style="text-align:right;">CHF / Jahr</div>
+          </div>
+
+          <!-- ── Wohnen & Lebenshaltung ── -->
+          <div class="budget-section-head">🏠 Wohnen &amp; Lebenshaltung</div>
+          <div class="budget-row">
+            <div class="budget-label">Miete / Hypozins &amp; Nebenkosten</div>
+            <div class="budget-hint">CHF 1'500–2'500</div>
+            <div><input type="number" id="bg-wohnen" class="budget-input" placeholder="0" min="0" step="50" oninput="calcBudget()"></div>
+            <div class="budget-jahr" id="bg-wohnen-j">—</div>
+          </div>
+          <div class="budget-row">
+            <div class="budget-label">Haushalt <span style="color:var(--gray-mid);font-size:11px;">(Lebensmittel, Reinigung, Körperpflege)</span></div>
+            <div class="budget-hint">CHF 600–900</div>
+            <div><input type="number" id="bg-haushalt" class="budget-input" placeholder="0" min="0" step="50" oninput="calcBudget()"></div>
+            <div class="budget-jahr" id="bg-haushalt-j">—</div>
+          </div>
+          <div class="budget-row">
+            <div class="budget-label">Bekleidung &amp; Schuhe</div>
+            <div class="budget-hint">CHF 150–300</div>
+            <div><input type="number" id="bg-bekleidung" class="budget-input" placeholder="0" min="0" step="50" oninput="calcBudget()"></div>
+            <div class="budget-jahr" id="bg-bekleidung-j">—</div>
+          </div>
+          <div class="budget-row">
+            <div class="budget-label">Kommunikation <span style="color:var(--gray-mid);font-size:11px;">(Handy, Internet, TV)</span></div>
+            <div class="budget-hint">CHF 80–200</div>
+            <div><input type="number" id="bg-komm" class="budget-input" placeholder="0" min="0" step="10" oninput="calcBudget()"></div>
+            <div class="budget-jahr" id="bg-komm-j">—</div>
+          </div>
+          <div class="budget-row">
+            <div class="budget-label">Verpflegung auswärts &amp; Unterhaltung</div>
+            <div class="budget-hint">CHF 200–500</div>
+            <div><input type="number" id="bg-verpflegung" class="budget-input" placeholder="0" min="0" step="50" oninput="calcBudget()"></div>
+            <div class="budget-jahr" id="bg-verpflegung-j">—</div>
+          </div>
+          <div class="budget-row">
+            <div class="budget-label">Gesundheit <span style="color:var(--gray-mid);font-size:11px;">(Franchise, Selbstbehalt, Zahnarzt)</span></div>
+            <div class="budget-hint">CHF 100–300</div>
+            <div><input type="number" id="bg-gesundheit" class="budget-input" placeholder="0" min="0" step="50" oninput="calcBudget()"></div>
+            <div class="budget-jahr" id="bg-gesundheit-j">—</div>
+          </div>
+          <div class="budget-row">
+            <div class="budget-label">Geschenke &amp; Diverses</div>
+            <div class="budget-hint">CHF 50–150</div>
+            <div><input type="number" id="bg-geschenke" class="budget-input" placeholder="0" min="0" step="20" oninput="calcBudget()"></div>
+            <div class="budget-jahr" id="bg-geschenke-j">—</div>
+          </div>
+          <div class="budget-subtotal-row">
+            <div class="budget-label">Subtotal Lebenshaltung</div>
+            <div></div>
+            <div class="budget-subtotal-val" id="bg-total-leben-mt">CHF 0</div>
+            <div class="budget-subtotal-val" id="bg-total-leben-j">CHF 0</div>
+          </div>
+
+          <!-- ── Ferien & Freizeit ── -->
+          <div class="budget-section-head">🌴 Ferien &amp; Freizeit</div>
+          <div class="budget-row">
+            <div class="budget-label">Ferien &amp; Reisen</div>
+            <div class="budget-hint">CHF 200–500</div>
+            <div><input type="number" id="bg-ferien" class="budget-input" placeholder="0" min="0" step="50" oninput="calcBudget()"></div>
+            <div class="budget-jahr" id="bg-ferien-j">—</div>
+          </div>
+          <div class="budget-row">
+            <div class="budget-label">Hobbys &amp; Sport</div>
+            <div class="budget-hint">CHF 50–300</div>
+            <div><input type="number" id="bg-hobbys" class="budget-input" placeholder="0" min="0" step="20" oninput="calcBudget()"></div>
+            <div class="budget-jahr" id="bg-hobbys-j">—</div>
+          </div>
+          <div class="budget-subtotal-row">
+            <div class="budget-label">Subtotal Ferien &amp; Freizeit</div>
+            <div></div>
+            <div class="budget-subtotal-val" id="bg-total-ferien-mt">CHF 0</div>
+            <div class="budget-subtotal-val" id="bg-total-ferien-j">CHF 0</div>
+          </div>
+
+          <!-- ── Kinder ── -->
+          <div class="budget-section-head">👶 Kinder</div>
+          <div class="budget-row">
+            <div class="budget-label">Kita / Krippe / Hort</div>
+            <div class="budget-hint">CHF 1'000–2'000 / Kind</div>
+            <div><input type="number" id="bg-kinder-kita" class="budget-input" placeholder="0" min="0" step="50" oninput="calcBudget()"></div>
+            <div class="budget-jahr" id="bg-kinder-kita-j">—</div>
+          </div>
+          <div class="budget-row">
+            <div class="budget-label">Schule, Ausbildung &amp; Aktivitäten</div>
+            <div class="budget-hint">CHF 50–200</div>
+            <div><input type="number" id="bg-kinder-schule" class="budget-input" placeholder="0" min="0" step="20" oninput="calcBudget()"></div>
+            <div class="budget-jahr" id="bg-kinder-schule-j">—</div>
+          </div>
+          <div class="budget-row">
+            <div class="budget-label">Taschengeld &amp; Übriges</div>
+            <div class="budget-hint">CHF 30–100</div>
+            <div><input type="number" id="bg-kinder-tg" class="budget-input" placeholder="0" min="0" step="20" oninput="calcBudget()"></div>
+            <div class="budget-jahr" id="bg-kinder-tg-j">—</div>
+          </div>
+          <div class="budget-subtotal-row">
+            <div class="budget-label">Subtotal Kinder</div>
+            <div></div>
+            <div class="budget-subtotal-val" id="bg-total-kinder-mt">CHF 0</div>
+            <div class="budget-subtotal-val" id="bg-total-kinder-j">CHF 0</div>
+          </div>
+
+          <!-- ── Auto & Mobilität ── -->
+          <div class="budget-section-head">🚗 Auto &amp; Mobilität</div>
+          <div class="budget-row">
+            <div class="budget-label">Fahrzeugunterhalt &amp; Service</div>
+            <div class="budget-hint">CHF 100–250</div>
+            <div><input type="number" id="bg-auto-service" class="budget-input" placeholder="0" min="0" step="20" oninput="calcBudget()"></div>
+            <div class="budget-jahr" id="bg-auto-service-j">—</div>
+          </div>
+          <div class="budget-row">
+            <div class="budget-label">Benzin / Strom</div>
+            <div class="budget-hint">CHF 100–300</div>
+            <div><input type="number" id="bg-auto-benzin" class="budget-input" placeholder="0" min="0" step="20" oninput="calcBudget()"></div>
+            <div class="budget-jahr" id="bg-auto-benzin-j">—</div>
+          </div>
+          <div class="budget-row">
+            <div class="budget-label">Leasing / Autokredit</div>
+            <div class="budget-hint">—</div>
+            <div><input type="number" id="bg-auto-leasing" class="budget-input" placeholder="0" min="0" step="50" oninput="calcBudget()"></div>
+            <div class="budget-jahr" id="bg-auto-leasing-j">—</div>
+          </div>
+          <div class="budget-row">
+            <div class="budget-label">Parkplatz / Garage</div>
+            <div class="budget-hint">CHF 80–250</div>
+            <div><input type="number" id="bg-auto-parkplatz" class="budget-input" placeholder="0" min="0" step="20" oninput="calcBudget()"></div>
+            <div class="budget-jahr" id="bg-auto-parkplatz-j">—</div>
+          </div>
+          <div class="budget-row">
+            <div class="budget-label">Rückstellungen Fahrzeug</div>
+            <div class="budget-hint">CHF 100–200</div>
+            <div><input type="number" id="bg-auto-rueck" class="budget-input" placeholder="0" min="0" step="20" oninput="calcBudget()"></div>
+            <div class="budget-jahr" id="bg-auto-rueck-j">—</div>
+          </div>
+          <div class="budget-row">
+            <div class="budget-label">Öffentlicher Verkehr <span style="color:var(--gray-mid);font-size:11px;">(GA, Abo, Billett)</span></div>
+            <div class="budget-hint">GA CHF 390 / Mt.</div>
+            <div><input type="number" id="bg-auto-ov" class="budget-input" placeholder="0" min="0" step="10" oninput="calcBudget()"></div>
+            <div class="budget-jahr" id="bg-auto-ov-j">—</div>
+          </div>
+          <div class="budget-subtotal-row">
+            <div class="budget-label">Subtotal Mobilität</div>
+            <div></div>
+            <div class="budget-subtotal-val" id="bg-total-auto-mt">CHF 0</div>
+            <div class="budget-subtotal-val" id="bg-total-auto-j">CHF 0</div>
+          </div>
+
+          <!-- ── Versicherungen ── -->
+          <div class="budget-section-head">🛡️ Versicherungen</div>
+          <div class="budget-row">
+            <div class="budget-label">Motorfahrzeugversicherung</div>
+            <div class="budget-hint">CHF 80–200</div>
+            <div><input type="number" id="bg-vers-auto" class="budget-input" placeholder="0" min="0" step="10" oninput="calcBudget()"></div>
+            <div class="budget-jahr" id="bg-vers-auto-j">—</div>
+          </div>
+          <div class="budget-row">
+            <div class="budget-label">Krankenkasse <span style="color:var(--gray-mid);font-size:11px;">(alle Personen)</span></div>
+            <div class="budget-hint">Ø CHF 350–500 / Person</div>
+            <div><input type="number" id="bg-vers-kk" class="budget-input" placeholder="0" min="0" step="10" oninput="calcBudget()"></div>
+            <div class="budget-jahr" id="bg-vers-kk-j">—</div>
+          </div>
+          <div class="budget-row">
+            <div class="budget-label">Hausrat &amp; Haftpflicht</div>
+            <div class="budget-hint">CHF 30–80</div>
+            <div><input type="number" id="bg-vers-haushalt" class="budget-input" placeholder="0" min="0" step="10" oninput="calcBudget()"></div>
+            <div class="budget-jahr" id="bg-vers-haushalt-j">—</div>
+          </div>
+          <div class="budget-row">
+            <div class="budget-label">Rechtsschutzversicherung</div>
+            <div class="budget-hint">CHF 20–50</div>
+            <div><input type="number" id="bg-vers-recht" class="budget-input" placeholder="0" min="0" step="5" oninput="calcBudget()"></div>
+            <div class="budget-jahr" id="bg-vers-recht-j">—</div>
+          </div>
+          <div class="budget-row">
+            <div class="budget-label">Reiseversicherung</div>
+            <div class="budget-hint">CHF 10–30</div>
+            <div><input type="number" id="bg-vers-reise" class="budget-input" placeholder="0" min="0" step="5" oninput="calcBudget()"></div>
+            <div class="budget-jahr" id="bg-vers-reise-j">—</div>
+          </div>
+          <div class="budget-row">
+            <div class="budget-label">Übrige Versicherungen</div>
+            <div class="budget-hint">—</div>
+            <div><input type="number" id="bg-vers-uebrig" class="budget-input" placeholder="0" min="0" step="10" oninput="calcBudget()"></div>
+            <div class="budget-jahr" id="bg-vers-uebrig-j">—</div>
+          </div>
+          <div class="budget-subtotal-row">
+            <div class="budget-label">Subtotal Versicherungen</div>
+            <div></div>
+            <div class="budget-subtotal-val" id="bg-total-vers-mt">CHF 0</div>
+            <div class="budget-subtotal-val" id="bg-total-vers-j">CHF 0</div>
+          </div>
+
+          <!-- ── Vorsorge & Sparen ── -->
+          <div class="budget-section-head">🏦 Vorsorge &amp; Sparen</div>
+          <div class="budget-row">
+            <div class="budget-label">Säule 3a <span style="color:var(--gray-mid);font-size:11px;">(Einzahlung)</span></div>
+            <div class="budget-hint">Max. CHF 588 / Mt.</div>
+            <div><input type="number" id="bg-vor-3a" class="budget-input" placeholder="0" min="0" step="50" oninput="calcBudget()"></div>
+            <div class="budget-jahr" id="bg-vor-3a-j">—</div>
+          </div>
+          <div class="budget-row">
+            <div class="budget-label">Säule 3b <span style="color:var(--gray-mid);font-size:11px;">(Lebensversicherung, Fonds)</span></div>
+            <div class="budget-hint">—</div>
+            <div><input type="number" id="bg-vor-3b" class="budget-input" placeholder="0" min="0" step="50" oninput="calcBudget()"></div>
+            <div class="budget-jahr" id="bg-vor-3b-j">—</div>
+          </div>
+          <div class="budget-row">
+            <div class="budget-label">Einkauf Pensionskasse <span style="color:var(--gray-mid);font-size:11px;">(freiwillig)</span></div>
+            <div class="budget-hint">—</div>
+            <div><input type="number" id="bg-vor-pk" class="budget-input" placeholder="0" min="0" step="50" oninput="calcBudget()"></div>
+            <div class="budget-jahr" id="bg-vor-pk-j">—</div>
+          </div>
+          <div class="budget-row">
+            <div class="budget-label">Sparbetrag / Rücklage</div>
+            <div class="budget-hint">≥ 10 % Einkommen</div>
+            <div><input type="number" id="bg-vor-sparen" class="budget-input" placeholder="0" min="0" step="50" oninput="calcBudget()"></div>
+            <div class="budget-jahr" id="bg-vor-sparen-j">—</div>
+          </div>
+          <div class="budget-subtotal-row">
+            <div class="budget-label">Subtotal Vorsorge &amp; Sparen</div>
+            <div></div>
+            <div class="budget-subtotal-val" id="bg-total-vorsorge-mt">CHF 0</div>
+            <div class="budget-subtotal-val" id="bg-total-vorsorge-j">CHF 0</div>
+          </div>
+
+          <!-- ── Steuern & Abgaben ── -->
+          <div class="budget-section-head">📋 Steuern &amp; Abgaben</div>
+          <div class="budget-row">
+            <div class="budget-label">Kantons- und Gemeindesteuern</div>
+            <div class="budget-hint">—</div>
+            <div><input type="number" id="bg-steuern-kant" class="budget-input" placeholder="0" min="0" step="50" oninput="calcBudget()"></div>
+            <div class="budget-jahr" id="bg-steuern-kant-j">—</div>
+          </div>
+          <div class="budget-row">
+            <div class="budget-label">Direkte Bundessteuer</div>
+            <div class="budget-hint">—</div>
+            <div><input type="number" id="bg-steuern-bund" class="budget-input" placeholder="0" min="0" step="20" oninput="calcBudget()"></div>
+            <div class="budget-jahr" id="bg-steuern-bund-j">—</div>
+          </div>
+          <div class="budget-row">
+            <div class="budget-label">Motorfahrzeugsteuer</div>
+            <div class="budget-hint">—</div>
+            <div><input type="number" id="bg-steuern-verkehr" class="budget-input" placeholder="0" min="0" step="10" oninput="calcBudget()"></div>
+            <div class="budget-jahr" id="bg-steuern-verkehr-j">—</div>
+          </div>
+          <div class="budget-row">
+            <div class="budget-label">Serafe <span style="color:var(--gray-mid);font-size:11px;">(Radio &amp; TV)</span></div>
+            <div class="budget-hint">CHF 28 / Mt. (CHF 335/Jahr)</div>
+            <div><input type="number" id="bg-steuern-serafe" class="budget-input" placeholder="28" min="0" step="1" oninput="calcBudget()"></div>
+            <div class="budget-jahr" id="bg-steuern-serafe-j">—</div>
+          </div>
+          <div class="budget-row">
+            <div class="budget-label">Weitere Abgaben &amp; Gebühren</div>
+            <div class="budget-hint">—</div>
+            <div><input type="number" id="bg-steuern-weitere" class="budget-input" placeholder="0" min="0" step="10" oninput="calcBudget()"></div>
+            <div class="budget-jahr" id="bg-steuern-weitere-j">—</div>
+          </div>
+          <div class="budget-subtotal-row">
+            <div class="budget-label">Subtotal Steuern &amp; Abgaben</div>
+            <div></div>
+            <div class="budget-subtotal-val" id="bg-total-steuern-mt">CHF 0</div>
+            <div class="budget-subtotal-val" id="bg-total-steuern-j">CHF 0</div>
+          </div>
+
+          <!-- ── Bildung & Übriges ── -->
+          <div class="budget-section-head">📚 Bildung &amp; Übriges</div>
+          <div class="budget-row">
+            <div class="budget-label">Aus- und Weiterbildung</div>
+            <div class="budget-hint">—</div>
+            <div><input type="number" id="bg-uebrig-bildung" class="budget-input" placeholder="0" min="0" step="20" oninput="calcBudget()"></div>
+            <div class="budget-jahr" id="bg-uebrig-bildung-j">—</div>
+          </div>
+          <div class="budget-row">
+            <div class="budget-label">Bücher, Zeitungen &amp; Abos</div>
+            <div class="budget-hint">CHF 20–60</div>
+            <div><input type="number" id="bg-uebrig-buecher" class="budget-input" placeholder="0" min="0" step="10" oninput="calcBudget()"></div>
+            <div class="budget-jahr" id="bg-uebrig-buecher-j">—</div>
+          </div>
+          <div class="budget-row">
+            <div class="budget-label">Diverses</div>
+            <div class="budget-hint">—</div>
+            <div><input type="number" id="bg-uebrig-diverses" class="budget-input" placeholder="0" min="0" step="20" oninput="calcBudget()"></div>
+            <div class="budget-jahr" id="bg-uebrig-diverses-j">—</div>
+          </div>
+          <div class="budget-subtotal-row">
+            <div class="budget-label">Subtotal Übriges</div>
+            <div></div>
+            <div class="budget-subtotal-val" id="bg-total-uebrig-mt">CHF 0</div>
+            <div class="budget-subtotal-val" id="bg-total-uebrig-j">CHF 0</div>
+          </div>
+
+          <!-- Total Ausgaben -->
+          <div class="budget-grand-total">
+            <div class="budget-label">Total Ausgaben</div>
+            <div class="budget-hint"></div>
+            <div class="budget-subtotal-val" id="bg-total-ausgaben-mt">CHF 0</div>
+            <div class="budget-subtotal-val" id="bg-total-ausgaben-j">CHF 0</div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <!-- ── SALDO & SPARQUOTE ── -->
+    <div class="card" style="margin-bottom: var(--space-lg);">
+      <div class="card-header">
+        <div class="card-title">
+          <span class="card-title-icon">📊</span>
+          Saldo &amp; Sparquote
+        </div>
+      </div>
+      <div class="card-body">
+        <div class="kpi-grid" style="grid-template-columns: repeat(4,1fr);">
+          <div class="kpi-tile primary">
+            <div class="kpi-tile-label">Einnahmen / Mt.</div>
+            <div class="kpi-tile-value" id="bg-kpi-einnahmen">CHF 0</div>
+            <div class="kpi-tile-sub">Total netto</div>
+          </div>
+          <div class="kpi-tile">
+            <div class="kpi-tile-label">Ausgaben / Mt.</div>
+            <div class="kpi-tile-value" id="bg-kpi-ausgaben">CHF 0</div>
+            <div class="kpi-tile-sub">Total inkl. Steuern &amp; Vorsorge</div>
+          </div>
+          <div class="kpi-tile" id="bg-kpi-saldo-tile">
+            <div class="kpi-tile-label">Saldo / Mt.</div>
+            <div class="kpi-tile-value" id="bg-kpi-saldo">CHF 0</div>
+            <div class="kpi-tile-sub">Einnahmen − Ausgaben</div>
+          </div>
+          <div class="kpi-tile" id="bg-kpi-sparquote-tile">
+            <div class="kpi-tile-label">Sparquote</div>
+            <div class="kpi-tile-value" id="bg-kpi-sparquote">0.0 %</div>
+            <div class="kpi-tile-sub">Saldo / Einnahmen · Ziel ≥ 10 %</div>
+          </div>
+        </div>
+
+        <!-- Responsive: stack KPIs on mobile -->
+        <style>
+          @media (max-width: 680px) {
+            #panel-budget .kpi-grid,
+            .card .kpi-grid[style*="repeat(4"] { grid-template-columns: 1fr 1fr !important; }
+          }
+        </style>
+      </div>
+    </div>
+
+    <!-- ── VERSAND ── -->
+    <div class="card" style="margin-bottom: var(--space-2xl);">
+      <div class="card-header">
+        <div class="card-title">
+          <span class="card-title-icon">📤</span>
+          Budget an Berater senden
+        </div>
+      </div>
+      <div class="card-body">
+        <div class="send-steps">
+          <div class="send-step">
+            <div class="send-step-num">1</div>
+            <div class="send-step-body">
+              <div class="send-step-title">Budget als Datei speichern</div>
+              <div class="send-step-desc">
+                Klicken Sie auf «Budget speichern». Das ausgefüllte Formular wird als
+                JSON-Datei auf Ihrem Gerät gesichert. Diese Datei hängen Sie in
+                Schritt 2 an die E-Mail an.
+              </div>
+              <button class="btn btn-primary btn-sm" style="margin-top: 12px;" onclick="saveBudget()">
+                💾 Budget speichern
+              </button>
+            </div>
+          </div>
+          <div class="send-step">
+            <div class="send-step-num">2</div>
+            <div class="send-step-body">
+              <div class="send-step-title">E-Mail an Berater öffnen</div>
+              <div class="send-step-desc">
+                Klicken Sie auf «E-Mail öffnen». Ihr E-Mail-Programm öffnet sich mit
+                vorbereiteter Adresse und Betreff. Hängen Sie die gespeicherte Datei an
+                und senden Sie die E-Mail.
+              </div>
+              <button class="btn btn-accent btn-sm" style="margin-top: 12px;" onclick="sendToAdvisor()">
+                📧 E-Mail öffnen
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <div class="info-box neutral" style="margin-top: var(--space-lg);">
+          <span class="info-box-icon">🔒</span>
+          <div>
+            <strong>Datenschutz:</strong> Ihre Budgetdaten werden <strong>nicht</strong> auf einem
+            Server gespeichert. Die Datei verbleibt auf Ihrem Gerät und wird ausschliesslich per
+            E-Mail an Ihren Berater übermittelt — konform mit dem Schweizer
+            Datenschutzgesetz (DSG 2023).
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </main>
+
+  <!-- ══ FOOTER ══ -->
+  <footer class="app-footer">
+    <div class="footer-logo">Versicherungskompass <span>Vorsorge</span></div>
+    <div class="footer-meta">
+      Daten werden nicht gespeichert &nbsp;·&nbsp; DSG-konform &nbsp;·&nbsp; Schweiz 2025
+    </div>
+  </footer>
+
+</div><!-- /app-wrapper -->
+
+<!-- Hidden file input -->
+<input type="file" id="bg-file-input" accept=".json" style="display:none;" onchange="onFileLoad(event)">
+
+<!-- Toast -->
+<div class="toast" id="toast"></div>
+
+<script>
+/* ══════════════════════════════════════════════════
+   BUDGET-TOOL — Versicherungskompass Vorsorge
+   Alle Berechnungen clientseitig, kein Server-Upload
+══════════════════════════════════════════════════ */
+
+const BUDGET_FIELDS = {
+  einnahmen: ['bg-lohnP1','bg-lohnP2','bg-kinderzulagen','bg-einnahmen-uebrig'],
+  leben:     ['bg-wohnen','bg-haushalt','bg-bekleidung','bg-komm','bg-verpflegung','bg-gesundheit','bg-geschenke'],
+  ferien:    ['bg-ferien','bg-hobbys'],
+  kinder:    ['bg-kinder-kita','bg-kinder-schule','bg-kinder-tg'],
+  auto:      ['bg-auto-service','bg-auto-benzin','bg-auto-leasing','bg-auto-parkplatz','bg-auto-rueck','bg-auto-ov'],
+  vers:      ['bg-vers-auto','bg-vers-kk','bg-vers-haushalt','bg-vers-recht','bg-vers-reise','bg-vers-uebrig'],
+  vorsorge:  ['bg-vor-3a','bg-vor-3b','bg-vor-pk','bg-vor-sparen'],
+  steuern:   ['bg-steuern-kant','bg-steuern-bund','bg-steuern-verkehr','bg-steuern-serafe','bg-steuern-weitere'],
+  uebrig:    ['bg-uebrig-bildung','bg-uebrig-buecher','bg-uebrig-diverses'],
+};
+
+const AUSGABEN_SECTIONS = ['leben','ferien','kinder','auto','vers','vorsorge','steuern','uebrig'];
+
+/* ── Helpers ── */
+function fmtCHF(val) {
+  if (isNaN(val) || val === null || val === undefined) return '—';
+  return 'CHF ' + Math.round(val).toLocaleString('de-CH');
+}
+
+function getVal(id) {
+  const el = document.getElementById(id);
+  return el ? (parseFloat(el.value) || 0) : 0;
+}
+
+function setEl(id, text) {
+  const el = document.getElementById(id);
+  if (el) el.textContent = text;
+}
+
+/* ── Hauptberechnung ── */
+function calcBudget() {
+  // Jahreswerte pro Einzelfeld
+  const allFields = Object.values(BUDGET_FIELDS).flat();
+  allFields.forEach(id => {
+    const val = getVal(id);
+    setEl(id + '-j', val > 0 ? fmtCHF(val * 12) : '—');
+  });
+
+  // Einnahmen Total
+  const totalEinnahmenMt = BUDGET_FIELDS.einnahmen.reduce((s, id) => s + getVal(id), 0);
+  setEl('bg-total-einnahmen-mt', fmtCHF(totalEinnahmenMt));
+  setEl('bg-total-einnahmen-j',  fmtCHF(totalEinnahmenMt * 12));
+
+  // Ausgaben-Sektionen
+  let totalAusgabenMt = 0;
+  AUSGABEN_SECTIONS.forEach(section => {
+    const mt = BUDGET_FIELDS[section].reduce((s, id) => s + getVal(id), 0);
+    totalAusgabenMt += mt;
+    setEl('bg-total-' + section + '-mt', fmtCHF(mt));
+    setEl('bg-total-' + section + '-j',  fmtCHF(mt * 12));
+  });
+
+  // Ausgaben Total
+  setEl('bg-total-ausgaben-mt', fmtCHF(totalAusgabenMt));
+  setEl('bg-total-ausgaben-j',  fmtCHF(totalAusgabenMt * 12));
+
+  // KPI-Kacheln
+  const saldo = totalEinnahmenMt - totalAusgabenMt;
+  setEl('bg-kpi-einnahmen', fmtCHF(totalEinnahmenMt));
+  setEl('bg-kpi-ausgaben',  fmtCHF(totalAusgabenMt));
+
+  const saldoTile = document.getElementById('bg-kpi-saldo-tile');
+  const saldoEl   = document.getElementById('bg-kpi-saldo');
+  if (saldoTile && saldoEl) {
+    saldoEl.textContent = (saldo >= 0 ? '+ ' : '− ') + fmtCHF(Math.abs(saldo));
+    saldoTile.className = 'kpi-tile ' + (saldo > 0 ? 'ok' : saldo < 0 ? 'danger' : '');
+  }
+
+  const sparquote  = totalEinnahmenMt > 0 ? (saldo / totalEinnahmenMt) * 100 : 0;
+  const sparTile   = document.getElementById('bg-kpi-sparquote-tile');
+  const sparEl     = document.getElementById('bg-kpi-sparquote');
+  if (sparTile && sparEl) {
+    sparEl.textContent = sparquote.toFixed(1) + ' %';
+    sparTile.className = 'kpi-tile ' + (sparquote >= 10 ? 'ok' : sparquote >= 0 ? 'warning' : 'danger');
+  }
+}
+
+/* ── Daten sammeln ── */
+function collectBudget() {
+  const data = {
+    version:  '1.0',
+    savedAt:  new Date().toLocaleString('de-CH'),
+    typ:      'budget',
+    kunde: {
+      name:        (document.getElementById('bg-name')?.value        || '').trim(),
+      adresse:     (document.getElementById('bg-adresse')?.value     || '').trim(),
+      datum:       (document.getElementById('bg-datum')?.value       || '').trim(),
+      bemerkungen: (document.getElementById('bg-bemerkungen')?.value || '').trim(),
+    },
+    einnahmen: {},
+    ausgaben:  {},
+  };
+
+  BUDGET_FIELDS.einnahmen.forEach(id => {
+    data.einnahmen[id] = getVal(id);
+  });
+
+  AUSGABEN_SECTIONS.forEach(section => {
+    data.ausgaben[section] = {};
+    BUDGET_FIELDS[section].forEach(id => {
+      data.ausgaben[section][id] = getVal(id);
+    });
+  });
+
+  return data;
+}
+
+/* ── Daten wiederherstellen ── */
+function populateBudget(d) {
+  if (!d || d.typ !== 'budget') {
+    showToast('❌ Keine gültige Budget-Datei', 'error');
+    return;
+  }
+
+  if (d.kunde) {
+    const set = (id, val) => { const el = document.getElementById(id); if (el) el.value = val || ''; };
+    set('bg-name',        d.kunde.name);
+    set('bg-adresse',     d.kunde.adresse);
+    set('bg-datum',       d.kunde.datum);
+    set('bg-bemerkungen', d.kunde.bemerkungen);
+  }
+
+  if (d.einnahmen) {
+    Object.entries(d.einnahmen).forEach(([id, val]) => {
+      const el = document.getElementById(id);
+      if (el) el.value = val || '';
+    });
+  }
+
+  if (d.ausgaben) {
+    Object.values(d.ausgaben).forEach(section => {
+      Object.entries(section).forEach(([id, val]) => {
+        const el = document.getElementById(id);
+        if (el) el.value = val || '';
+      });
+    });
+  }
+
+  calcBudget();
+}
+
+/* ── Speichern ── */
+function saveBudget() {
+  const data  = collectBudget();
+  const json  = JSON.stringify(data, null, 2);
+  const blob  = new Blob([json], { type: 'application/json' });
+  const url   = URL.createObjectURL(blob);
+  const a     = document.createElement('a');
+  const name  = data.kunde.name
+    ? data.kunde.name.replace(/[\s,./]+/g, '_').replace(/[^A-Za-z0-9_äöüÄÖÜ-]/g, '')
+    : 'Unbekannt';
+  a.href     = url;
+  a.download = `VK_Budget_${name}_${new Date().toISOString().slice(0,10)}.json`;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+  showToast('✅ Budget gespeichert', 'success');
+}
+
+/* ── Laden ── */
+function loadBudget() {
+  document.getElementById('bg-file-input').click();
+}
+
+function onFileLoad(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = e => {
+    try {
+      const data = JSON.parse(e.target.result);
+      populateBudget(data);
+      showToast('✅ Budget geladen', 'success');
+    } catch {
+      showToast('❌ Ungültige Datei', 'error');
+    }
+  };
+  reader.readAsText(file);
+  event.target.value = '';
+}
+
+/* ── E-Mail öffnen ── */
+function sendToAdvisor() {
+  const name    = (document.getElementById('bg-name')?.value || 'Kunde').trim();
+  const subject = encodeURIComponent('Budget Vorsorgeanalyse — ' + name);
+  const body    = encodeURIComponent(
+    'Guten Tag\n\n' +
+    'Im Anhang finden Sie mein ausgefülltes Budget für die Vorsorgeanalyse.\n\n' +
+    'Bitte speichern Sie zuerst das Budget (Schritt 1) und hängen Sie die\n' +
+    'gespeicherte JSON-Datei an diese E-Mail an.\n\n' +
+    'Freundliche Grüsse\n' + name
+  );
+  window.location.href = 'mailto:team@gastrokompass.ch?subject=' + subject + '&body=' + body;
+}
+
+/* ── Toast ── */
+function showToast(msg, type = '') {
+  const t = document.getElementById('toast');
+  if (!t) return;
+  t.textContent = msg;
+  t.className   = 'toast ' + type;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 3200);
+}
+
+/* ── Init ── */
+(function init() {
+  // Heutiges Datum als Standard
+  const today = new Date();
+  const d = String(today.getDate()).padStart(2,'0');
+  const m = String(today.getMonth() + 1).padStart(2,'0');
+  const y = today.getFullYear();
+  const el = document.getElementById('bg-datum');
+  if (el && !el.value) el.value = d + '.' + m + '.' + y;
+
+  // Initiale Berechnung (alle Felder 0)
+  calcBudget();
+})();
+</script>
+</body>
+</html>
