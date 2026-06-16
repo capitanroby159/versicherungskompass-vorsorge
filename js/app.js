@@ -411,18 +411,23 @@ const DataManager = {
       } else if (typ === 'uvgz') {
         obj.versicherer = get(`uvgz-${id}-versicherer`);
         obj.agId        = get(`uvgz-${id}-ag`);
-        obj.lohn        = getN(`uvgz-${id}-lohn`);
-        obj.taggeldPct  = parseFloat(get(`uvgz-${id}-taggeld-pct`)) || 90;
+        obj.tgUvgPct    = parseFloat(get(`uvgz-${id}-tg-uvg-pct`)) || 90;
+        obj.tgUvgWf     = parseFloat(get(`uvgz-${id}-tg-uvg-wf`))  || 0;
+        obj.tgUlPct     = parseFloat(get(`uvgz-${id}-tg-ul-pct`))  || 80;
+        obj.tgUlWf      = parseFloat(get(`uvgz-${id}-tg-ul-wf`))   || 0;
         obj.heilung     = get(`uvgz-${id}-heilung`);
         obj.ivRentePct  = parseFloat(get(`uvgz-${id}-iv-rente-pct`)) || 0;
         obj.hlRentePct  = parseFloat(get(`uvgz-${id}-hl-rente-pct`)) || 0;
+        obj.tfKapital   = getN(`uvgz-${id}-tf-kapital`);
       } else if (typ === 'priv') {
         obj.art          = get(`priv-${id}-art`);
         obj.versicherer  = get(`priv-${id}-versicherer`);
         obj.leistung     = getN(`priv-${id}-leistung`);
         obj.praemie      = getN(`priv-${id}-praemie`);
-        obj.deckungsart  = get(`priv-${id}-deckungsart`) || 'erwerbsausfall';
+        obj.deckungsart  = get(`priv-${id}-deckungsart`)  || 'erwerbsausfall';
+        obj.ursache      = get(`priv-${id}-ursache`)      || 'krankheit';
         obj.leistungsart = get(`priv-${id}-leistungsart`) || 'rente';
+        obj.wartefrist   = parseFloat(get(`priv-${id}-wartefrist`)) || 30;
       }
       list.push(obj);
     });

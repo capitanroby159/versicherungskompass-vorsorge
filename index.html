@@ -1738,6 +1738,7 @@
     </div>
     <div class="list-item-body">
       <div class="grid-3" style="gap:var(--space-md)">
+
         <div class="form-group">
           <label class="form-label">Versicherer</label>
           <input type="text" class="form-input" id="uvgz-{ID}-versicherer" placeholder="Zürich, AXA …"
@@ -1749,36 +1750,80 @@
             <option value="">— Wählen —</option>
           </select>
         </div>
-        <div class="form-group">
-          <label class="form-label">Versicherter Lohn UVGZ</label>
-          <div class="form-input-prefix">
-            <span class="prefix">CHF</span>
-            <input type="text" class="form-input money-input" id="uvgz-{ID}-lohn"
-                   oninput="updateUVGZCalc('{ID}')">
-          </div>
-        </div>
+        <div class="form-group"><!-- spacer --></div>
 
+        <!-- Lohn-Basis Info -->
         <div class="form-group">
-          <label class="form-label">Taggeld</label>
+          <label class="form-label">UVG-Lohn (aus UVG)</label>
+          <div class="info-badge" id="uvgz-{ID}-uvg-lohn-display" style="margin-top:4px">CHF —</div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Überschusslohn (AHV − UVG)</label>
+          <div class="info-badge" id="uvgz-{ID}-ul-display" style="margin-top:4px">CHF —</div>
+        </div>
+        <div class="form-group"><!-- spacer --></div>
+
+        <!-- Taggeld Section -->
+        <div style="grid-column:1/-1;padding-top:var(--space-xs);border-top:1px solid var(--primary-light);font-size:11px;font-weight:600;color:var(--primary);text-transform:uppercase;letter-spacing:.05em">Taggeld</div>
+
+        <!-- Header row -->
+        <div style="font-size:11px;font-weight:600;color:var(--gray-mid)">Sparte</div>
+        <div style="font-size:11px;font-weight:600;color:var(--gray-mid)">Deckung %</div>
+        <div style="font-size:11px;font-weight:600;color:var(--gray-mid)">Wartefrist (Tage)</div>
+
+        <!-- UVG-Lohn Taggeld -->
+        <div class="form-group">
+          <label class="form-label">auf UVG-Lohn</label>
+          <div class="info-badge" id="uvgz-{ID}-tg-uvg-display" style="margin-top:4px">CHF —/Tag</div>
+        </div>
+        <div class="form-group">
           <div class="form-input-suffix">
-            <input type="number" class="form-input" id="uvgz-{ID}-taggeld-pct"
-                   value="90" min="1" max="150" step="1"
+            <input type="number" class="form-input" id="uvgz-{ID}-tg-uvg-pct"
+                   value="90" min="0" max="150" step="1"
                    oninput="updateUVGZCalc('{ID}')">
             <span class="suffix">%</span>
           </div>
         </div>
         <div class="form-group">
-          <label class="form-label">Taggeld (berechnet)</label>
-          <div class="info-badge" id="uvgz-{ID}-taggeld-display" style="margin-top:4px">CHF —</div>
+          <div class="form-input-suffix">
+            <input type="number" class="form-input" id="uvgz-{ID}-tg-uvg-wf"
+                   value="0" min="0" max="720" step="1">
+            <span class="suffix">Tage</span>
+          </div>
         </div>
+
+        <!-- Überschusslohn Taggeld -->
+        <div class="form-group">
+          <label class="form-label">auf Überschusslohn</label>
+          <div class="info-badge" id="uvgz-{ID}-tg-ul-display" style="margin-top:4px">CHF —/Tag</div>
+        </div>
+        <div class="form-group">
+          <div class="form-input-suffix">
+            <input type="number" class="form-input" id="uvgz-{ID}-tg-ul-pct"
+                   value="80" min="0" max="150" step="1"
+                   oninput="updateUVGZCalc('{ID}')">
+            <span class="suffix">%</span>
+          </div>
+        </div>
+        <div class="form-group">
+          <div class="form-input-suffix">
+            <input type="number" class="form-input" id="uvgz-{ID}-tg-ul-wf"
+                   value="0" min="0" max="720" step="1">
+            <span class="suffix">Tage</span>
+          </div>
+        </div>
+
+        <!-- Weitere Leistungen -->
+        <div style="grid-column:1/-1;padding-top:var(--space-xs);border-top:1px solid var(--primary-light);font-size:11px;font-weight:600;color:var(--primary);text-transform:uppercase;letter-spacing:.05em">Weitere Leistungen</div>
+
         <div class="form-group">
           <label class="form-label">Heilungskosten</label>
           <select class="form-input" id="uvgz-{ID}-heilung">
-            <option value="privat">Privat</option>
+            <option value="allgemein">Allgemein</option>
             <option value="halbprivat">Halbprivat</option>
+            <option value="privat">Privat</option>
           </select>
         </div>
-
         <div class="form-group">
           <label class="form-label">Invalidenrente</label>
           <div class="form-input-suffix">
@@ -1795,6 +1840,15 @@
             <span class="suffix">%</span>
           </div>
         </div>
+
+        <div class="form-group">
+          <label class="form-label">Todesfallkapital</label>
+          <div class="form-input-prefix">
+            <span class="prefix">CHF</span>
+            <input type="text" class="form-input money-input" id="uvgz-{ID}-tf-kapital">
+          </div>
+        </div>
+
       </div>
     </div>
   </div>
@@ -1809,26 +1863,38 @@
     </div>
     <div class="list-item-body">
       <div class="grid-3" style="gap:var(--space-md)">
+
         <div class="form-group">
           <label class="form-label">Versicherer</label>
           <input type="text" class="form-input" id="priv-{ID}-versicherer"
                  placeholder="Zürich, Swiss Life …"
                  oninput="updateVertragTitle('priv','{ID}')">
         </div>
-        <div style="display:flex;gap:var(--space-lg);align-items:flex-end;flex-wrap:wrap">
+
+        <!-- Toggles: Deckungsart + Ursache + Leistungsart -->
+        <div style="grid-column:2/-1;display:flex;gap:var(--space-lg);align-items:flex-end;flex-wrap:wrap">
           <div>
             <div style="font-size:12px;font-weight:500;color:var(--black);margin-bottom:4px">Deckungsart</div>
             <div style="display:flex;gap:4px">
-              <button class="person-toggle-btn active" id="priv-{ID}-ea" onclick="setPrivDeckungsart('{ID}','erwerbsausfall')">Erwerbsausfall</button>
-              <button class="person-toggle-btn" id="priv-{ID}-tod" onclick="setPrivDeckungsart('{ID}','todesfall')">Todesfall</button>
+              <button class="person-toggle-btn active" id="priv-{ID}-ea"  onclick="setPrivDeckungsart('{ID}','erwerbsausfall')">Erwerbsausfall</button>
+              <button class="person-toggle-btn"        id="priv-{ID}-tod" onclick="setPrivDeckungsart('{ID}','todesfall')">Todesfall</button>
             </div>
             <input type="hidden" id="priv-{ID}-deckungsart" value="erwerbsausfall">
           </div>
           <div>
+            <div style="font-size:12px;font-weight:500;color:var(--black);margin-bottom:4px">Ursache</div>
+            <div style="display:flex;gap:4px">
+              <button class="person-toggle-btn active" id="priv-{ID}-urs-krank"  onclick="setPrivUrsache('{ID}','krankheit')">Krankheit</button>
+              <button class="person-toggle-btn"        id="priv-{ID}-urs-unfall" onclick="setPrivUrsache('{ID}','unfall')">Unfall</button>
+              <button class="person-toggle-btn"        id="priv-{ID}-urs-beide"  onclick="setPrivUrsache('{ID}','beide')">Beide</button>
+            </div>
+            <input type="hidden" id="priv-{ID}-ursache" value="krankheit">
+          </div>
+          <div>
             <div style="font-size:12px;font-weight:500;color:var(--black);margin-bottom:4px">Leistungsart</div>
             <div style="display:flex;gap:4px">
-              <button class="person-toggle-btn active" id="priv-{ID}-rente" onclick="setPrivLeistungsart('{ID}','rente')">Rente</button>
-              <button class="person-toggle-btn" id="priv-{ID}-kapital" onclick="setPrivLeistungsart('{ID}','kapital')">Kapital</button>
+              <button class="person-toggle-btn active" id="priv-{ID}-rente"   onclick="setPrivLeistungsart('{ID}','rente')">Rente</button>
+              <button class="person-toggle-btn"        id="priv-{ID}-kapital" onclick="setPrivLeistungsart('{ID}','kapital')">Kapital</button>
             </div>
             <input type="hidden" id="priv-{ID}-leistungsart" value="rente">
           </div>
@@ -1841,6 +1907,17 @@
             <input type="text" class="form-input money-input" id="priv-{ID}-leistung">
           </div>
         </div>
+
+        <!-- Wartefrist — nur bei Erwerbsausfall -->
+        <div class="form-group" id="priv-{ID}-wartefrist-wrap">
+          <label class="form-label">Wartefrist</label>
+          <div class="form-input-suffix">
+            <input type="number" class="form-input" id="priv-{ID}-wartefrist"
+                   value="30" min="0" max="730" step="1">
+            <span class="suffix">Tage</span>
+          </div>
+        </div>
+
         <div class="form-group">
           <label class="form-label">Jahresprämie</label>
           <div class="form-input-prefix">
@@ -1848,12 +1925,14 @@
             <input type="text" class="form-input money-input" id="priv-{ID}-praemie">
           </div>
         </div>
+
         <div class="form-group">
           <label class="form-label">Art / Bemerkung</label>
           <input type="text" class="form-input" id="priv-{ID}-art"
                  placeholder="z.B. Risikolebens, EUI, Unfall …"
                  oninput="updateVertragTitle('priv','{ID}')">
         </div>
+
       </div>
     </div>
   </div>
@@ -2150,12 +2229,28 @@
 
         <div style="grid-column:1/-1;padding-top:var(--space-xs);border-top:1px solid var(--primary-light);font-size:11px;font-weight:600;color:var(--primary);text-transform:uppercase;letter-spacing:.05em">Invalidenleistungen</div>
 
-        <div class="form-group" style="grid-column:1/-1">
+        <div class="form-group">
           <label class="form-label">IV-Jahresrente PK</label>
-          <div class="form-input-prefix" style="max-width:220px">
+          <div class="form-input-prefix">
             <span class="prefix">CHF</span>
             <input type="text" class="form-input money-input" id="pk-{ID}-iv-rente"
                    oninput="updatePKKPIs()">
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Wartefrist IV-Rente</label>
+          <div class="form-input-suffix">
+            <input type="number" class="form-input" id="pk-{ID}-iv-wartefrist"
+                   value="24" min="0" max="36" step="1">
+            <span class="suffix">Mt.</span>
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Prämienbefreiung nach</label>
+          <div class="form-input-suffix">
+            <input type="number" class="form-input" id="pk-{ID}-praem-befr"
+                   value="3" min="0" max="24" step="1">
+            <span class="suffix">Mt.</span>
           </div>
         </div>
 
@@ -3010,11 +3105,14 @@ function addUVGZVertrag(person, data = null) {
     const s  = (fid, v) => { const f = document.getElementById(fid); if (f && v !== undefined && v !== null) f.value = v; };
     const sN = (fid, v) => { const f = document.getElementById(fid); if (f && v) f.value = fmtCHF(v); };
     s(`uvgz-${id}-versicherer`, data.versicherer);
-    sN(`uvgz-${id}-lohn`, data.lohn);
-    s(`uvgz-${id}-taggeld-pct`, data.taggeldPct ?? 90);
-    s(`uvgz-${id}-heilung`, data.heilung ?? 'privat');
+    s(`uvgz-${id}-tg-uvg-pct`, data.tgUvgPct ?? 90);
+    s(`uvgz-${id}-tg-uvg-wf`,  data.tgUvgWf  ?? 0);
+    s(`uvgz-${id}-tg-ul-pct`,  data.tgUlPct  ?? 80);
+    s(`uvgz-${id}-tg-ul-wf`,   data.tgUlWf   ?? 0);
+    s(`uvgz-${id}-heilung`,     data.heilung  ?? 'allgemein');
     s(`uvgz-${id}-iv-rente-pct`, data.ivRentePct);
     s(`uvgz-${id}-hl-rente-pct`, data.hlRentePct);
+    sN(`uvgz-${id}-tf-kapital`,  data.tfKapital);
     if (data.agId && agSel) agSel.value = data.agId;
     updateUVGZCalc(id);
     updateVertragTitle('uvgz', id);
@@ -3033,7 +3131,9 @@ function addPrivVertrag(person, data = null) {
     s(`priv-${id}-versicherer`, data.versicherer);
     sN(`priv-${id}-leistung`, data.leistung);
     sN(`priv-${id}-praemie`, data.praemie);
+    s(`priv-${id}-wartefrist`, data.wartefrist ?? 30);
     if (data.deckungsart) setPrivDeckungsart(id, data.deckungsart);
+    if (data.ursache)     setPrivUrsache(id, data.ursache);
     if (data.leistungsart) setPrivLeistungsart(id, data.leistungsart);
     updateVertragTitle('priv', id);
   }
@@ -3093,27 +3193,59 @@ function refreshAGSelectsForPerson(person) {
 }
 
 function onAGSelected(typ, id, person) {
-  const agId   = document.getElementById(`${typ}-${id}-ag`)?.value;
+  const agId = document.getElementById(`${typ}-${id}-ag`)?.value;
   if (!agId) return;
-  const lohn   = parseCHF(document.getElementById(`ag-${agId}-lohn`)?.value) || 0;
+  const lohn = parseCHF(document.getElementById(`ag-${agId}-lohn`)?.value) || 0;
+
+  if (typ === 'uvgz') {
+    // UVGZ hat kein eigenes Lohnfeld — Werte aus UVG + AHV-Lohn ableiten
+    updateUVGZCalc(id);
+    return;
+  }
+
   const lohnFieldId = typ === 'pk' ? `pk-${id}-verslohn` : `${typ}-${id}-lohn`;
   const lohnEl = document.getElementById(lohnFieldId);
   if (lohnEl) {
     lohnEl.value = lohn > 0 ? fmtCHF(lohn) : '';
-    if (typ === 'uvg')  updateUVGTotal(person);
-    if (typ === 'uvgz') updateUVGZCalc(id);
-    if (typ === 'ktg')  updateKTGCalc(id);
-    if (typ === 'pk')   updatePKVertrag(id, person);
+    if (typ === 'uvg') updateUVGTotal(person);
+    if (typ === 'ktg') updateKTGCalc(id);
+    if (typ === 'pk')  updatePKVertrag(id, person);
   }
 }
 
 // ── UVGZ BERECHNUNG ──
 function updateUVGZCalc(id) {
-  const lohn    = parseCHF(document.getElementById(`uvgz-${id}-lohn`)?.value) || 0;
-  const pct     = parseFloat(document.getElementById(`uvgz-${id}-taggeld-pct`)?.value) || 90;
-  const taggeld = Math.round(lohn / 365 * pct / 100);
-  const dispEl  = document.getElementById(`uvgz-${id}-taggeld-display`);
-  if (dispEl) dispEl.textContent = taggeld > 0 ? `CHF ${fmtCHF(taggeld)} / Tag` : 'CHF —';
+  const item   = document.querySelector(`[data-uvgz-id="${id}"]`);
+  const person = item?.dataset?.person || 'p1';
+
+  // UVG-Lohn = Summe aller UVG-Verträge dieser Person, max CHF 148'200
+  let uvgLohnTotal = 0;
+  document.querySelectorAll(`[data-person="${person}"].uvg-item`).forEach(uvgItem => {
+    const uvgId = uvgItem.dataset.uvgId;
+    uvgLohnTotal += parseCHF(document.getElementById(`uvg-${uvgId}-lohn`)?.value) || 0;
+  });
+  uvgLohnTotal = Math.min(uvgLohnTotal, 148200);
+
+  // Überschusslohn = AHV-Lohn - UVG-Lohn (min 0)
+  const ahvLohn = parseCHF(document.getElementById(`${person}-ahv-lohn`)?.value) || 0;
+  const ueberLohn = Math.max(0, ahvLohn - uvgLohnTotal);
+
+  // Badges aktualisieren
+  const setB = (bid, val) => { const el = document.getElementById(bid); if (el) el.textContent = val > 0 ? `CHF ${fmtCHF(val)}` : 'CHF —'; };
+  setB(`uvgz-${id}-uvg-lohn-display`, uvgLohnTotal);
+  setB(`uvgz-${id}-ul-display`, ueberLohn);
+
+  // Taggeld auf UVG-Lohn
+  const pctUVG = parseFloat(document.getElementById(`uvgz-${id}-tg-uvg-pct`)?.value) || 0;
+  const tgUVG  = uvgLohnTotal > 0 ? Math.round(uvgLohnTotal / 365 * pctUVG / 100) : 0;
+  const tgUVGEl = document.getElementById(`uvgz-${id}-tg-uvg-display`);
+  if (tgUVGEl) tgUVGEl.textContent = tgUVG > 0 ? `CHF ${fmtCHF(tgUVG)}/Tag` : 'CHF —/Tag';
+
+  // Taggeld auf Überschusslohn
+  const pctUL = parseFloat(document.getElementById(`uvgz-${id}-tg-ul-pct`)?.value) || 0;
+  const tgUL  = ueberLohn > 0 ? Math.round(ueberLohn / 365 * pctUL / 100) : 0;
+  const tgULEl = document.getElementById(`uvgz-${id}-tg-ul-display`);
+  if (tgULEl) tgULEl.textContent = tgUL > 0 ? `CHF ${fmtCHF(tgUL)}/Tag` : 'CHF —/Tag';
 }
 
 // ── PRIVATE TOGGLES ──
@@ -3122,6 +3254,19 @@ function setPrivDeckungsart(id, typ) {
   document.getElementById(`priv-${id}-tod`)?.classList.toggle('active', typ === 'todesfall');
   const h = document.getElementById(`priv-${id}-deckungsart`);
   if (h) h.value = typ;
+  // Wartefrist nur bei Erwerbsausfall anzeigen
+  const wfWrap = document.getElementById(`priv-${id}-wartefrist-wrap`);
+  if (wfWrap) wfWrap.style.display = typ === 'erwerbsausfall' ? '' : 'none';
+}
+
+function setPrivUrsache(id, ursache) {
+  const keyMap = { krankheit: 'krank', unfall: 'unfall', beide: 'beide' };
+  ['krank','unfall','beide'].forEach(k => {
+    document.getElementById(`priv-${id}-urs-${k}`)?.classList.remove('active');
+  });
+  document.getElementById(`priv-${id}-urs-${keyMap[ursache] ?? ursache}`)?.classList.add('active');
+  const h = document.getElementById(`priv-${id}-ursache`);
+  if (h) h.value = ursache;
 }
 
 function setPrivLeistungsart(id, typ) {
@@ -4183,13 +4328,13 @@ const EU = {
     // UVG-Invalidenrente (80% des UVG-Lohns, /12 für Monatswert)
     const uvgIvMt = Math.round(uvgLohn * 0.80 / 12);
 
-    // UVGZ: erste verfügbare Invalidenrente %
+    // UVGZ: IV-Rente % auf AHV-Lohn (UVG-Lohn + Überschusslohn)
     let uvgzMt = 0;
+    const uvgzAhvBasis = brutto; // AHV-Lohn als Berechnungsbasis
     document.querySelectorAll(`[data-person="${person}"].uvgz-item`).forEach(item => {
-      const id = item.dataset.uvgzId;
-      const pct = parseFloat(document.getElementById(`uvgz-${id}-iv-rente`)?.value) || 0;
-      const uvgzLohn = parseCHF(document.getElementById(`uvgz-${id}-lohn`)?.value) || 0;
-      uvgzMt += Math.round(uvgzLohn * pct / 100 / 12);
+      const id  = item.dataset.uvgzId;
+      const pct = parseFloat(document.getElementById(`uvgz-${id}-iv-rente-pct`)?.value) || 0;
+      uvgzMt += Math.round(uvgzAhvBasis * pct / 100 / 12);
     });
 
     // KTG: besten Vertrag nehmen (höchstes Taggeld)
