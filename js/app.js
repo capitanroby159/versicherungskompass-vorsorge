@@ -486,11 +486,12 @@ const DataManager = {
       document.querySelectorAll(`[data-immo="${id}"].hypo-item`).forEach(h => {
         const hid = h.dataset.hypoId;
         hypotheken.push({
-          id:     hid,
-          art:    get(`hypo-${hid}-art`),
-          betrag: getN(`hypo-${hid}-betrag`),
-          zins:   get(`hypo-${hid}-zins`),
-          bis:    get(`hypo-${hid}-bis`),
+          id:      hid,
+          institut: get(`hypo-${hid}-institut`),
+          art:     get(`hypo-${hid}-art`),
+          betrag:  getN(`hypo-${hid}-betrag`),
+          zins:    get(`hypo-${hid}-zins`),
+          bis:     get(`hypo-${hid}-bis`),
         });
       });
 

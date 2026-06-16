@@ -1280,6 +1280,11 @@
               <div class="kpi-tile-value" id="kpi-immo-cashflow">CHF —</div>
               <div class="kpi-tile-sub">nach Hypothekarzinsen</div>
             </div>
+            <div class="kpi-tile">
+              <div class="kpi-tile-label">Portfoliogewinn</div>
+              <div class="kpi-tile-value" id="kpi-immo-gewinn">CHF —</div>
+              <div class="kpi-tile-sub" id="kpi-immo-gewinn-pct">Σ Verkehrswert − Σ Kaufpreis</div>
+            </div>
           </div>
         </div>
       </div>
@@ -2704,6 +2709,12 @@
     <div class="list-item-body">
       <div class="grid-3" style="gap:var(--space-md)">
         <div class="form-group">
+          <label class="form-label">Finanzinstitut</label>
+          <input type="text" class="form-input" id="hypo-{ID}-institut"
+                 placeholder="LUKB, UBS, Postfinance …"
+                 oninput="updateHypoTitle('{ID}')">
+        </div>
+        <div class="form-group">
           <label class="form-label">Art</label>
           <select class="form-input" id="hypo-{ID}-art"
                   onchange="updateHypoTitle('{ID}');updateImmobilieCalc('{IMMO}')">
@@ -3635,10 +3646,11 @@ function addHypoTranche(immoId, data = null) {
   if (data) {
     const s  = (fid, v) => { const f = document.getElementById(fid); if (f && v !== undefined && v !== null) f.value = v; };
     const sN = (fid, v) => { const f = document.getElementById(fid); if (f && v) f.value = fmtCHF(v); };
-    s(`hypo-${id}-art`,   data.art);
+    s(`hypo-${id}-institut`, data.institut);
+    s(`hypo-${id}-art`,     data.art);
     sN(`hypo-${id}-betrag`, data.betrag);
-    s(`hypo-${id}-zins`,  data.zins);
-    s(`hypo-${id}-bis`,   data.bis);
+    s(`hypo-${id}-zins`,    data.zins);
+    s(`hypo-${id}-bis`,     data.bis);
     updateHypoTitle(id);
     updateHypoZins(id);
   }
@@ -3661,12 +3673,14 @@ function updateHypoCount(immoId) {
 }
 
 function updateHypoTitle(id) {
-  const art   = document.getElementById(`hypo-${id}-art`)?.value;
+  const art      = document.getElementById(`hypo-${id}-art`)?.value;
+  const institut = document.getElementById(`hypo-${id}-institut`)?.value?.trim();
   const artLabel = { fest:'Festhypothek', saron:'SARON', variabel:'Variabel', libor:'LIBOR/Flexibel' };
   const betrag   = parseCHF(document.getElementById(`hypo-${id}-betrag`)?.value);
   const el = document.getElementById(`hypo-${id}-title`);
   if (!el) return;
-  let title = artLabel[art] || 'Tranche';
+  let title = institut || artLabel[art] || 'Tranche';
+  if (institut && artLabel[art]) title += ` · ${artLabel[art]}`;
   if (betrag) title += ` · CHF ${fmtCHF(betrag)}`;
   el.textContent = title;
 }
@@ -3810,12 +3824,13 @@ function updateImmoCountBadge() {
 }
 
 function updatePortfolioKPIs() {
-  let totalWert = 0, totalHypo = 0, totalZins = 0, totalMiete = 0;
+  let totalWert = 0, totalHypo = 0, totalZins = 0, totalMiete = 0, totalKaufpreis = 0;
 
   document.querySelectorAll('.immo-item').forEach(item => {
     const id   = item.dataset.immoId;
     const wert = parseCHF(document.getElementById(`immo-${id}-verkehrswert`)?.value) || 0;
     totalWert += wert;
+    totalKaufpreis += parseCHF(document.getElementById(`immo-${id}-kaufpreis`)?.value) || 0;
 
     document.querySelectorAll(`[data-immo="${id}"].hypo-item`).forEach(h => {
       const hid      = h.dataset.hypoId;
@@ -3878,6 +3893,28 @@ function updatePortfolioKPIs() {
     } else {
       cfEl.textContent = 'CHF —';
       if (cfTile) cfTile.classList.remove('ok','danger');
+    }
+  }
+
+  // Portfoliogewinn = Σ Verkehrswerte − Σ Kaufpreise
+  const gewinnEl    = document.getElementById('kpi-immo-gewinn');
+  const gewinnPctEl = document.getElementById('kpi-immo-gewinn-pct');
+  const gewinnTile  = gewinnEl?.closest('.kpi-tile');
+  if (gewinnEl) {
+    if (totalKaufpreis > 0) {
+      const gewinn    = totalWert - totalKaufpreis;
+      const gewinnPct = Math.round(gewinn / totalKaufpreis * 1000) / 10;
+      const sign      = gewinn >= 0 ? '+' : '';
+      gewinnEl.textContent = `${sign}CHF ${fmtCHF(Math.abs(gewinn))}`;
+      if (gewinnPctEl) gewinnPctEl.textContent = `${sign}${gewinnPct} % auf Kaufpreis`;
+      if (gewinnTile) {
+        gewinnTile.classList.remove('ok','danger');
+        gewinnTile.classList.add(gewinn >= 0 ? 'ok' : 'danger');
+      }
+    } else {
+      gewinnEl.textContent = 'CHF —';
+      if (gewinnPctEl) gewinnPctEl.textContent = 'Σ Verkehrswert − Σ Kaufpreis';
+      if (gewinnTile) gewinnTile.classList.remove('ok','danger');
     }
   }
 
