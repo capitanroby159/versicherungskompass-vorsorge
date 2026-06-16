@@ -4385,9 +4385,9 @@ const EU = {
       }
     });
 
-    // PK-IV-Rente summieren
+    // PK-IV-Rente summieren (pk-vertrag-item ist die korrekte Klasse)
     let pkIvJahr = 0;
-    document.querySelectorAll(`[data-person="${person}"].pk-item`).forEach(item => {
+    document.querySelectorAll(`[data-person="${person}"].pk-vertrag-item`).forEach(item => {
       pkIvJahr += parseCHF(document.getElementById(`pk-${item.dataset.pkId}-iv-rente`)?.value) || 0;
     });
     const pkIvMt = Math.round(pkIvJahr / 12);
@@ -4477,23 +4477,22 @@ const EU = {
     const ausgDispEl    = document.getElementById(`eu-${person}-krank-ausgaben-chf`);
     if (ausgDispEl) ausgDispEl.textContent = `= CHF ${fmtCHF(ausgaben)}/Mt.`;
 
-    const lfzMt  = Math.round(lfzTage / 21.7 * netto / (lfzTage / 21.7 || 1));
-    const ktgMt  = Math.round(ktgTg * 21.7);
+    const ktgMt  = Math.round(ktgTg * 365 / 12);
     const ivTotal = ahvIv + pkIv + privIv;
 
     const phases = [
-      { label: 'Lohnfortzahlung', dauer: `${lfzTage} Tage`, einnahmen: netto },
-      { label: 'KTG-Phase',       dauer: `${ktgDauer} Tage (nach ${ktgWarte} Tage Wartefrist)`, einnahmen: ktgMt },
-      { label: 'IV-Phase',        dauer: 'dauerhaft', einnahmen: ivTotal },
+      { label: 'Lohnfortzahlung',         dauer: `${lfzTage} Tage`, einnahmen: netto },
+      { label: 'Kurzfrist bis 730 Tage',  dauer: `${ktgDauer} Tage (nach ${ktgWarte} Tage WF)`, einnahmen: ktgMt },
+      { label: 'Langfrist ab 731 Tage',   dauer: 'dauerhaft', einnahmen: ivTotal },
     ];
 
     const rows = [
-      { label: 'Nettolohn heute',       werte: [netto, '—', '—'] },
-      { label: 'Lohnfortzahlung',       werte: [netto, '—', '—'] },
-      { label: 'KTG-Taggeld × 21.7',   werte: ['—', ktgMt, '—'] },
-      { label: 'AHV-IV-Rente',         werte: ['—', '—', ahvIv] },
-      { label: 'PK-IV-Rente',          werte: ['—', '—', pkIv] },
-      { label: 'Private Rente',         werte: ['—', '—', privIv] },
+      { label: 'Nettolohn heute',              werte: [netto,  '—',    '—'   ] },
+      { label: 'Lohnfortzahlung',              werte: [netto,  '—',    '—'   ] },
+      { label: 'KTG-Taggeld × 30.42 Tage/Mt', werte: ['—',    ktgMt,  '—'   ] },
+      { label: 'AHV-IV-Rente',                werte: ['—',    '—',    ahvIv ] },
+      { label: 'PK-IV-Rente',                 werte: ['—',    '—',    pkIv  ] },
+      { label: 'Private Rente',               werte: ['—',    '—',    privIv] },
     ];
     const totale = [netto, ktgMt, ivTotal];
 
@@ -4526,22 +4525,22 @@ const EU = {
     const ausgDispEl  = document.getElementById(`eu-${person}-unfall-ausgaben-chf`);
     if (ausgDispEl) ausgDispEl.textContent = `= CHF ${fmtCHF(ausgaben)}/Mt.`;
 
-    const uvgMt   = Math.round(uvgTg * 21.7);
+    const uvgMt   = Math.round(uvgTg * 365 / 12);
     const ivTotal = uvgIvMt + ahvIv + pkIv + privIv;
 
     const phases = [
-      { label: 'Lohn heute',        dauer: 'Referenz',           einnahmen: netto },
-      { label: 'UVG-Taggeld-Phase', dauer: 'bis 2 Jahre',        einnahmen: uvgMt + uvgzMt },
-      { label: 'IV-Phase',          dauer: 'dauerhaft',          einnahmen: ivTotal },
+      { label: 'Lohnfortzahlung',        dauer: 'Referenz',    einnahmen: netto },
+      { label: 'Kurzfrist bis 730 Tage', dauer: 'bis 2 Jahre', einnahmen: uvgMt + uvgzMt },
+      { label: 'Langfrist ab 731 Tage',  dauer: 'dauerhaft',   einnahmen: ivTotal },
     ];
     const rows = [
-      { label: 'Nettolohn heute',     werte: [netto,   '—',     '—'    ] },
-      { label: 'UVG-Taggeld × 21.7', werte: ['—',     uvgMt,   '—'    ] },
-      { label: 'UVGZ-Zusatz',        werte: ['—',     uvgzMt,  '—'    ] },
-      { label: 'UVG-Invalidenrente', werte: ['—',     '—',     uvgIvMt] },
-      { label: 'AHV-IV-Rente',       werte: ['—',     '—',     ahvIv  ] },
-      { label: 'PK-IV-Rente',        werte: ['—',     '—',     pkIv   ] },
-      { label: 'Private Rente',      werte: ['—',     '—',     privIv ] },
+      { label: 'Nettolohn heute',              werte: [netto,   '—',     '—'    ] },
+      { label: 'UVG-Taggeld × 30.42 Tage/Mt', werte: ['—',     uvgMt,   '—'    ] },
+      { label: 'UVGZ-Zusatz',                 werte: ['—',     uvgzMt,  '—'    ] },
+      { label: 'UVG-Invalidenrente',          werte: ['—',     '—',     uvgIvMt] },
+      { label: 'AHV-IV-Rente',               werte: ['—',     '—',     ahvIv  ] },
+      { label: 'PK-IV-Rente',               werte: ['—',     '—',     pkIv   ] },
+      { label: 'Private Rente',             werte: ['—',     '—',     privIv ] },
     ];
     const totale = [netto, uvgMt + uvgzMt, ivTotal];
 
@@ -4568,10 +4567,11 @@ const EU = {
     const taggelder  = parseInt(sel('taggelder')) || 400;
     let   taggeld    = g('taggeld');
 
-    // Wenn taggeld-Feld leer oder 0 → auto berechnen
-    if (!taggeld) taggeld = Math.round(versichert / 260 * satz / 100);
+    taggeld = Math.round(versichert / 260 * satz / 100);
+    const taggeldEl = document.getElementById(`eu-${person}-alv-taggeld`);
+    if (taggeldEl) taggeldEl.value = fmtCHF(taggeld);
 
-    const alvMt   = Math.round(taggeld * 21.7);
+    const alvMt   = Math.round(taggeld * 365 / 12);
     const dauerMt = Math.round(taggelder / 21.7 * 10) / 10;
 
     const monatEl = document.getElementById(`eu-${person}-alv-monat`);
@@ -4586,7 +4586,7 @@ const EU = {
     const ausgDispEl   = document.getElementById(`eu-${person}-alv-ausgaben-chf`);
     if (ausgDispEl) ausgDispEl.textContent = `= CHF ${fmtCHF(ausgaben)}/Mt.`;
 
-    this._renderChart(`eu-chart-${person}-alv`, ['Lohn heute', 'ALV-Leistung', 'Nach ALV'], [
+    this._renderChart(`eu-chart-${person}-alv`, ['Lohnfortzahlung', 'Kurzfrist bis 730 Tage', 'Langfrist ab 731 Tage'], [
       { label:'Nettolohn', data:[nettoMtRound, 0,     0], color:'#2E3D32' },
       { label:'ALV',       data:[0,            alvMt, 0], color:'#D4703A' },
     ], ausgaben);
@@ -4598,7 +4598,7 @@ const EU = {
         <tr><td>Versicherter Verdienst</td><td>CHF ${fmtCHF(versichert)}</td></tr>
         <tr><td>Taggeldsatz</td><td>${satz}%</td></tr>
         <tr><td>Taggeld/Tag</td><td>CHF ${fmtCHF(taggeld)}</td></tr>
-        <tr><td>ALV-Einkommen/Mt (× 21.7)</td><td>CHF ${fmtCHF(alvMt)}</td></tr>
+        <tr><td>ALV-Einkommen/Mt (× 30.42 Tage/Mt)</td><td>CHF ${fmtCHF(alvMt)}</td></tr>
         <tr><td>Anzahl Taggelder</td><td>${taggelder} Taggelder</td></tr>
         <tr><td>Bezugsdauer</td><td>ca. ${dauerMt.toFixed(1)} Monate</td></tr>
         <tr class="eu-tr-ausgaben"><td>Haushaltsbedarf/Mt</td><td>CHF ${fmtCHF(ausgaben)}</td></tr>
