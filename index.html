@@ -233,10 +233,10 @@
   /* ══ EU-ANALYSE (Schritt 4) ══ */
   .person-tab-bar { display:flex; gap:var(--space-xs); margin-bottom:var(--space-lg); border-bottom:2px solid var(--gray-light); }
   .person-tab-btn { padding:var(--space-sm) var(--space-lg); border:none; background:none; cursor:pointer; font-size:14px; font-weight:600; color:var(--gray-mid); border-bottom:3px solid transparent; margin-bottom:-2px; transition:all .2s; }
-  .person-tab-btn.active { color:var(--forest-green); border-bottom-color:var(--forest-green); }
+  .person-tab-btn.active { color:var(--primary); border-bottom-color:var(--primary); }
   .eu-scenario-tabs { display:flex; gap:var(--space-xs); margin-bottom:var(--space-lg); }
-  .eu-tab { padding:6px 20px; border:1.5px solid var(--gray-light); border-radius:20px; background:#fff; cursor:pointer; font-size:13px; font-weight:600; color:var(--gray-mid); transition:all .2s; }
-  .eu-tab.active { background:var(--forest-green); color:#fff; border-color:var(--forest-green); }
+  .eu-tab { padding:6px 20px; border:1.5px solid var(--gray-light); border-radius:20px; background:var(--gray-light); cursor:pointer; font-size:13px; font-weight:600; color:var(--gray-mid); transition:all .2s; }
+  .eu-tab.active { background:var(--primary); color:#fff; border-color:var(--primary); }
   .eu-grid { display:grid; grid-template-columns:380px 1fr; gap:var(--space-xl); align-items:start; }
   .eu-inputs-col { display:flex; flex-direction:column; gap:4px; }
   .eu-section-title { font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:.06em; color:var(--forest-green); padding:var(--space-xs) 0 2px; border-bottom:1px solid var(--gray-light); margin-bottom:4px; }
@@ -1371,7 +1371,7 @@
               <div class="eu-row"><label>Private Rente / Weitere</label><div class="eu-field-wrap"><span class="eu-chf">CHF</span><input type="text" class="eu-input" id="eu-p1-krank-priv-iv" oninput="euCalc('p1','krank')"><button class="eu-reset" onclick="euReset('p1','krank','priv-iv')" title="Zurücksetzen">↺</button></div><span class="eu-hint">aus Priv.-Vertrag</span></div>
 
               <div class="eu-section-title" style="margin-top:var(--space-md)">Ausgaben</div>
-              <div class="eu-row"><label>Haushaltsbedarf</label><div class="eu-field-wrap"><span class="eu-chf">CHF</span><input type="text" class="eu-input" id="eu-p1-krank-ausgaben" oninput="euCalc('p1','krank')"><button class="eu-reset" onclick="euReset('p1','krank','ausgaben')" title="Zurücksetzen">↺</button></div><span class="eu-hint">manuell erfassen</span></div>
+              <div class="eu-row"><label>Haushaltsbedarf</label><div class="eu-field-wrap"><input type="number" class="eu-input eu-input-sm" id="eu-p1-krank-ausgaben-pct" value="80" min="0" max="200" step="1" oninput="euCalc('p1','krank')"><span class="eu-chf">% Lohn</span><button class="eu-reset" onclick="euReset('p1','krank','ausgaben-pct')" title="Zurücksetzen">↺</button></div><span class="eu-hint" id="eu-p1-krank-ausgaben-chf">= CHF —/Mt.</span></div>
             </div>
             <div class="eu-chart-col">
               <div class="eu-chart-wrap"><canvas id="eu-chart-p1-krank"></canvas></div>
@@ -1397,7 +1397,7 @@
               <div class="eu-row"><label>Private Rente / Weitere</label><div class="eu-field-wrap"><span class="eu-chf">CHF</span><input type="text" class="eu-input" id="eu-p1-unfall-priv-iv" oninput="euCalc('p1','unfall')"><button class="eu-reset" onclick="euReset('p1','unfall','priv-iv')" title="Zurücksetzen">↺</button></div><span class="eu-hint">aus Priv.-Vertrag</span></div>
 
               <div class="eu-section-title" style="margin-top:var(--space-md)">Ausgaben</div>
-              <div class="eu-row"><label>Haushaltsbedarf</label><div class="eu-field-wrap"><span class="eu-chf">CHF</span><input type="text" class="eu-input" id="eu-p1-unfall-ausgaben" oninput="euCalc('p1','unfall')"><button class="eu-reset" onclick="euReset('p1','unfall','ausgaben')" title="Zurücksetzen">↺</button></div><span class="eu-hint">manuell erfassen</span></div>
+              <div class="eu-row"><label>Haushaltsbedarf</label><div class="eu-field-wrap"><input type="number" class="eu-input eu-input-sm" id="eu-p1-unfall-ausgaben-pct" value="80" min="0" max="200" step="1" oninput="euCalc('p1','unfall')"><span class="eu-chf">% Lohn</span><button class="eu-reset" onclick="euReset('p1','unfall','ausgaben-pct')" title="Zurücksetzen">↺</button></div><span class="eu-hint" id="eu-p1-unfall-ausgaben-chf">= CHF —/Mt.</span></div>
             </div>
             <div class="eu-chart-col">
               <div class="eu-chart-wrap"><canvas id="eu-chart-p1-unfall"></canvas></div>
@@ -1444,7 +1444,7 @@
               <div class="eu-row"><label>Dauer (Monate)</label><div class="eu-field-wrap"><input type="text" class="eu-input eu-readonly" id="eu-p1-alv-dauer" readonly></div><span class="eu-hint">Taggelder / 21.7</span></div>
 
               <div class="eu-section-title" style="margin-top:var(--space-md)">Ausgaben</div>
-              <div class="eu-row"><label>Haushaltsbedarf</label><div class="eu-field-wrap"><span class="eu-chf">CHF</span><input type="text" class="eu-input" id="eu-p1-alv-ausgaben" oninput="euCalc('p1','alv')"><button class="eu-reset" onclick="euReset('p1','alv','ausgaben')" title="Zurücksetzen">↺</button></div><span class="eu-hint">manuell erfassen</span></div>
+              <div class="eu-row"><label>Haushaltsbedarf</label><div class="eu-field-wrap"><input type="number" class="eu-input eu-input-sm" id="eu-p1-alv-ausgaben-pct" value="80" min="0" max="200" step="1" oninput="euCalc('p1','alv')"><span class="eu-chf">% Lohn</span><button class="eu-reset" onclick="euReset('p1','alv','ausgaben-pct')" title="Zurücksetzen">↺</button></div><span class="eu-hint" id="eu-p1-alv-ausgaben-chf">= CHF —/Mt.</span></div>
             </div>
             <div class="eu-chart-col">
               <div class="eu-chart-wrap"><canvas id="eu-chart-p1-alv"></canvas></div>
@@ -1479,7 +1479,7 @@
               <div class="eu-row"><label>PK-IV-Rente</label><div class="eu-field-wrap"><span class="eu-chf">CHF</span><input type="text" class="eu-input" id="eu-p2-krank-pk-iv" oninput="euCalc('p2','krank')"><button class="eu-reset" onclick="euReset('p2','krank','pk-iv')" title="Zurücksetzen">↺</button></div><span class="eu-hint">aus PK-Vertrag</span></div>
               <div class="eu-row"><label>Private Rente / Weitere</label><div class="eu-field-wrap"><span class="eu-chf">CHF</span><input type="text" class="eu-input" id="eu-p2-krank-priv-iv" oninput="euCalc('p2','krank')"><button class="eu-reset" onclick="euReset('p2','krank','priv-iv')" title="Zurücksetzen">↺</button></div><span class="eu-hint">aus Priv.-Vertrag</span></div>
               <div class="eu-section-title" style="margin-top:var(--space-md)">Ausgaben</div>
-              <div class="eu-row"><label>Haushaltsbedarf</label><div class="eu-field-wrap"><span class="eu-chf">CHF</span><input type="text" class="eu-input" id="eu-p2-krank-ausgaben" oninput="euCalc('p2','krank')"><button class="eu-reset" onclick="euReset('p2','krank','ausgaben')" title="Zurücksetzen">↺</button></div><span class="eu-hint">manuell erfassen</span></div>
+              <div class="eu-row"><label>Haushaltsbedarf</label><div class="eu-field-wrap"><input type="number" class="eu-input eu-input-sm" id="eu-p2-krank-ausgaben-pct" value="80" min="0" max="200" step="1" oninput="euCalc('p2','krank')"><span class="eu-chf">% Lohn</span><button class="eu-reset" onclick="euReset('p2','krank','ausgaben-pct')" title="Zurücksetzen">↺</button></div><span class="eu-hint" id="eu-p2-krank-ausgaben-chf">= CHF —/Mt.</span></div>
             </div>
             <div class="eu-chart-col">
               <div class="eu-chart-wrap"><canvas id="eu-chart-p2-krank"></canvas></div>
@@ -1503,7 +1503,7 @@
               <div class="eu-row"><label>PK-IV-Rente</label><div class="eu-field-wrap"><span class="eu-chf">CHF</span><input type="text" class="eu-input" id="eu-p2-unfall-pk-iv" oninput="euCalc('p2','unfall')"><button class="eu-reset" onclick="euReset('p2','unfall','pk-iv')" title="Zurücksetzen">↺</button></div><span class="eu-hint">aus PK-Vertrag</span></div>
               <div class="eu-row"><label>Private Rente / Weitere</label><div class="eu-field-wrap"><span class="eu-chf">CHF</span><input type="text" class="eu-input" id="eu-p2-unfall-priv-iv" oninput="euCalc('p2','unfall')"><button class="eu-reset" onclick="euReset('p2','unfall','priv-iv')" title="Zurücksetzen">↺</button></div><span class="eu-hint">aus Priv.-Vertrag</span></div>
               <div class="eu-section-title" style="margin-top:var(--space-md)">Ausgaben</div>
-              <div class="eu-row"><label>Haushaltsbedarf</label><div class="eu-field-wrap"><span class="eu-chf">CHF</span><input type="text" class="eu-input" id="eu-p2-unfall-ausgaben" oninput="euCalc('p2','unfall')"><button class="eu-reset" onclick="euReset('p2','unfall','ausgaben')" title="Zurücksetzen">↺</button></div><span class="eu-hint">manuell erfassen</span></div>
+              <div class="eu-row"><label>Haushaltsbedarf</label><div class="eu-field-wrap"><input type="number" class="eu-input eu-input-sm" id="eu-p2-unfall-ausgaben-pct" value="80" min="0" max="200" step="1" oninput="euCalc('p2','unfall')"><span class="eu-chf">% Lohn</span><button class="eu-reset" onclick="euReset('p2','unfall','ausgaben-pct')" title="Zurücksetzen">↺</button></div><span class="eu-hint" id="eu-p2-unfall-ausgaben-chf">= CHF —/Mt.</span></div>
             </div>
             <div class="eu-chart-col">
               <div class="eu-chart-wrap"><canvas id="eu-chart-p2-unfall"></canvas></div>
@@ -1549,7 +1549,7 @@
               <div class="eu-row"><label>ALV-Einkommen/Mt (× 21.7 Tage)</label><div class="eu-field-wrap"><span class="eu-chf">CHF</span><input type="text" class="eu-input eu-readonly" id="eu-p2-alv-monat" readonly></div><span class="eu-hint">auto berechnet</span></div>
               <div class="eu-row"><label>Dauer (Monate)</label><div class="eu-field-wrap"><input type="text" class="eu-input eu-readonly" id="eu-p2-alv-dauer" readonly></div><span class="eu-hint">Taggelder / 21.7</span></div>
               <div class="eu-section-title" style="margin-top:var(--space-md)">Ausgaben</div>
-              <div class="eu-row"><label>Haushaltsbedarf</label><div class="eu-field-wrap"><span class="eu-chf">CHF</span><input type="text" class="eu-input" id="eu-p2-alv-ausgaben" oninput="euCalc('p2','alv')"><button class="eu-reset" onclick="euReset('p2','alv','ausgaben')" title="Zurücksetzen">↺</button></div><span class="eu-hint">manuell erfassen</span></div>
+              <div class="eu-row"><label>Haushaltsbedarf</label><div class="eu-field-wrap"><input type="number" class="eu-input eu-input-sm" id="eu-p2-alv-ausgaben-pct" value="80" min="0" max="200" step="1" oninput="euCalc('p2','alv')"><span class="eu-chf">% Lohn</span><button class="eu-reset" onclick="euReset('p2','alv','ausgaben-pct')" title="Zurücksetzen">↺</button></div><span class="eu-hint" id="eu-p2-alv-ausgaben-chf">= CHF —/Mt.</span></div>
             </div>
             <div class="eu-chart-col">
               <div class="eu-chart-wrap"><canvas id="eu-chart-p2-alv"></canvas></div>
@@ -4334,12 +4334,12 @@ const EU = {
 
   // ── Initialisierung (wird beim Wechsel zu Schritt 4 aufgerufen) ──
   init() {
-    const personenAnzahl = parseInt(document.getElementById('personen-anzahl')?.value) || 1;
+    const pCount = (typeof personenAnzahl !== 'undefined') ? personenAnzahl : 1;
     const p2Bar = document.getElementById('eu-person-tab-bar');
-    if (p2Bar) p2Bar.style.display = personenAnzahl > 1 ? '' : 'none';
+    if (p2Bar) p2Bar.style.display = pCount > 1 ? '' : 'none';
 
     ['p1', 'p2'].forEach(p => {
-      if (p === 'p2' && personenAnzahl < 2) return;
+      if (p === 'p2' && pCount < 2) return;
       this._populateDefaults(p);
       this._applyDefaults(p);
       ['krank','unfall','alv'].forEach(s => this._calc(p, s));
@@ -4349,8 +4349,7 @@ const EU = {
   // ── Defaults aus Schritt 1+2 berechnen ──
   _populateDefaults(person) {
     const brutto   = parseCHF(document.getElementById(`${person}-ahv-lohn`)?.value) || 0;
-    const netto    = parseInt(document.getElementById(`${person}-netto-computed`)?.value) || 0;
-    const nettoMt  = Math.round(netto / 12);
+    const nettoMt  = parseInt(document.getElementById(`${person}-netto-computed`)?.value) || 0; // bereits monatlich
     const hatKinder = document.querySelectorAll('.kind-item').length > 0;
     const alvSatz  = hatKinder ? '80' : '70';
 
@@ -4393,13 +4392,14 @@ const EU = {
     });
     const pkIvMt = Math.round(pkIvJahr / 12);
 
-    // Private: Erwerbsausfallrenten summieren
+    // Private: Erwerbsausfallrenten summieren (Jahreswert / 12 → Monat)
     let privIvMt = 0;
     document.querySelectorAll(`[data-person="${person}"].priv-item`).forEach(item => {
-      const id = item.dataset.privId;
+      const id  = item.dataset.privId;
       const art = document.getElementById(`priv-${id}-deckungsart`)?.value;
-      if (art === 'erwerbsausfall') {
-        privIvMt += parseCHF(document.getElementById(`priv-${id}-leistung`)?.value) || 0;
+      const lst = document.getElementById(`priv-${id}-leistungsart`)?.value;
+      if (art === 'erwerbsausfall' && lst === 'rente') {
+        privIvMt += Math.round((parseCHF(document.getElementById(`priv-${id}-leistung`)?.value) || 0) / 12);
       }
     });
 
@@ -4416,28 +4416,28 @@ const EU = {
     d[key('krank','ktg-taggeld')]  = { val: ktgTaggeld,    fmt: 'chf' };
     d[key('krank','ktg-wartefrist')]={ val: ktgWartefrist, fmt: 'num' };
     d[key('krank','ktg-dauer')]    = { val: ktgDauer,      fmt: 'num' };
-    d[key('krank','ahv-iv')]       = { val: 0,             fmt: 'chf' };
-    d[key('krank','pk-iv')]        = { val: pkIvMt,        fmt: 'chf' };
-    d[key('krank','priv-iv')]      = { val: privIvMt,      fmt: 'chf' };
-    d[key('krank','ausgaben')]     = { val: nettoMt,       fmt: 'chf' };
+    d[key('krank','ahv-iv')]            = { val: 0,         fmt: 'chf' };
+    d[key('krank','pk-iv')]             = { val: pkIvMt,   fmt: 'chf' };
+    d[key('krank','priv-iv')]           = { val: privIvMt, fmt: 'chf' };
+    d[key('krank','ausgaben-pct')]      = { val: 80,       fmt: 'num' };
 
     // Unfall
-    d[key('unfall','nettolohn')]   = { val: nettoMt,       fmt: 'chf' };
-    d[key('unfall','uvg-taggeld')] = { val: uvgTaggeld,    fmt: 'chf' };
-    d[key('unfall','uvgz')]        = { val: uvgzMt,        fmt: 'chf' };
-    d[key('unfall','uvg-iv')]      = { val: uvgIvMt,       fmt: 'chf' };
-    d[key('unfall','ahv-iv')]      = { val: 0,             fmt: 'chf' };
-    d[key('unfall','pk-iv')]       = { val: pkIvMt,        fmt: 'chf' };
-    d[key('unfall','priv-iv')]     = { val: privIvMt,      fmt: 'chf' };
-    d[key('unfall','ausgaben')]    = { val: nettoMt,       fmt: 'chf' };
+    d[key('unfall','nettolohn')]        = { val: nettoMt,    fmt: 'chf' };
+    d[key('unfall','uvg-taggeld')]      = { val: uvgTaggeld, fmt: 'chf' };
+    d[key('unfall','uvgz')]             = { val: uvgzMt,     fmt: 'chf' };
+    d[key('unfall','uvg-iv')]           = { val: uvgIvMt,    fmt: 'chf' };
+    d[key('unfall','ahv-iv')]           = { val: 0,          fmt: 'chf' };
+    d[key('unfall','pk-iv')]            = { val: pkIvMt,     fmt: 'chf' };
+    d[key('unfall','priv-iv')]          = { val: privIvMt,   fmt: 'chf' };
+    d[key('unfall','ausgaben-pct')]     = { val: 80,         fmt: 'num' };
 
     // ALV
-    d[key('alv','brutto')]         = { val: brutto,        fmt: 'chf' };
-    d[key('alv','versichert')]     = { val: versichert,    fmt: 'chf' };
-    d[key('alv','satz')]           = { val: alvSatz,       fmt: 'sel' };
-    d[key('alv','taggelder')]      = { val: '400',         fmt: 'sel' };
-    d[key('alv','taggeld')]        = { val: alvTaggeld,    fmt: 'chf' };
-    d[key('alv','ausgaben')]       = { val: nettoMt,       fmt: 'chf' };
+    d[key('alv','brutto')]              = { val: brutto,     fmt: 'chf' };
+    d[key('alv','versichert')]          = { val: versichert, fmt: 'chf' };
+    d[key('alv','satz')]                = { val: alvSatz,    fmt: 'sel' };
+    d[key('alv','taggelder')]           = { val: '400',      fmt: 'sel' };
+    d[key('alv','taggeld')]             = { val: alvTaggeld, fmt: 'chf' };
+    d[key('alv','ausgaben-pct')]        = { val: 80,         fmt: 'num' };
   },
 
   _applyDefaults(person) {
@@ -4470,7 +4470,12 @@ const EU = {
     const ahvIv    = g('ahv-iv');
     const pkIv     = g('pk-iv');
     const privIv   = g('priv-iv');
-    const ausgaben = g('ausgaben');
+
+    const brutto        = parseCHF(document.getElementById(`${person}-ahv-lohn`)?.value) || 0;
+    const ausgabenPct   = parseFloat(document.getElementById(`eu-${person}-krank-ausgaben-pct`)?.value) || 80;
+    const ausgaben      = Math.round(brutto / 12 * ausgabenPct / 100);
+    const ausgDispEl    = document.getElementById(`eu-${person}-krank-ausgaben-chf`);
+    if (ausgDispEl) ausgDispEl.textContent = `= CHF ${fmtCHF(ausgaben)}/Mt.`;
 
     const lfzMt  = Math.round(lfzTage / 21.7 * netto / (lfzTage / 21.7 || 1));
     const ktgMt  = Math.round(ktgTg * 21.7);
@@ -4493,11 +4498,11 @@ const EU = {
     const totale = [netto, ktgMt, ivTotal];
 
     this._renderChart(`eu-chart-${person}-krank`, phases.map(p => p.label), [
-      { label:'Lohnfortzahlung', data:[netto, 0, 0],    color:'#4CAF50' },
-      { label:'KTG',             data:[0, ktgMt, 0],    color:'#2196F3' },
-      { label:'AHV-IV-Rente',   data:[0, 0, ahvIv],    color:'#9C27B0' },
-      { label:'PK-IV-Rente',    data:[0, 0, pkIv],      color:'#FF9800' },
-      { label:'Private Rente',  data:[0, 0, privIv],    color:'#00BCD4' },
+      { label:'Lohnfortzahlung', data:[netto,  0,      0     ], color:'#2E3D32' },
+      { label:'KTG',             data:[0,      ktgMt,  0     ], color:'#D4703A' },
+      { label:'AHV-IV-Rente',   data:[0,      0,      ahvIv ], color:'#6B9E7A' },
+      { label:'PK-IV-Rente',    data:[0,      0,      pkIv  ], color:'#4A7C59' },
+      { label:'Private Rente',  data:[0,      0,      privIv], color:'#A0785A' },
     ], ausgaben);
 
     this._renderTable(`eu-table-${person}-krank`, rows, totale, phases, ausgaben);
@@ -4514,34 +4519,40 @@ const EU = {
     const ahvIv    = g('ahv-iv');
     const pkIv     = g('pk-iv');
     const privIv   = g('priv-iv');
-    const ausgaben = g('ausgaben');
 
-    const uvgMt    = Math.round(uvgTg * 21.7);
-    const ivTotal  = uvgIvMt + ahvIv + pkIv + privIv;
+    const brutto      = parseCHF(document.getElementById(`${person}-ahv-lohn`)?.value) || 0;
+    const ausgabenPct = parseFloat(document.getElementById(`eu-${person}-unfall-ausgaben-pct`)?.value) || 80;
+    const ausgaben    = Math.round(brutto / 12 * ausgabenPct / 100);
+    const ausgDispEl  = document.getElementById(`eu-${person}-unfall-ausgaben-chf`);
+    if (ausgDispEl) ausgDispEl.textContent = `= CHF ${fmtCHF(ausgaben)}/Mt.`;
 
-    const rows = [
-      { label: 'Nettolohn heute',          werte: [netto, '—', '—'] },
-      { label: 'UVG-Taggeld × 21.7',       werte: ['—', uvgMt, '—'] },
-      { label: 'UVGZ-Zusatz',              werte: ['—', uvgzMt, '—'] },
-      { label: 'UVG-Invalidenrente',        werte: ['—', '—', uvgIvMt] },
-      { label: 'AHV-IV-Rente',             werte: ['—', '—', ahvIv] },
-      { label: 'PK-IV-Rente',              werte: ['—', '—', pkIv] },
-      { label: 'Private Rente',             werte: ['—', '—', privIv] },
-    ];
+    const uvgMt   = Math.round(uvgTg * 21.7);
+    const ivTotal = uvgIvMt + ahvIv + pkIv + privIv;
+
     const phases = [
-      { label: 'UVG-Taggeld', dauer: 'bis 2 Jahre (730 Tage)', einnahmen: uvgMt + uvgzMt },
-      { label: 'UV-Invalidenrente', dauer: 'dauerhaft', einnahmen: ivTotal },
+      { label: 'Lohn heute',        dauer: 'Referenz',           einnahmen: netto },
+      { label: 'UVG-Taggeld-Phase', dauer: 'bis 2 Jahre',        einnahmen: uvgMt + uvgzMt },
+      { label: 'IV-Phase',          dauer: 'dauerhaft',          einnahmen: ivTotal },
+    ];
+    const rows = [
+      { label: 'Nettolohn heute',     werte: [netto,   '—',     '—'    ] },
+      { label: 'UVG-Taggeld × 21.7', werte: ['—',     uvgMt,   '—'    ] },
+      { label: 'UVGZ-Zusatz',        werte: ['—',     uvgzMt,  '—'    ] },
+      { label: 'UVG-Invalidenrente', werte: ['—',     '—',     uvgIvMt] },
+      { label: 'AHV-IV-Rente',       werte: ['—',     '—',     ahvIv  ] },
+      { label: 'PK-IV-Rente',        werte: ['—',     '—',     pkIv   ] },
+      { label: 'Private Rente',      werte: ['—',     '—',     privIv ] },
     ];
     const totale = [netto, uvgMt + uvgzMt, ivTotal];
 
-    this._renderChart(`eu-chart-${person}-unfall`, ['Lohn heute','UVG-Taggeld-Phase','IV-Phase'], [
-      { label:'Nettolohn',        data:[netto, 0, 0],      color:'#4CAF50' },
-      { label:'UVG-Taggeld',      data:[0, uvgMt, 0],      color:'#2196F3' },
-      { label:'UVGZ-Zusatz',      data:[0, uvgzMt, 0],     color:'#03A9F4' },
-      { label:'UVG-IV-Rente',     data:[0, 0, uvgIvMt],    color:'#FF5722' },
-      { label:'AHV-IV-Rente',     data:[0, 0, ahvIv],      color:'#9C27B0' },
-      { label:'PK-IV-Rente',      data:[0, 0, pkIv],        color:'#FF9800' },
-      { label:'Private Rente',    data:[0, 0, privIv],      color:'#00BCD4' },
+    this._renderChart(`eu-chart-${person}-unfall`, phases.map(p => p.label), [
+      { label:'Nettolohn',       data:[netto,    0,       0      ], color:'#4A7C59' },
+      { label:'UVG-Taggeld',     data:[0,        uvgMt,   0      ], color:'#C4A35A' },
+      { label:'UVGZ-Zusatz',     data:[0,        uvgzMt,  0      ], color:'#D4703A' },
+      { label:'UVG-IV-Rente',    data:[0,        0,       uvgIvMt], color:'#8B6347' },
+      { label:'AHV-IV-Rente',    data:[0,        0,       ahvIv  ], color:'#6B9E7A' },
+      { label:'PK-IV-Rente',     data:[0,        0,       pkIv   ], color:'#2E3D32' },
+      { label:'Private Rente',   data:[0,        0,       privIv ], color:'#A0785A' },
     ], ausgaben);
 
     this._renderTable(`eu-table-${person}-unfall`, rows, totale, phases, ausgaben);
@@ -4556,7 +4567,6 @@ const EU = {
     const satz       = parseInt(sel('satz')) || 80;
     const taggelder  = parseInt(sel('taggelder')) || 400;
     let   taggeld    = g('taggeld');
-    const ausgaben   = g('ausgaben');
 
     // Wenn taggeld-Feld leer oder 0 → auto berechnen
     if (!taggeld) taggeld = Math.round(versichert / 260 * satz / 100);
@@ -4569,13 +4579,16 @@ const EU = {
     if (monatEl) monatEl.value = fmtCHF(alvMt);
     if (dauerEl) dauerEl.value = `${dauerMt.toFixed(1)} Mt.`;
 
-    const brutto = g('brutto');
-    const nettoMt = parseCHF(document.getElementById(`${person}-netto-computed`)?.value) || 0;
-    const nettoMtRound = Math.round(nettoMt / 12);
+    const brutto      = g('brutto');
+    const nettoMtRound = parseInt(document.getElementById(`${person}-netto-computed`)?.value) || 0; // bereits monatlich
+    const ausgabenPct  = parseFloat(document.getElementById(`eu-${person}-alv-ausgaben-pct`)?.value) || 80;
+    const ausgaben     = Math.round(brutto / 12 * ausgabenPct / 100);
+    const ausgDispEl   = document.getElementById(`eu-${person}-alv-ausgaben-chf`);
+    if (ausgDispEl) ausgDispEl.textContent = `= CHF ${fmtCHF(ausgaben)}/Mt.`;
 
     this._renderChart(`eu-chart-${person}-alv`, ['Lohn heute', 'ALV-Leistung', 'Nach ALV'], [
-      { label:'Nettolohn', data:[nettoMtRound, 0, 0],  color:'#4CAF50' },
-      { label:'ALV',       data:[0, alvMt, 0],          color:'#2196F3' },
+      { label:'Nettolohn', data:[nettoMtRound, 0,     0], color:'#2E3D32' },
+      { label:'ALV',       data:[0,            alvMt, 0], color:'#D4703A' },
     ], ausgaben);
 
     const tableEl = document.getElementById(`eu-table-${person}-alv`);
@@ -4608,10 +4621,12 @@ const EU = {
         datasets: datasets.map(ds => ({
           label: ds.label,
           data: ds.data,
-          backgroundColor: ds.color + 'CC',
+          backgroundColor: ds.color + 'DD',
           borderColor: ds.color,
-          borderWidth: 1,
-          borderRadius: 4,
+          borderWidth: 0,
+          borderRadius: 0,
+          categoryPercentage: 1.0,
+          barPercentage: 1.0,
         })),
       },
       options: {
